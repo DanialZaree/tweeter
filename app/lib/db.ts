@@ -28,4 +28,4 @@ export default async function db(): Promise<Db> {
   return database;
 }
 
-console.log("Connecting to:", process.env.MONGODB_URI ? "URI Found" : "URI Missing");
+console.log('Connecting to:', process.env.MONGODB_URI ? 'URI Found' : 'URI Missing');

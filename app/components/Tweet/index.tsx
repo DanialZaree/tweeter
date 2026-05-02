@@ -14,17 +14,21 @@ interface TweetType {
     authorId: string;
     content: string;
     createdAt: Date | string;
-  } 
+    authorName: string;
+    authorUsername: string;
+    authorAvatar: string;
+    authorJob: string;
+  };
 }
 
 export default function Tweet({ data }: TweetType) {
-  
-  const { _id, authorId, content, createdAt } = data;
+  const { _id, authorId, content, createdAt, authorName, authorUsername, authorAvatar, authorJob } =
+    data;
   const createdAtDate = typeof createdAt === 'string' ? new Date(createdAt) : createdAt;
-  
+
   const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
   const formattedDate: string = createdAtDate.toLocaleDateString('en-US', options);
-  
+
   return (
     <div className="flex flex-col my-6 p-4 border border-surface rounded-xl w-full transition hover:-translate-y-0.5 duration-300">
       <div className="flex justify-between">
@@ -32,7 +36,7 @@ export default function Tweet({ data }: TweetType) {
           <div className="rounded-full outline-2 outline-border outline-offset-2 w-12 h-12 overflow-hidden">
             <Image
               alt="user-profile"
-              src={'/uploads/default.png'}
+              src={authorAvatar ? authorAvatar : '/uploads/default.png'}
               width={48}
               height={48}
               loading="lazy"
@@ -40,12 +44,12 @@ export default function Tweet({ data }: TweetType) {
             />
           </div>
           <div className="flex flex-col gap-0.5">
-            <div>Danial</div>
+            <div>{authorName}</div>
             <div className="flex flex-row items-center gap-1.5 text-text-muted text-sm">
               <div className="px-2 py-0.5 border border-text-subtle rounded-lg">
-                Front-Developer
+                {authorJob}
               </div>
-              <div>@Danial</div>
+              <div>@{authorUsername}</div>
             </div>
           </div>
         </div>
@@ -53,7 +57,7 @@ export default function Tweet({ data }: TweetType) {
           <MoreHorizontal className="text-text-muted hover:text-white" />
         </div>
       </div>
-      <div className="mt-2 text-[15px] wrap-break-word leading-relaxed tracking-wide">
+      <div className="mt-4 text-[16px] wrap-break-word leading-relaxed tracking-wide">
         {content}
       </div>
       <div className="flex flex-row justify-between mt-4">

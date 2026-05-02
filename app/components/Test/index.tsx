@@ -15,13 +15,13 @@ export default function Test() {
     async function showUser() {
       try {
         const req = await axios.get(`/api/tweets`);
-        const res = req.data
+        const res = req.data;
         console.log(res);
       } catch (e) {
         console.log(e);
       }
     }
-    showUser()
+    showUser();
   }, []);
   function submitHandler() {}
   return (

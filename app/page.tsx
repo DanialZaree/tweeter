@@ -9,7 +9,7 @@ export default function Home() {
     <>
       <Frame>
         <Navbar />
-        <Suspense  fallback={<div>Loading tweets...</div>}>
+        <Suspense fallback={<div>Loading tweets...</div>}>
           <TweetList />
         </Suspense>
         <Test />
