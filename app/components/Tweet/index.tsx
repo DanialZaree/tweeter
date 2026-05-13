@@ -46,9 +46,7 @@ export default function Tweet({ data }: TweetType) {
           <div className="flex flex-col gap-0.5">
             <div>{authorName}</div>
             <div className="flex flex-row items-center gap-1.5 text-text-muted text-sm">
-              <div className="px-2 py-0.5 border border-text-subtle rounded-lg">
-                {authorJob}
-              </div>
+              <div className="px-2 py-0.5 border border-text-subtle rounded-lg">{authorJob}</div>
               <div>@{authorUsername}</div>
             </div>
           </div>

@@ -11,7 +11,9 @@
     "check-format": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\""
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.11.2",
     "@hookform/resolvers": "^5.2.2",
+    "@prisma/client": "^7.8.0",
     "axios": "^1.15.2",
     "dotenv": "^17.4.2",
     "lucide-react": "^1.8.0",
