@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`h-full antialiased dark`}>
       <body
-        className={`${myFont.className} flex flex-col min-h-full dark `}
+        className={`${myFont.className} flex flex-col min-h-full dark root`}
         cz-shortcut-listen="false"
       >
         {children}
