@@ -9,6 +9,7 @@ datasource db {
 
 model Tweet {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  tweetId   String
   authorId  String   @db.ObjectId
   content   String
   createdAt DateTime @default(now()) @map("createdAt")

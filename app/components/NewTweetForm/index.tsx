@@ -1,23 +1,53 @@
 'use client';
 import * as React from 'react';
 import { z } from 'zod';
-import { useForm, Controller } from 'react-hook-form';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { Button } from '@base-ui/react/button';
 
-const imageSchema = z.union([
-  z.instanceof(File).refine((file) => file.type.startsWith('image/') || file.type === 'image/gif', {
-    message: 'File must be an image (jpg, png) or a GIF.',
-  }),
-]);
-
 const schema = z.object({
-  tweet: z
-    .string()
-    .max(500, 'It exceeds 500 characters.')
-    .min(1, 'It must be at least 1 character long.'),
-  image: imageSchema,
+  Tweet: z.string().min(1, 'Name is required'),
 });
 
-type FormField = z.infer<typeof schema>;
+async function submitForm(formValues: Form.Values) {
+  const result = schema.safeParse(formValues);
+
+  if (!result.success) {
+    return {
+      errors: z.flattenError(result.error).fieldErrors,
+    };
+  }
+
+  return {
+    errors: {},
+  };
+}
+
+export default function NewTweetForm() {
+  const [errors, setErrors] = React.useState({});
+
+  return (
+    <Form
+      className="flex flex-col gap-4 w-full max-w-64"
+      errors={errors}
+      onFormSubmit={async (formValues) => {
+        const response = await submitForm(formValues);
+        setErrors(response.errors);
+      }}
+    >
+      <Field.Root name="tweet" className="flex flex-col items-start gap-1">
+        <Field.Control
+          placeholder="Enter tweet"
+          className="pl-3.5 border border-border/60 rounded-md focus:outline-2 focus:outline-white focus:-outline-offset-1 w-full h-10 font-normal text-white text-base"
+        />
+        <Field.Error className="text-red-800 text-sm" />
+      </Field.Root>
+      <Button
+        type="submit"
+        className="flex justify-center items-center bg-foreground hover:bg-gray-100 hover:data-disabled:bg-gray-50 active:bg-gray-200 active:data-disabled:bg-gray-50 active:data-disabled:shadow-none active:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] m-0 px-3.5 border border-gray-200 active:border-t-gray-300 active:data-disabled:border-t-gray-200 rounded-md outline-0 focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1 h-10 font-inherit font-normal text-gray-900 data-disabled:text-gray-500 text-base leading-6 cursor-pointer select-none"
+      >
+        Submit
+      </Button>
+    </Form>
+  );
+}

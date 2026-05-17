@@ -14,15 +14,19 @@ interface TweetType {
     authorId: string;
     content: string;
     createdAt: Date | string;
-    authorName: string;
-    authorUsername: string;
-    authorAvatar: string;
-    authorJob: string;
+    author: {
+      id: string
+      name: string
+      createdAt:  Date | string
+      job: string
+      avatar: ""
+      userName: string
+    }
   };
 }
 
 export default function Tweet({ data }: TweetType) {
-  const { _id, authorId, content, createdAt, authorName, authorUsername, authorAvatar, authorJob } =
+  const { _id, authorId, content, createdAt, author } =
     data;
   const createdAtDate = typeof createdAt === 'string' ? new Date(createdAt) : createdAt;
 
@@ -36,7 +40,7 @@ export default function Tweet({ data }: TweetType) {
           <div className="rounded-full outline-2 outline-border outline-offset-2 w-12 h-12 overflow-hidden">
             <Image
               alt="user-profile"
-              src={authorAvatar ? authorAvatar : '/uploads/default.png'}
+              src={author.avatar ? author.avatar : '/uploads/default.png'}
               width={48}
               height={48}
               loading="lazy"
@@ -44,10 +48,10 @@ export default function Tweet({ data }: TweetType) {
             />
           </div>
           <div className="flex flex-col gap-0.5">
-            <div>{authorName}</div>
+            <div>{author.name}</div>
             <div className="flex flex-row items-center gap-1.5 text-text-muted text-sm">
-              <div className="px-2 py-0.5 border border-text-subtle rounded-lg">{authorJob}</div>
-              <div>@{authorUsername}</div>
+              <div className="px-2 py-0.5 border border-text-subtle rounded-lg">{author.job}</div>
+              <div>@{author.userName}</div>
             </div>
           </div>
         </div>

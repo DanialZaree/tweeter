@@ -14,7 +14,7 @@ export default function Test() {
   useEffect(() => {
     async function showUser() {
       try {
-        const req = await axios.get(`/api/tweets`);
+        const req = await axios.get(`/api/tweet`);
         const res = req.data;
         console.log(res);
       } catch (e) {
