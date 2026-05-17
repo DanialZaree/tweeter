@@ -1,22 +1,19 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../app/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
 model Tweet {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  authorId  String
+  authorId  String   @db.ObjectId
   content   String
   createdAt DateTime @default(now()) @map("createdAt")
+
+  author User @relation(fields: [authorId], references: [id])
 }
 
 model User {
@@ -26,4 +23,5 @@ model User {
   job       String
   avatar    String   @default("")
   userName  String
+  tweets    Tweet[]
 }
