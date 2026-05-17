@@ -1,12 +1,12 @@
 'use client';
-import * as React from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { Button } from '@base-ui/react/button';
 
 const schema = z.object({
-  Tweet: z.string().min(1, 'Name is required'),
+  Tweet: z.string().min(1, 'Tweet is required'),
 });
 
 async function submitForm(formValues: Form.Values) {
@@ -24,11 +24,11 @@ async function submitForm(formValues: Form.Values) {
 }
 
 export default function NewTweetForm() {
-  const [errors, setErrors] = React.useState({});
+  const [errors, setErrors] = useState({});
 
   return (
     <Form
-      className="flex flex-col gap-4 w-full max-w-64"
+      className="flex flex-col gap-4 w-full max-w-2xl"
       errors={errors}
       onFormSubmit={async (formValues) => {
         const response = await submitForm(formValues);
@@ -37,8 +37,14 @@ export default function NewTweetForm() {
     >
       <Field.Root name="tweet" className="flex flex-col items-start gap-1">
         <Field.Control
-          placeholder="Enter tweet"
-          className="pl-3.5 border border-border/60 rounded-md focus:outline-2 focus:outline-white focus:-outline-offset-1 w-full h-10 font-normal text-white text-base"
+          render={(props) => (
+            <textarea
+              {...props}
+              rows={7}
+              placeholder="Enter tweet"
+              className="pt-3 pb-4 pl-3.5 border border-border/60 rounded-md focus:outline-2 focus:outline-white focus:-outline-offset-1 w-full font-normal text-white text-lg line-clamp-2 resize-y"
+            />
+          )}
         />
         <Field.Error className="text-red-800 text-sm" />
       </Field.Root>
