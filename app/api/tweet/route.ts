@@ -37,6 +37,7 @@ export async function POST(request: Request) {
     const tweet = await prisma.tweet.create({
       data: {
         authorId: body.authorId,
+        tweetId:"1",
         content: body.content,
         createdAt: new Date(),
       },
@@ -51,7 +52,7 @@ export async function POST(request: Request) {
       { status: 201 },
     );
   } catch (error) {
-    console.error('Error in POST:', error); // Log the error details
+    console.error('Error in POST:', error);
     return NextResponse.json({ error: 'Error in posting data' }, { status: 500 });
   }
 }
