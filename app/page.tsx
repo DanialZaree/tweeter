@@ -14,7 +14,7 @@ export default function Home() {
           <TweetList />
         </Suspense>
         <Test />
-        <NewTweet/>
+        <NewTweet />
       </Frame>
     </>
   );

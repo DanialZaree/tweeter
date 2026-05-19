@@ -6,7 +6,7 @@ export default function NewTweet() {
   return (
     <Drawer.Root>
       <Drawer.Trigger className="bottom-3 left-3 fixed flex justify-center items-center bg-gray-50 hover:bg-gray-100 active:bg-gray-100 p-3 border border-gray-200 rounded-full focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1 font-normal text-gray-900 text-base cursor-pointer select-none">
-        <Plus size={24}/>
+        <Plus size={24} />
       </Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Backdrop className="fixed supports-[-webkit-touch-callout:none]:absolute inset-0 bg-black data-ending-style:opacity-0 data-starting-style:opacity-0 [--backdrop-opacity:0.2] opacity-[calc(var(--backdrop-opacity)*(1-var(--drawer-swipe-progress)))] dark:[--backdrop-opacity:0.7] min-h-dvh transition-opacity duration-450 data-ending-style:duration-[calc(var(--drawer-swipe-strength)*400ms)] data-swiping:duration-0 ease-[cubic-bezier(0.32,0.72,0,1)] [--bleed:3rem]" />
@@ -17,7 +17,7 @@ export default function NewTweet() {
               <Drawer.Title className="mb-1 font-bold text-foreground text-xl text-center">
                 Make New Tweet
               </Drawer.Title>
-              <NewTweetForm/>
+              <NewTweetForm />
               {/* <div className="flex justify-center gap-4">
                 <Drawer.Close className="flex justify-center items-center bg-gray-50 hover:bg-gray-100 active:bg-gray-100 px-3.5 border border-gray-200 rounded-md focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1 h-10 font-normal text-gray-900 text-base select-none">
                   Close

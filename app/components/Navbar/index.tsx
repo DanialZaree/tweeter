@@ -7,7 +7,7 @@ import SignOutBtn from '../SignOutBtn';
 
 export default async function Navbar() {
   const session = await auth();
-  console.log(session?.user?.image);
+  console.log(session);
   return (
     <nav className="flex flex-row justify-between items-center bg-surface-2 mt-4 px-4 rounded-2xl w-full h-20">
       <Link href={'/profile'}>

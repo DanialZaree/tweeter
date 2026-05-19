@@ -15,19 +15,18 @@ interface TweetType {
     content: string;
     createdAt: Date | string;
     author: {
-      id: string
-      name: string
-      createdAt:  Date | string
-      job: string
-      avatar: ""
-      userName: string
-    }
+      id: string;
+      name: string;
+      createdAt: Date | string;
+      job: string;
+      avatar: '';
+      userName: string;
+    };
   };
 }
 
 export default function Tweet({ data }: TweetType) {
-  const { _id, authorId, content, createdAt, author } =
-    data;
+  const { _id, authorId, content, createdAt, author } = data;
   const createdAtDate = typeof createdAt === 'string' ? new Date(createdAt) : createdAt;
 
   const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };

@@ -8,13 +8,12 @@ export async function GET() {
   try {
     const tweets = await prisma.tweet.findMany({
       include: {
-        author:true
+        author: true,
       },
       orderBy: {
         createdAt: 'desc',
       },
     });
-
 
     return NextResponse.json(tweets);
   } catch (error) {
@@ -37,7 +36,7 @@ export async function POST(request: Request) {
     const tweet = await prisma.tweet.create({
       data: {
         authorId: body.authorId,
-        tweetId:"1",
+        tweetId: '1',
         content: body.content,
         createdAt: new Date(),
       },
