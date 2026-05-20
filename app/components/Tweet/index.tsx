@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import {
   MoreHorizontal,
   Repeat2,
@@ -10,7 +11,7 @@ import {
 
 interface TweetType {
   data: {
-    _id: string;
+    id: string;
     authorId: string;
     content: string;
     createdAt: Date | string;
@@ -19,14 +20,14 @@ interface TweetType {
       name: string;
       createdAt: Date | string;
       job: string;
-      avatar: '';
+      avatar: string;
       userName: string;
     };
   };
 }
 
 export default function Tweet({ data }: TweetType) {
-  const { _id, authorId, content, createdAt, author } = data;
+  const { id, authorId, content, createdAt, author } = data;
   const createdAtDate = typeof createdAt === 'string' ? new Date(createdAt) : createdAt;
 
   const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
@@ -99,6 +100,7 @@ export default function Tweet({ data }: TweetType) {
         </div>
         <div>{formattedDate}</div>
       </div>
+      <Link href={'/tweet/1'}>come</Link>
     </div>
   );
 }

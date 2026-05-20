@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import { notFound } from 'next/navigation';
 import axios from 'axios';
 
