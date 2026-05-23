@@ -1,4 +1,6 @@
 'use client';
+
+import { createTweet } from '@/app/lib/actions/tweet';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -20,8 +22,19 @@ export default function NewTweetForm() {
     resolver: zodResolver(schema),
   });
 
-  function onSubmit(data: FormData) {
-    console.log(data);
+  const authorId = '6a0a1237a4ccac4b80cf77fb';
+
+  async function onSubmit(data: FormData) {
+    const formData = new FormData();
+    formData.append('content', data.tweet);
+    formData.append('authorId', authorId);
+
+    const result = await createTweet(formData);
+    if (result.success) {
+      console.log('Success!');
+    } else {
+      console.error(result.error);
+    }
   }
 
   return (

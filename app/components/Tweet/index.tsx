@@ -13,6 +13,7 @@ interface TweetType {
   data: {
     id: string;
     authorId: string;
+    tweetId:string;
     content: string;
     createdAt: Date | string;
     author: {
@@ -27,7 +28,7 @@ interface TweetType {
 }
 
 export default function Tweet({ data }: TweetType) {
-  const { id, authorId, content, createdAt, author } = data;
+  const { id, authorId, content, createdAt, author ,tweetId} = data;
   const createdAtDate = typeof createdAt === 'string' ? new Date(createdAt) : createdAt;
 
   const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
@@ -100,7 +101,7 @@ export default function Tweet({ data }: TweetType) {
         </div>
         <div>{formattedDate}</div>
       </div>
-      <Link href={'/tweet/1'}>come</Link>
+      <Link href={`/tweet/${tweetId}`}>come</Link>
     </div>
   );
 }

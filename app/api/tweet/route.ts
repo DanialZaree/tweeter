@@ -33,14 +33,24 @@ export async function POST(request: Request) {
       );
     }
 
+    const latestTweet = await prisma.tweet.findFirst({
+      orderBy: {
+        tweetId: 'desc',
+      },
+    });
+
+    const newTweetId = latestTweet ? (parseInt(latestTweet.tweetId, 10) + 1).toString() : '1';
+
     const tweet = await prisma.tweet.create({
       data: {
         authorId: body.authorId,
-        tweetId: '1',
+        tweetId: newTweetId,
         content: body.content,
         createdAt: new Date(),
       },
     });
+
+    revalidatePath('/');
     return NextResponse.json(
       {
         id: tweet.id,
