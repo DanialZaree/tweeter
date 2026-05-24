@@ -6,6 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form } from '@base-ui/react/form';
 import { Button } from '@base-ui/react/button';
+import { useDrawerStore } from '@/app/store/useDrawerStore';
+
 
 const schema = z.object({
   tweet: z.string().trim().min(1, 'Tweet is required').max(500, 'Max character is 500'),
@@ -22,6 +24,8 @@ export default function NewTweetForm() {
     resolver: zodResolver(schema),
   });
 
+  const {closeDrawer} = useDrawerStore()
+
   const authorId = '6a0a1237a4ccac4b80cf77fb';
 
   async function onSubmit(data: FormData) {
@@ -32,6 +36,7 @@ export default function NewTweetForm() {
     const result = await createTweet(formData);
     if (result.success) {
       console.log('Success!');
+      closeDrawer()
     } else {
       console.error(result.error);
     }
