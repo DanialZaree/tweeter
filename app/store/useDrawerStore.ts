@@ -7,7 +7,7 @@ interface Drawerstate {
 }
 
 export const useDrawerStore = create<Drawerstate>((set) => ({
-  isOpen: true,
+  isOpen: false,
   openDrawer: () => set({ isOpen: true }),
   closeDrawer: () => set({ isOpen: false }),
 }));
