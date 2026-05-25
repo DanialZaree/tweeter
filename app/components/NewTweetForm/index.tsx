@@ -25,8 +25,8 @@ export default function NewTweetForm() {
     resolver: zodResolver(schema),
   });
 
-  const {closeDrawer} = useDrawerStore()
-  const {updateChar} = useCharLimitStore()
+  const { closeDrawer } = useDrawerStore();
+  const { updateChar } = useCharLimitStore();
 
   const authorId = '6a0a1237a4ccac4b80cf77fb';
 
@@ -38,27 +38,32 @@ export default function NewTweetForm() {
     const result = await createTweet(formData);
     if (result.success) {
       console.log('Success!');
-      closeDrawer()
+      closeDrawer();
     } else {
       console.error(result.error);
     }
   }
 
-function charLimitHandler(event: React.ChangeEvent<HTMLTextAreaElement>) {
-  const currentLength = event.target.value.length;
-  updateChar(currentLength);
-}
+  function charLimitHandler(event: React.ChangeEvent<HTMLTextAreaElement>) {
+    const currentLength = event.target.value.length;
+    updateChar(currentLength);
+  }
 
   return (
     <Form className="flex flex-col gap-4 w-full max-w-2xl" onSubmit={handleSubmit(onSubmit)}>
       <div className="flex flex-col items-start gap-1">
         <textarea
-          {...register('tweet')}
-          onChange={charLimitHandler}
+          {...register('tweet', {
+            onChange: (e) => {
+              charLimitHandler(e);
+            },
+          })}
           rows={7}
           placeholder="Enter tweet"
+          maxLength={500}
           className={`${errors.tweet ? 'focus:outline-red-500 border-red-500' : 'focus:outline-white'} pt-3 pb-10 pl-3.5 pr-2 border border-border/60 rounded-md focus:outline-2  focus:-outline-offset-1 w-full font-normal text-white text-lg resize-y`}
         />
+        <CharLimit charLimit={500} />
         {errors.tweet && <p className="text-red-800">{errors.tweet.message}</p>}
       </div>
       <Button
@@ -67,7 +72,6 @@ function charLimitHandler(event: React.ChangeEvent<HTMLTextAreaElement>) {
       >
         Submit
       </Button>
-      <CharLimit charLimit={500}/>
     </Form>
   );
 }
