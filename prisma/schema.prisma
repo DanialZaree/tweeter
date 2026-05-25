@@ -13,7 +13,7 @@ model Tweet {
   authorId  String    @db.ObjectId
   content   String
   createdAt DateTime  @default(now()) @map("createdAt")
-  viewCount Int       @default(0) 
+  viewCount Int       @default(0)
 
   author    User      @relation(fields: [authorId], references: [id])
   comments  Comment[]
@@ -23,12 +23,15 @@ model Tweet {
 model User {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
   userName  String    @unique
+  name      String
+  job       String
+  avatar    String
   tweets    Tweet[]
   likes     Like[]
   comments  Comment[]
 
-  followers  User[]   @relation("Followers", references: [id])
-  following   User[]   @relation("Following", references: [id])
+  followers  Follower[] @relation("UserFollowers")
+  following   Follower[] @relation("UserFollowing")
 }
 
 model Comment {
@@ -53,13 +56,11 @@ model Like {
   @@unique([userId, tweetId])
 }
 
-
 model Follower {
-  userId       String   @db.ObjectId
-  followerId   String   @db.ObjectId
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  followerId  String   @db.ObjectId
 
-  user         User     @relation("Following", fields: [userId], references: [id])
-  follower     User     @relation("Followers", fields: [followerId], references: [id])
-
-  @@id([userId, followerId])
+  user        User     @relation("UserFollowing", fields: [userId], references: [id])
+  follower    User     @relation("UserFollowers", fields: [followerId], references: [id])
 }

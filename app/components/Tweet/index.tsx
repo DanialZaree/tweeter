@@ -1,5 +1,9 @@
+'use client';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useMemo } from 'react';
+import { toggleTweetLike } from '@/app/lib/actions/actionLike';
+import { useLikeStore } from '@/app/store/useLikeStore';
 import {
   MoreHorizontal,
   Repeat2,
@@ -13,7 +17,7 @@ interface TweetType {
   data: {
     id: string;
     authorId: string;
-    tweetId:string;
+    tweetId: string;
     content: string;
     createdAt: Date | string;
     author: {
@@ -28,11 +32,27 @@ interface TweetType {
 }
 
 export default function Tweet({ data }: TweetType) {
-  const { id, authorId, content, createdAt, author ,tweetId} = data;
-  const createdAtDate = typeof createdAt === 'string' ? new Date(createdAt) : createdAt;
+  const { content, createdAt, author, tweetId } = data;
 
-  const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
-  const formattedDate: string = createdAtDate.toLocaleDateString('en-US', options);
+  const { likedTweets, likeCounts, optimisticToggleLike } = useLikeStore();
+
+  const isLiked = !!likedTweets[tweetId];
+  const currentLikes = likeCounts[tweetId] || 0;
+
+  const formattedDate = useMemo(() => {
+    const createdAtDate = typeof createdAt === 'string' ? new Date(createdAt) : createdAt;
+    return createdAtDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long' });
+  }, [createdAt]);
+
+  async function handleLike() {
+    optimisticToggleLike(tweetId);
+
+    const result = await toggleTweetLike(tweetId, '69efdb9197898e868db51d49');
+
+    if (!result.success) {
+      console.log('error like');
+    }
+  }
 
   return (
     <div className="flex flex-col my-6 p-4 border border-surface rounded-xl w-full transition hover:-translate-y-0.5 duration-300">
@@ -79,9 +99,17 @@ export default function Tweet({ data }: TweetType) {
           </div>
         </div>
         <div className="group flex items-center-safe gap-1 text-text-muted text-sm">
-          <div className="group-hover:text-red-500 duration-150">2</div>
-          <div className="hover:bg-red-500/10 p-1.5 rounded-full cursor-pointer">
-            <Heart size={20} className="text-text-muted group-hover:text-red-500 duration-150" />
+          <div className={`group-hover:text-red-500 duration-150 ${isLiked ? 'text-red-500' : 'text-text-muted'}`}>
+            {currentLikes}
+          </div>
+          <div
+            onClick={handleLike}
+            className="hover:bg-red-500/10 p-1.5 rounded-full cursor-pointer"
+          >
+            <Heart
+              size={20}
+              className={`${isLiked ? 'fill-red-500 text-red-500' : 'text-text-muted group-hover:text-red-500'}`}
+            />
           </div>
         </div>
         <div className="group flex items-center-safe gap-1 text-text-muted text-sm">
