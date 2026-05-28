@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useMemo } from 'react';
 import { toggleTweetLike } from '@/app/lib/actions/actionLike';
 import { useLikeStore } from '@/app/store/useLikeStore';
+import MoreTweetButton from '../ui/MoreTweetButton';
 import {
   MoreHorizontal,
   Repeat2,
@@ -68,7 +69,7 @@ export default function Tweet({ data }: TweetType) {
   }
 
   return (
-    <div className="flex flex-col my-6 p-4 border border-surface rounded-xl w-full transition hover:-translate-y-0.5 duration-300">
+    <div  className="flex flex-col my-6 p-4 border border-surface rounded-xl w-full transition hover:-translate-y-0.5 duration-300">
       <div className="flex justify-between">
         <div className="flex flex-row gap-3">
           <div className="rounded-full outline-2 outline-border outline-offset-2 w-12 h-12 overflow-hidden">
@@ -90,7 +91,8 @@ export default function Tweet({ data }: TweetType) {
           </div>
         </div>
         <div>
-          <MoreHorizontal className="text-text-muted hover:text-white" />
+          {/* <MoreHorizontal className="text-text-muted hover:text-white" /> */}
+          <MoreTweetButton />
         </div>
       </div>
       <div className="mt-4 text-[16px] wrap-break-word leading-relaxed tracking-wide">
@@ -144,7 +146,6 @@ export default function Tweet({ data }: TweetType) {
         </div>
         <div>{formattedDate}</div>
       </div>
-      <Link href={`/tweet/${tweetId}`}>come</Link>
     </div>
   );
 }

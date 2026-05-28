@@ -34,3 +34,39 @@ export async function createTweet(formData: FormData) {
     return { success: false, error: 'Failed to post tweet' };
   }
 }
+
+export async function allTweets() {
+  try {
+    const tweets = await prisma.tweet.findMany({
+      include: {
+        author: true,
+        likes: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+    return { success: true, tweets };
+  } catch (e) {
+    console.error('Error in allTweets:', e);
+    return { success: false, error: 'Failed to fetch tweets' };
+  }
+}
+
+export async function getTweetById(tweetId: string) {
+  try{
+    const tweet = await prisma.tweet.findUnique({
+      where:{
+        tweetId: tweetId,
+      },
+      include:{
+        author: true,
+        likes: true,
+      }
+    })
+    return { success: true, tweet };
+  }catch(e){
+    console.error('Error in getTweetById:', e);
+    return { success: false, error: 'Failed to fetch tweet' };
+  }
+}

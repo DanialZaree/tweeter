@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import axios from 'axios';
+import { getTweetById } from '@/app/lib/actions/tweet';
 import Tweet from '@/app/components/Tweet';
 
 export default async function TweetPage({ params }: { params: Promise<{ tweet: string }> }) {
@@ -7,8 +7,11 @@ export default async function TweetPage({ params }: { params: Promise<{ tweet: s
   const tweetid = resolvedParams.tweet;
 
   try {
-    const res = await axios.get(`http://localhost:3000/api/tweet/${tweetid}`);
-    const tweet = res.data;
+    const {tweet,success,error} = await getTweetById(tweetid);
+
+    if (!success) {
+      return <div>{error}</div>;
+    }
 
     if (!tweet) notFound();
     return (
@@ -16,5 +19,7 @@ export default async function TweetPage({ params }: { params: Promise<{ tweet: s
         <Tweet data={tweet} />
       </div>
     );
-  } catch (e) {}
+  } catch (e) {
+    return <div>Failed to fetch tweet</div>;
+  }
 }

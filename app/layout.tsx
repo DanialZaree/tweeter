@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
+import { cn } from "@/lib/utils";
+
 
 const myFont = localFont({
   src: '../public/fonts/font.ttf',
@@ -18,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`h-full antialiased dark`}>
+    <html lang="en" className={cn("h-full", "antialiased", "dark", "font-sans", myFont.className)}>
       <body
         className={`${myFont.className} flex flex-col min-h-full dark root`}
         cz-shortcut-listen="false"

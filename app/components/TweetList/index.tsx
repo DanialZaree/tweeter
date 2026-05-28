@@ -1,17 +1,16 @@
-import axios from 'axios';
+import { allTweets } from '@/app/lib/actions/tweet';
 import Tweet from '../Tweet';
 
 export default async function TweetList() {
-  const req = await fetch(`http://localhost:3000/api/tweet`);
-  const tweets = await req.json();
+  const { success, tweets, error } = await allTweets();
 
-  if (!Array.isArray(tweets)) {
-    return <div>Error loading tweets</div>;
+  if (!success) {
+    return <div>{error}</div>;
   }
 
   return (
     <div className="mx-auto max-w-xl">
-      {tweets.map((tweet: any) => (
+      {tweets?.map((tweet: any) => (
         <Tweet key={tweet.id} data={tweet} />
       ))}
     </div>

@@ -26,6 +26,7 @@ model User {
   name      String
   job       String
   avatar    String
+  createdAt DateTime  @default(now()) @map("createdAt")
   tweets    Tweet[]
   likes     Like[]
   comments  Comment[]
