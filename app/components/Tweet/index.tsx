@@ -28,16 +28,21 @@ interface TweetType {
       avatar: string;
       userName: string;
     };
+    likes: {
+      id: string;
+      userId: string;
+      tweetId: string;
+    }[];
   };
 }
 
 export default function Tweet({ data }: TweetType) {
-  const { content, createdAt, author, tweetId } = data;
+  const { content, createdAt, author, tweetId, id } = data;
 
   const { likedTweets, likeCounts, optimisticToggleLike } = useLikeStore();
 
   const isLiked = !!likedTweets[tweetId];
-  const currentLikes = likeCounts[tweetId] || 0;
+  const currentLikes = likeCounts[tweetId] ?? data.likes.length;
 
   const formattedDate = useMemo(() => {
     const createdAtDate = typeof createdAt === 'string' ? new Date(createdAt) : createdAt;
@@ -45,12 +50,20 @@ export default function Tweet({ data }: TweetType) {
   }, [createdAt]);
 
   async function handleLike() {
+    console.log('Sending Tweet ID:', tweetId);
+    const previousLiked = useLikeStore.getState().likedTweets[tweetId];
+    const previousCount = useLikeStore.getState().likeCounts[tweetId];
+
     optimisticToggleLike(tweetId);
 
-    const result = await toggleTweetLike(tweetId, '69efdb9197898e868db51d49');
+    const result = await toggleTweetLike(id, '69efdb9197898e868db51d49');
 
     if (!result.success) {
       console.log('error like');
+      useLikeStore.setState((state) => ({
+        likedTweets: { ...state.likedTweets, [tweetId]: previousLiked },
+        likeCounts: { ...state.likeCounts, [tweetId]: previousCount },
+      }));
     }
   }
 
@@ -99,7 +112,9 @@ export default function Tweet({ data }: TweetType) {
           </div>
         </div>
         <div className="group flex items-center-safe gap-1 text-text-muted text-sm">
-          <div className={`group-hover:text-red-500 duration-150 ${isLiked ? 'text-red-500' : 'text-text-muted'}`}>
+          <div
+            className={`group-hover:text-red-500 duration-150 ${isLiked ? 'text-red-500' : 'text-text-muted'}`}
+          >
             {currentLikes}
           </div>
           <div

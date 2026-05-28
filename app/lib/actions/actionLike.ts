@@ -16,7 +16,12 @@ export async function toggleTweetLike(tweetId: string, userId: string) {
 
     if (existingLike) {
       await prisma.like.delete({
-        where: { id: existingLike.id },
+        where: {
+          userId_tweetId: {
+            userId: userId,
+            tweetId: tweetId,
+          },
+        },
       });
     } else {
       await prisma.like.create({
@@ -26,10 +31,10 @@ export async function toggleTweetLike(tweetId: string, userId: string) {
         },
       });
     }
-    revalidatePath('/feed');
+    revalidatePath('/');
     return { success: true };
   } catch (error) {
-    console.error("Error toggling like:", error);
-    return { success: false, error: "Something went wrong" };
+    console.error('Error toggling like:', error);
+    return { success: false, error: 'Something went wrong' };
   }
 }

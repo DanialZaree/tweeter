@@ -9,6 +9,7 @@ export async function GET() {
     const tweets = await prisma.tweet.findMany({
       include: {
         author: true,
+        likes: true,
       },
       orderBy: {
         createdAt: 'desc',
