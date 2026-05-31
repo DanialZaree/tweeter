@@ -1,10 +1,12 @@
 'use client';
+import { registerUser } from '@/app/lib/actions/actionAuth';
 import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { Field } from '@base-ui/react/field';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { da } from 'zod/v4/locales';
 
 const schema = z
   .object({
@@ -36,8 +38,14 @@ export default function SignUp() {
   });
   const [showPassword, setShowPassword] = useState(false);
 
-  function onSubmit(data: FormData) {
-    console.log(data);
+  async function onSubmit(data: FormData) {
+    try {
+      const { confirmPassword, ...submissionData } = data;
+      const result = await registerUser(submissionData);
+      console.log('Registration successful:', result);
+    } catch (e) {
+      console.error('Error:', e);
+    }
   }
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3 w-full">
@@ -91,6 +99,24 @@ export default function SignUp() {
           </button>
         </div>
         {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
+      </Field.Root>
+
+      {/* CONFIRM PASSWORD */}
+      <Field.Root className="relative flex flex-col gap-1">
+        <Field.Label>Confirm Password</Field.Label>
+        <div className="relative">
+          <Field.Control
+            {...register('confirmPassword')}
+            name="confirmPassword"
+            placeholder="confirm password"
+            type={showPassword ? 'text' : 'password'}
+            required
+            className="p-2 pr-10 border w-full"
+          />
+        </div>
+        {errors.confirmPassword && (
+          <p className="text-red-500 text-sm">{errors.confirmPassword.message}</p>
+        )}
       </Field.Root>
 
       <button

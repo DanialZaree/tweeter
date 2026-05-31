@@ -3,10 +3,14 @@
 import bcrypt from 'bcrypt';
 import prisma from '../prisma';
 
-export async function register(formdata: FormData) {
-  const userName = formdata.get('userName') as string;
-  const email = formdata.get('email') as string;
-  const password = formdata.get('password') as string;
+interface RegisterData {
+  userName: string;
+  email: string;
+  password: string;
+}
+
+export async function registerUser(data: RegisterData) {
+    const { userName, email, password } = data;
 
   if (!email || !password || !userName) {
     throw new Error("missing fields")

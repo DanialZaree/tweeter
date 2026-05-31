@@ -1,3 +1,4 @@
+import { auth } from './auth';
 import Navbar from './components/Navbar';
 import Frame from './components/Frame';
 import TweetList from './components/TweetList';
@@ -6,6 +7,7 @@ import NewTweet from './components/ui/NewTweet';
 import { Suspense } from 'react';
 
 export default function Home() {
+  console.log(auth)
   return (
     <>
       <Frame>
