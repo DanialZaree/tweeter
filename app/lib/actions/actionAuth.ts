@@ -2,6 +2,7 @@
 
 import bcrypt from 'bcrypt';
 import prisma from '../prisma';
+import { signIn } from '@/app/auth';
 
 interface RegisterData {
   userName: string;
@@ -10,17 +11,24 @@ interface RegisterData {
 }
 
 export async function registerUser(data: RegisterData) {
-    const { userName, email, password } = data;
+  const { userName, email, password } = data;
 
   if (!email || !password || !userName) {
-    throw new Error("missing fields")
+    throw new Error('missing fields');
+  }
+
+  const existingEmail = await prisma.user.findUnique({
+    where: { email: email },
+  });
+  if (existingEmail) {
+    throw new Error('email already exists');
   }
 
   const existingUser = await prisma.user.findUnique({
-    where: { email: email, userName: userName },
+    where: { userName: userName },
   });
   if (existingUser) {
-    throw new Error('email or username already exists');
+    throw new Error('username already exists');
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -32,5 +40,11 @@ export async function registerUser(data: RegisterData) {
       userName: userName,
       name: userName,
     },
+  });
+
+  await signIn('credentials', {
+    email,
+    password,
+    redirectTo: '/',
   });
 }

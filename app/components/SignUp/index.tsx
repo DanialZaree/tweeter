@@ -6,7 +6,6 @@ import { Field } from '@base-ui/react/field';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { da } from 'zod/v4/locales';
 
 const schema = z
   .object({

@@ -7,7 +7,11 @@ import NewTweet from './components/ui/NewTweet';
 import { Suspense } from 'react';
 
 export default function Home() {
-  console.log(auth)
+  async function normal() {
+    const session = await auth();
+    console.log(session);
+  }
+  normal();
   return (
     <>
       <Frame>

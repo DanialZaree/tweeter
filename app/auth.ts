@@ -13,7 +13,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         const user = await prisma.user.findUnique({
-          where: { email: credentials?.email as string, userName: credentials?.userName as string },
+          where: { email: credentials?.email as string },
         });
 
         if (!user) return null;
@@ -30,6 +30,16 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       },
     }),
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) token.id = user.id;
+      return token;
+    },
+    async session({ session, token }) {
+      if (token?.id) session.user.id = token.id as string;
+      return session;
+    },
+  },
   pages: {
     signIn: '/auth',
   },
