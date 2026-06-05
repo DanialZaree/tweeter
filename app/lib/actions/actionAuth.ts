@@ -3,6 +3,7 @@
 import bcrypt from 'bcrypt';
 import prisma from '../prisma';
 import { signIn } from '@/app/auth';
+import { redirect } from 'next/navigation';
 
 interface RegisterData {
   userName: string;
@@ -47,4 +48,9 @@ export async function registerUser(data: RegisterData) {
     password,
     redirectTo: '/',
   });
+}
+
+export async function login(email: string, password: string) {
+  await signIn('credentials', { email, password, redirect: false });
+  redirect('/');
 }

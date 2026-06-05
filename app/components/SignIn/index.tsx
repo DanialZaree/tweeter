@@ -4,6 +4,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { Field } from '@base-ui/react/field';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { login } from '@/app/lib/actions/actionAuth';
 import { z } from 'zod';
 
 const schema = z.object({
@@ -21,14 +22,21 @@ export default function SignIn() {
     register,
     handleSubmit,
     formState: { errors },
+    setError,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
   const [showPassword, setShowPassword] = useState(false);
 
-  function onSubmit(data: FormData) {
-    console.log(data);
+  async function onSubmit(data: FormData) {
+    try {
+      await login(data.email, data.password);
+    } catch (e) {
+      console.error(e);
+      setError('password', { message: 'Invalid email or password' });
+    }
   }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3 w-full">
       {/* EMAIL */}
