@@ -5,15 +5,23 @@ import { revalidatePath } from 'next/cache';
 import { auth } from '@/app/auth';
 
 export async function createTweet(formData: FormData) {
-  
   const session = await auth();
   if (!session?.user?.id) {
     throw new Error('User not authenticated');
   }
-  formData.append('authorId', session?.user?.id);
-
+  const user = await prisma.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+    select: {
+      id: true,
+    },
+  });
+  if (!user) {
+    throw new Error('User not found');
+  }
+  const authorId = user.id;
   const content = formData.get('content') as string;
-  const authorId = formData.get('authorId') as string;
 
   if (!authorId || !content) {
     throw new Error('content and id required');
