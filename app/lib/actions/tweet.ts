@@ -2,8 +2,16 @@
 
 import prisma from '../prisma';
 import { revalidatePath } from 'next/cache';
+import { auth } from '@/app/auth';
 
 export async function createTweet(formData: FormData) {
+  
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('User not authenticated');
+  }
+  formData.append('authorId', session?.user?.id);
+
   const content = formData.get('content') as string;
   const authorId = formData.get('authorId') as string;
 
@@ -54,18 +62,18 @@ export async function allTweets() {
 }
 
 export async function getTweetById(tweetId: string) {
-  try{
+  try {
     const tweet = await prisma.tweet.findUnique({
-      where:{
+      where: {
         tweetId: tweetId,
       },
-      include:{
+      include: {
         author: true,
         likes: true,
-      }
-    })
+      },
+    });
     return { success: true, tweet };
-  }catch(e){
+  } catch (e) {
     console.error('Error in getTweetById:', e);
     return { success: false, error: 'Failed to fetch tweet' };
   }

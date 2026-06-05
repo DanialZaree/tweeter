@@ -32,6 +32,7 @@ export default function SignUp() {
     register,
     handleSubmit,
     formState: { errors },
+    setError,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
@@ -44,6 +45,15 @@ export default function SignUp() {
       console.log('Registration successful:', result);
     } catch (e) {
       console.error('Error:', e);
+      const message = (e as Error).message;
+
+    if (message === 'email already exists') {
+      setError('email', { message: 'Email already exists' });
+    } else if (message === 'username already exists') {
+      setError('userName', { message: 'Username already taken' });
+    } else {
+      setError('userName', { message: 'Something went wrong, try again' });
+    }
     }
   }
   return (
@@ -112,6 +122,14 @@ export default function SignUp() {
             required
             className="p-2 pr-10 border w-full"
           />
+
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="top-1/2 right-2 absolute text-gray-500 -translate-y-1/2 cursor-pointer"
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
         </div>
         {errors.confirmPassword && (
           <p className="text-red-500 text-sm">{errors.confirmPassword.message}</p>
