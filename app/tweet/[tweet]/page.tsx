@@ -7,7 +7,7 @@ export default async function TweetPage({ params }: { params: Promise<{ tweet: s
   const tweetid = resolvedParams.tweet;
 
   try {
-    const {tweet,success,error} = await getTweetById(tweetid);
+    const { tweet, success, error } = await getTweetById(tweetid);
 
     if (!success) {
       return <div>{error}</div>;

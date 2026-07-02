@@ -47,13 +47,13 @@ export default function SignUp() {
       console.error('Error:', e);
       const message = (e as Error).message;
 
-    if (message === 'email already exists') {
-      setError('email', { message: 'Email already exists' });
-    } else if (message === 'username already exists') {
-      setError('userName', { message: 'Username already taken' });
-    } else {
-      setError('userName', { message: 'Something went wrong, try again' });
-    }
+      if (message === 'email already exists') {
+        setError('email', { message: 'Email already exists' });
+      } else if (message === 'username already exists') {
+        setError('userName', { message: 'Username already taken' });
+      } else {
+        setError('userName', { message: 'Something went wrong, try again' });
+      }
     }
   }
   return (

@@ -69,7 +69,7 @@ export default function Tweet({ data }: TweetType) {
   }
 
   return (
-    <div  className="flex flex-col my-6 p-4 border border-surface rounded-xl w-full transition hover:-translate-y-0.5 duration-300">
+    <div className="flex flex-col my-6 p-4 border border-surface rounded-xl w-full transition hover:-translate-y-0.5 duration-300">
       <div className="flex justify-between">
         <div className="flex flex-row gap-3">
           <div className="rounded-full outline-2 outline-border outline-offset-2 w-12 h-12 overflow-hidden">
@@ -85,7 +85,9 @@ export default function Tweet({ data }: TweetType) {
           <div className="flex flex-col gap-0.5">
             <div>{author.name}</div>
             <div className="flex flex-row items-center gap-1.5 text-text-muted text-sm">
-              <div className="px-2 py-0.5 border border-text-subtle rounded-lg">{author.job}</div>
+              {author.job && (
+                <div className="px-2 py-0.5 border border-text-subtle rounded-lg">{author.job}</div>
+              )}
               <div>@{author.userName}</div>
             </div>
           </div>
@@ -95,7 +97,7 @@ export default function Tweet({ data }: TweetType) {
           <MoreTweetButton />
         </div>
       </div>
-      <div className="mt-4 text-[16px] wrap-break-word leading-relaxed tracking-wide">
+      <div className="mt-4 text-[16px] text-left wrap-break-word leading-relaxed tracking-wide">
         {content}
       </div>
       <div className="flex flex-row justify-between mt-4">

@@ -4,20 +4,23 @@ import Frame from './components/Frame';
 import TweetList from './components/TweetList';
 import Test from './components/Test';
 import NewTweet from './components/ui/NewTweet';
+import { allTweets } from './lib/actions/tweet';
 import { Suspense } from 'react';
 
-export default function Home() {
+export default async function Home() {
   async function normal() {
     const session = await auth();
     console.log(session);
   }
   normal();
+
+  const { success, tweets, error } = await allTweets();
   return (
     <>
       <Frame>
         <Navbar />
         <Suspense fallback={<div>Loading tweets...</div>}>
-          <TweetList />
+          <TweetList success={success} tweets={tweets ?? []} error={error} />
         </Suspense>
         <Test />
         <NewTweet />

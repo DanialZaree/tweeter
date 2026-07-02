@@ -86,3 +86,23 @@ export async function getTweetById(tweetId: string) {
     return { success: false, error: 'Failed to fetch tweet' };
   }
 }
+export async function getTweetByUserId(userId: string) {
+  try {
+    const tweets = await prisma.tweet.findMany({
+      where: {
+        authorId: userId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        author: true,
+        likes: true,
+      },
+    });
+    return { success: true, tweets };
+  } catch (e) {
+    console.error('Error in getTweetByUserId:', e);
+    return { success: false, error: 'Failed to fetch tweet' };
+  }
+}

@@ -13,6 +13,15 @@ export async function showProfile() {
     where: {
       id: session.user.id,
     },
+    include: {
+      _count: {
+        select: {
+          tweets: true,
+          followers: true,
+          following: true,
+        },
+      },
+    },
   });
   return user;
 }

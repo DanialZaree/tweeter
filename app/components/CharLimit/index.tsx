@@ -7,9 +7,9 @@ interface CharLimitProps {
 export default function CharLimit({ charLimit }: CharLimitProps) {
   const { character } = useCharLimitStore();
 
-  return(
-    <div className='text-white'>
+  return (
+    <div className="text-white">
       {character}/{charLimit}
     </div>
-  )
+  );
 }
