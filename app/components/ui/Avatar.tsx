@@ -18,7 +18,7 @@ export default function Avatar({ name, image, size = 96, className = '' }: Avata
 
   return (
     <div
-      className={`flex justify-center items-center border-4 border-black rounded-full overflow-hidden font-bold text-white shrink-0 ${bgGradient} ${className}`}
+      className={`flex justify-center items-center  rounded-full overflow-hidden font-bold text-white shrink-0 ${bgGradient} ${className}`}
       style={{
         width: `${size}px`,
         height: `${size}px`,
@@ -30,6 +30,7 @@ export default function Avatar({ name, image, size = 96, className = '' }: Avata
           src={image}
           width={size}
           height={size}
+          loading='eager'
           alt={name ?? 'Avatar'}
           className="w-full h-full object-cover"
         />

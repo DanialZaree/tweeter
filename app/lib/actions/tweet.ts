@@ -103,6 +103,6 @@ export async function getTweetByUserId(userId: string) {
     return { success: true, tweets };
   } catch (e) {
     console.error('Error in getTweetByUserId:', e);
-    return { success: false, error: 'Failed to fetch tweet' };
+    return { success: false, error: 'Failed to fetch tweets' };
   }
 }

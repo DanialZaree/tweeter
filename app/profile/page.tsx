@@ -3,7 +3,7 @@ import { getTweetByUserId } from '../lib/actions/tweet';
 import TweetList from '../components/TweetList';
 import Avatar from '../components/ui/Avatar';
 import { getGradientFromName } from '../lib/avatar';
-
+import Link from 'next/link';
 import { Calendar } from 'lucide-react';
 import { Tabs } from '@base-ui/react/tabs';
 
@@ -11,20 +11,21 @@ const tabClassName =
   'flex h-[calc(2rem+1px)] items-center justify-center bg-transparent px-2 py-0 font-inherit text-sm font-normal leading-5 break-keep cursor-pointer whitespace-nowrap text-neutral-600 outline-none select-none hover:text-neutral-950 data-active:text-neutral-950 dark:text-neutral-300 dark:hover:text-white dark:data-active:text-white';
 
 const panelClassName =
-  'col-start-1 row-start-1 flex w-full items-center justify-center bg-white p-4 text-center text-sm text-neutral-950 outline-none  dark:bg-neutral-950 dark:text-white [[hidden]]:hidden';
+  'col-start-1 row-start-1 flex w-full items-center justify-center bg-white p-4 text-center text-sm text-neutral-950 outline-none dark:bg-neutral-950 dark:text-white [&[hidden]]:hidden';
 
 export default async function Profile() {
   const user = await showProfile();
 
-  const bgGradient = user?.avatar ? 'bg-sky-500' : getGradientFromName(user?.userName);
+  const bgGradient = getGradientFromName(user?.userName);
 
   const { success, tweets, error } = await getTweetByUserId(user?.id ?? '');
+  const safeTweets = tweets ?? [];
   return (
     <div className="bg-black min-h-screen text-white">
       <div className="mx-auto border-white/10 border-x max-w-150">
         {/* Top nav */}
         <div className="top-0 z-10 sticky flex items-center gap-6 bg-black/80 backdrop-blur-md px-4 py-3 border-white/10 border-b">
-          <button className="hover:bg-white/10 p-2 rounded-full transition-colors">
+          <Link href="/" className="hover:bg-white/10 p-2 rounded-full transition-colors">
             <svg
               className="w-5 h-5"
               fill="none"
@@ -34,7 +35,7 @@ export default async function Profile() {
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
-          </button>
+          </Link>
           <div>
             <p className="font-bold text-[17px] leading-tight">{user?.name ?? 'Profile'}</p>
             <p className="text-[13px] text-white/50"> posts</p>
@@ -44,7 +45,7 @@ export default async function Profile() {
         {/* Banner */}
         <div className={`relative  bg-linear-to-br ${bgGradient} w-full h-48`}>
           {/* Avatar */}
-          <div className="-bottom-12 left-4 absolute">
+          <div className="-bottom-12 left-4 absolute rounded-full outline-4 outline-surface-2 outline-offset-2">
             <Avatar name={user?.name} image={user?.avatar} className="" />
           </div>
         </div>
@@ -109,7 +110,11 @@ export default async function Profile() {
           </Tabs.List>
           <div className="grid grid-cols-1 w-full min-h-32">
             <Tabs.Panel className={panelClassName} value="tweets">
-              <TweetList success={success} tweets={tweets ?? []} error={error} />
+              {safeTweets?.length > 0 ? (
+                <TweetList success={success} tweets={safeTweets} error={error} />
+              ) : (
+                <p>No Tweets :/</p>
+              )}
             </Tabs.Panel>
             <Tabs.Panel className={panelClassName} value="replies">
               <p>Milestones and deadlines.</p>

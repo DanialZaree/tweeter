@@ -5,6 +5,8 @@ import { useMemo } from 'react';
 import { toggleTweetLike } from '@/app/lib/actions/actionLike';
 import { useLikeStore } from '@/app/store/useLikeStore';
 import MoreTweetButton from '../ui/MoreTweetButton';
+import { getGradientFromName } from '@/app/lib/avatar';
+import Avatar from '../ui/Avatar';
 import {
   MoreHorizontal,
   Repeat2,
@@ -40,6 +42,8 @@ interface TweetType {
 export default function Tweet({ data }: TweetType) {
   const { content, createdAt, author, tweetId, id } = data;
 
+  const bgGradient = author.avatar ? 'bg-sky-500' : getGradientFromName(author.userName);
+
   const { likedTweets, likeCounts, optimisticToggleLike } = useLikeStore();
 
   const isLiked = !!likedTweets[tweetId];
@@ -72,15 +76,8 @@ export default function Tweet({ data }: TweetType) {
     <div className="flex flex-col my-6 p-4 border border-surface rounded-xl w-full transition hover:-translate-y-0.5 duration-300">
       <div className="flex justify-between">
         <div className="flex flex-row gap-3">
-          <div className="rounded-full outline-2 outline-border outline-offset-2 w-12 h-12 overflow-hidden">
-            <Image
-              alt="user-profile"
-              src={author.avatar ? author.avatar : '/uploads/default.png'}
-              width={48}
-              height={48}
-              loading="lazy"
-              fetchPriority="auto"
-            />
+          <div className={`rounded-full outline-2 outline-surface-2 outline-offset-2 w-12 h-12 overflow-hidden ${bgGradient}`}>
+            <Avatar name={author?.name} image={author?.avatar} size={48} className="" />
           </div>
           <div className="flex flex-col gap-0.5">
             <div>{author.name}</div>
