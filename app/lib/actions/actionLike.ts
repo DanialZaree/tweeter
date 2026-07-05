@@ -2,9 +2,17 @@
 
 import prisma from '../prisma';
 import { revalidatePath } from 'next/cache';
+import { auth } from '@/app/auth';
 
-export async function toggleTweetLike(tweetId: string, userId: string) {
+export async function toggleTweetLike(tweetId: string) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    
+    if (!userId) {
+      return { success: false, error: 'Unauthorized' };
+    }
+
     const existingLike = await prisma.like.findUnique({
       where: {
         userId_tweetId: {

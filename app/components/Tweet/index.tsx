@@ -37,16 +37,18 @@ interface TweetType {
       tweetId: string;
     }[];
   };
+  currentUserId?: string;
 }
 
-export default function Tweet({ data }: TweetType) {
+export default function Tweet({ data, currentUserId }: TweetType) {
   const { content, createdAt, author, tweetId, id } = data;
 
   const bgGradient = author.avatar ? 'bg-sky-500' : getGradientFromName(author.userName);
 
-  const { likedTweets, likeCounts, optimisticToggleLike } = useLikeStore();
+  const { likedTweets, likeCounts, optimisticToggleLike, revertToggleLike } = useLikeStore();
 
-  const isLiked = !!likedTweets[tweetId];
+  const isLikedByCurrentUser = currentUserId ? data.likes.some((like) => like.userId === currentUserId) : false;
+  const isLiked = likedTweets[tweetId] ?? isLikedByCurrentUser;
   const currentLikes = likeCounts[tweetId] ?? data.likes.length;
 
   const formattedDate = useMemo(() => {
@@ -56,19 +58,16 @@ export default function Tweet({ data }: TweetType) {
 
   async function handleLike() {
     console.log('Sending Tweet ID:', tweetId);
-    const previousLiked = useLikeStore.getState().likedTweets[tweetId];
-    const previousCount = useLikeStore.getState().likeCounts[tweetId];
+    const previousLiked = isLiked;
+    const previousCount = currentLikes;
 
-    optimisticToggleLike(tweetId);
+    optimisticToggleLike(tweetId, isLiked, currentLikes);
 
-    const result = await toggleTweetLike(id, '69efdb9197898e868db51d49');
+    const result = await toggleTweetLike(id);
 
     if (!result.success) {
       console.log('error like');
-      useLikeStore.setState((state) => ({
-        likedTweets: { ...state.likedTweets, [tweetId]: previousLiked },
-        likeCounts: { ...state.likeCounts, [tweetId]: previousCount },
-      }));
+      revertToggleLike(tweetId, previousLiked, previousCount);
     }
   }
 

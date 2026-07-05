@@ -8,11 +8,8 @@ import { allTweets } from './lib/actions/tweet';
 import { Suspense } from 'react';
 
 export default async function Home() {
-  async function normal() {
-    const session = await auth();
-    console.log(session);
-  }
-  normal();
+  const session = await auth();
+  const currentUserId = session?.user?.id;
 
   const { success, tweets, error } = await allTweets();
   return (
@@ -20,7 +17,7 @@ export default async function Home() {
       <Frame>
         <Navbar />
         <Suspense fallback={<div>Loading tweets...</div>}>
-          <TweetList success={success} tweets={tweets ?? []} error={error} />
+          <TweetList success={success} tweets={tweets ?? []} error={error} currentUserId={currentUserId} />
         </Suspense>
         <Test />
         <NewTweet />
