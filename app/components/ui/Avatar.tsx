@@ -22,7 +22,7 @@ export default function Avatar({ name, image, size = 96, className = '' }: Avata
       style={{
         width: `${size}px`,
         height: `${size}px`,
-        fontSize: `${size / 2.5}px`, // Scales the letter automatically
+        fontSize: `${size / 2.5}px`, 
       }}
     >
       {image ? (

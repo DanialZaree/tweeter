@@ -76,11 +76,11 @@ export default function Tweet({ data }: TweetType) {
     <div className="flex flex-col my-6 p-4 border border-surface rounded-xl w-full transition hover:-translate-y-0.5 duration-300">
       <div className="flex justify-between">
         <div className="flex flex-row gap-3">
-          <div className={`rounded-full outline-2 outline-surface-2 outline-offset-2 w-12 h-12 overflow-hidden ${bgGradient}`}>
+          <Link className={`rounded-full outline-2 outline-surface-2 outline-offset-2 w-12 h-12 overflow-hidden ${bgGradient}`} href={`/${author.userName}`}>
             <Avatar name={author?.name} image={author?.avatar} size={48} className="" />
-          </div>
+          </Link>
           <div className="flex flex-col gap-0.5">
-            <div>{author.name}</div>
+            <div className='text-left'>{author.name}</div>
             <div className="flex flex-row items-center gap-1.5 text-text-muted text-sm">
               {author.job && (
                 <div className="px-2 py-0.5 border border-text-subtle rounded-lg">{author.job}</div>

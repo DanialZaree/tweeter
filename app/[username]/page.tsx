@@ -58,7 +58,7 @@ export default async function UserProfilePage({ params }: { params: { username: 
         {/* Edit / Follow row */}
         <div className="flex justify-end items-center gap-2 px-4 pt-3 pb-0">
           <button className="hover:bg-white/10 px-4 py-1.5 border border-white/20 rounded-full font-bold text-[14px] transition-colors">
-            Edit profile
+            Follow
           </button>
         </div>
 

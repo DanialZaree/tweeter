@@ -22,21 +22,30 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
         if (!valid) return null;
 
+        console.log("=== DB USER ===", user);
+
         return {
           id: user.id,
           email: user.email,
           name: user.name,
+          image: user.avatar, 
         };
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.id = user.id;
+      if (user) {
+        token.id = user.id;
+        token.picture = user.image; 
+      }
       return token;
     },
     async session({ session, token }) {
-      if (token?.id) session.user.id = token.id as string;
+      if (token?.id) {
+        session.user.id = token.id as string;
+        session.user.image = token.picture as string;
+      }
       return session;
     },
   },
