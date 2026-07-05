@@ -27,8 +27,8 @@ interface TweetType {
       id: string;
       name: string;
       createdAt: Date | string;
-      job: string;
-      avatar: string;
+      job: string | null;
+      avatar: string | null;
       userName: string;
     };
     likes: {
@@ -104,12 +104,12 @@ export default function Tweet({ data, currentUserId }: TweetType) {
         </div>
         <div className="group flex items-center-safe gap-1 text-text-muted text-sm">
           <div className="group-hover:text-blue-500 duration-150">2</div>
-          <div className="hover:bg-blue-500/10 p-1.5 rounded-full cursor-pointer">
+          <Link href={`/tweet/${tweetId}`} className="hover:bg-blue-500/10 p-1.5 rounded-full cursor-pointer">
             <MessageCircle
               size={20}
               className="text-text-muted group-hover:text-blue-500 duration-150"
             />
-          </div>
+          </Link>
         </div>
         <div className="group flex items-center-safe gap-1 text-text-muted text-sm">
           <div
