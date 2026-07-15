@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { auth } from '../auth';
 import { getTweetByUserId } from '../lib/actions/tweet';
 import { getUser } from '@/app/lib/actions/actionUser';
 import TweetList from '../components/TweetList';
@@ -7,6 +8,7 @@ import { getGradientFromName } from '../lib/avatar';
 import Link from 'next/link';
 import { Calendar } from 'lucide-react';
 import { Tabs } from '@base-ui/react/tabs';
+import Follow from '@/app/components/Follow';
 
 const tabClassName =
   'flex h-[calc(2rem+1px)] items-center justify-center bg-transparent px-2 py-0 font-inherit text-sm font-normal leading-5 break-keep cursor-pointer whitespace-nowrap text-neutral-600 outline-none select-none hover:text-neutral-950 data-active:text-neutral-950 dark:text-neutral-300 dark:hover:text-white dark:data-active:text-white';
@@ -18,6 +20,9 @@ export default async function UserProfilePage({ params }: { params: { username: 
   const { username } = await params;
   const user = await getUser({ userName: username });
 
+    const session = await auth();
+    const currentUserId = session?.user?.id;
+
   if (!user) notFound();
 
   const bgGradient = getGradientFromName(user?.userName);
@@ -25,6 +30,7 @@ export default async function UserProfilePage({ params }: { params: { username: 
 
     const { success, tweets, error } = await getTweetByUserId(user?.id ?? '');
     const safeTweets = tweets ?? [];
+  
   return (
     <div className="bg-black min-h-screen text-white">
       <div className="mx-auto border-white/10 border-x max-w-150">
@@ -57,9 +63,7 @@ export default async function UserProfilePage({ params }: { params: { username: 
 
         {/* Edit / Follow row */}
         <div className="flex justify-end items-center gap-2 px-4 pt-3 pb-0">
-          <button className="hover:bg-white/10 px-4 py-1.5 border border-white/20 rounded-full font-bold text-[14px] transition-colors">
-            Follow
-          </button>
+          <Follow userId={user?.id ?? ''} followerId={currentUserId ?? ''} />
         </div>
 
         {/* Profile info */}

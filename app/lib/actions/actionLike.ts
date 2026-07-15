@@ -39,7 +39,7 @@ export async function toggleTweetLike(tweetId: string) {
         },
       });
     }
-    revalidatePath('/');
+    revalidatePath('/', 'layout');
     return { success: true };
   } catch (error) {
     console.error('Error toggling like:', error);

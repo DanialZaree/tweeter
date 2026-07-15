@@ -25,7 +25,7 @@ export default async function TweetPage({ params }: { params: Promise<{ tweet: s
     }
 
     if (!tweet) notFound();
-    
+
     return (
       <Frame>
         <Navbar />

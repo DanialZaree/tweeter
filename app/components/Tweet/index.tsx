@@ -16,7 +16,7 @@ import {
   Bird,
 } from 'lucide-react';
 
-interface TweetType {
+export interface TweetType {
   data: {
     id: string;
     authorId: string;

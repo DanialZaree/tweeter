@@ -1,4 +1,4 @@
-import Tweet from '../Tweet';
+import Tweet, { TweetType } from '../Tweet';
 
 export default function TweetList({
   success,
@@ -7,7 +7,7 @@ export default function TweetList({
   currentUserId,
 }: {
   success: boolean;
-  tweets: any[];
+  tweets: TweetType['data'][];
   error: string | undefined;
   currentUserId?: string;
 }) {
