@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import prisma from '../lib/prisma';
 import { auth } from '../auth';
 import { getTweetByUserId } from '../lib/actions/tweet';
 import { getUser } from '@/app/lib/actions/actionUser';
@@ -30,6 +31,14 @@ export default async function UserProfilePage({ params }: { params: { username: 
 
     const { success, tweets, error } = await getTweetByUserId(user?.id ?? '');
     const safeTweets = tweets ?? [];
+
+    const existingFollow = await prisma.follower.findFirst({
+    where: {
+      userId: user?.id,
+      followerId: currentUserId,
+    },
+  });
+  const isCurrentlyFollowing = !!existingFollow;
   
   return (
     <div className="bg-black min-h-screen text-white">
@@ -63,7 +72,7 @@ export default async function UserProfilePage({ params }: { params: { username: 
 
         {/* Edit / Follow row */}
         <div className="flex justify-end items-center gap-2 px-4 pt-3 pb-0">
-          <Follow userId={user?.id ?? ''} followerId={currentUserId ?? ''} />
+          <Follow userId={user?.id ?? ''} followerId={currentUserId ?? ''} isCurrentlyFollowing={isCurrentlyFollowing} />
         </div>
 
         {/* Profile info */}
