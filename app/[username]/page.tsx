@@ -129,7 +129,7 @@ export default async function UserProfilePage({ params }: { params: { username: 
           <div className="grid grid-cols-1 w-full min-h-32">
             <Tabs.Panel className={panelClassName} value="tweets">
               {safeTweets?.length > 0 ? (
-                <TweetList success={success} tweets={safeTweets} error={error} />
+                <TweetList success={success} tweets={safeTweets} error={error} currentUserId={currentUserId} />
               ) : (
                 <p>No Tweets :/</p>
               )}

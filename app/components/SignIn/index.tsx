@@ -29,11 +29,9 @@ export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
 
   async function onSubmit(data: FormData) {
-    try {
-      await login(data.email, data.password);
-    } catch (e) {
-      console.error(e);
-      setError('password', { message: 'Invalid email or password' });
+    const result = await login(data.email, data.password);
+    if (result && !result.success) {
+      setError('password', { message: result.error || 'Invalid email or password' });
     }
   }
 

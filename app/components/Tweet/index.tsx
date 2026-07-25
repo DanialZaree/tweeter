@@ -47,9 +47,9 @@ export default function Tweet({ data, currentUserId }: TweetType) {
 
   const { likedTweets, likeCounts, optimisticToggleLike, revertToggleLike } = useLikeStore();
 
-  const isLikedByCurrentUser = currentUserId ? data.likes.some((like) => like.userId === currentUserId) : false;
-  const isLiked = likedTweets[tweetId] ?? isLikedByCurrentUser;
-  const currentLikes = likeCounts[tweetId] ?? data.likes.length;
+  const isLikedByCurrentUser = currentUserId ? data.likes?.some((like) => like.userId === currentUserId) : false;
+  const isLiked = likedTweets[id] ?? isLikedByCurrentUser;
+  const currentLikes = likeCounts[id] ?? (data.likes?.length ?? 0);
 
   const formattedDate = useMemo(() => {
     const createdAtDate = typeof createdAt === 'string' ? new Date(createdAt) : createdAt;
@@ -57,17 +57,17 @@ export default function Tweet({ data, currentUserId }: TweetType) {
   }, [createdAt]);
 
   async function handleLike() {
-    console.log('Sending Tweet ID:', tweetId);
+    console.log('Sending Tweet ID:', id);
     const previousLiked = isLiked;
     const previousCount = currentLikes;
 
-    optimisticToggleLike(tweetId, isLiked, currentLikes);
+    optimisticToggleLike(id, isLiked, currentLikes);
 
     const result = await toggleTweetLike(id);
 
-    if (!result.success) {
+    if (!result?.success) {
       console.log('error like');
-      revertToggleLike(tweetId, previousLiked, previousCount);
+      revertToggleLike(id, previousLiked, previousCount);
     }
   }
 
@@ -123,7 +123,8 @@ export default function Tweet({ data, currentUserId }: TweetType) {
           >
             <Heart
               size={20}
-              className={`${isLiked ? 'fill-red-500 text-red-500' : 'text-text-muted group-hover:text-red-500'}`}
+              fill={isLiked ? 'currentColor' : 'none'}
+              className={`${isLiked ? 'text-red-500' : 'text-text-muted group-hover:text-red-500'}`}
             />
           </div>
         </div>

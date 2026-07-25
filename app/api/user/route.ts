@@ -24,6 +24,8 @@ export async function POST(request: Request) {
         name: body.name,
         job: body.job,
         userName: body.userName,
+        email: body.email,
+        password: body.password,
         createdAt: new Date(),
       },
     });
@@ -34,4 +36,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Failed to create user' }, { status: 500 });
   }
 }
-export async function DELETE(requset: Request) {}
+export async function DELETE(request: Request) {
+  return NextResponse.json({ message: 'Not implemented' }, { status: 501 });
+}
+

@@ -39,20 +39,15 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
 
   async function onSubmit(data: FormData) {
-    try {
-      const { confirmPassword, ...submissionData } = data;
-      const result = await registerUser(submissionData);
-      console.log('Registration successful:', result);
-    } catch (e) {
-      console.error('Error:', e);
-      const message = (e as Error).message;
-
-      if (message === 'email already exists') {
+    const { confirmPassword, ...submissionData } = data;
+    const result = await registerUser(submissionData);
+    if (result && !result.success) {
+      if (result.error === 'email already exists') {
         setError('email', { message: 'Email already exists' });
-      } else if (message === 'username already exists') {
+      } else if (result.error === 'username already exists') {
         setError('userName', { message: 'Username already taken' });
       } else {
-        setError('userName', { message: 'Something went wrong, try again' });
+        setError('userName', { message: result.error || 'Something went wrong, try again' });
       }
     }
   }

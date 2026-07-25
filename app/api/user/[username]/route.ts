@@ -6,7 +6,7 @@ interface Params {
   username: string;
 }
 
-export async function GET(request: NextRequest, { params }: { params: Params }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<Params> }) {
   const { username } = await params;
 
   try {
