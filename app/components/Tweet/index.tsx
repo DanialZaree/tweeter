@@ -72,46 +72,44 @@ export default function Tweet({ data, currentUserId }: TweetType) {
   }
 
   return (
-    <div className="flex flex-col my-6 p-4 border border-surface rounded-xl w-full transition hover:-translate-y-0.5 duration-300">
-      <div className="flex justify-between">
-        <div className="flex flex-row gap-3">
-          <Link className={`rounded-full outline-2 outline-surface-2 outline-offset-2 w-12 h-12 overflow-hidden ${bgGradient}`} href={`/${author.userName}`}>
+    <div className="flex flex-col my-4 sm:my-6 p-3 sm:p-4 border border-surface rounded-xl w-full transition hover:-translate-y-0.5 duration-300">
+      <div className="flex justify-between items-start">
+        <div className="flex flex-row items-center gap-2.5 sm:gap-3 min-w-0">
+          <Link className={`shrink-0 rounded-full outline-2 outline-surface-2 outline-offset-2 w-10 h-10 sm:w-12 sm:h-12 overflow-hidden ${bgGradient}`} href={`/${author.userName}`}>
             <Avatar name={author?.name} image={author?.avatar} size={48} className="" />
           </Link>
-          <div className="flex flex-col gap-0.5">
-            <div className='text-left'>{author.name}</div>
-            <div className="flex flex-row items-center gap-1.5 text-text-muted text-sm">
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <div className='font-semibold text-sm sm:text-base text-left truncate'>{author.name}</div>
+            <div className="flex flex-wrap items-center gap-1.5 text-text-muted text-xs sm:text-sm truncate">
               {author.job && (
-                <div className="px-2 py-0.5 border border-text-subtle rounded-lg">{author.job}</div>
+                <div className="px-1.5 py-0.5 border border-text-subtle rounded-lg text-xs">{author.job}</div>
               )}
-              <div>@{author.userName}</div>
+              <div className="truncate">@{author.userName}</div>
             </div>
           </div>
         </div>
-        <div>
-          {/* <MoreHorizontal className="text-text-muted hover:text-white" /> */}
+        <div className="shrink-0">
           <MoreTweetButton />
         </div>
       </div>
-      <div className="mt-4 text-[16px] text-left wrap-break-word leading-relaxed tracking-wide">
+      <div className="mt-3 sm:mt-4 text-sm sm:text-[16px] text-left break-words leading-relaxed tracking-wide">
         {content}
       </div>
-      <div className="flex flex-row justify-between mt-4">
-        <div className="group flex items-center-safe gap-1 text-text-muted text-sm">
+      <div className="flex flex-row justify-between items-center mt-3 sm:mt-4 text-xs sm:text-sm">
+        <div className="group flex items-center gap-1 text-text-muted">
           <div className="hover:bg-green-500/10 p-1.5 rounded-full cursor-pointer">
-            <Repeat2 className="text-text-muted group-hover:text-green-500 duration-150" />
+            <Repeat2 className="w-4 h-4 sm:w-5 sm:h-5 text-text-muted group-hover:text-green-500 duration-150" />
           </div>
         </div>
-        <div className="group flex items-center-safe gap-1 text-text-muted text-sm">
+        <div className="group flex items-center gap-1 text-text-muted">
           <div className="group-hover:text-blue-500 duration-150">2</div>
           <Link href={`/tweet/${tweetId}`} className="hover:bg-blue-500/10 p-1.5 rounded-full cursor-pointer">
             <MessageCircle
-              size={20}
-              className="text-text-muted group-hover:text-blue-500 duration-150"
+              className="w-4 h-4 sm:w-5 sm:h-5 text-text-muted group-hover:text-blue-500 duration-150"
             />
           </Link>
         </div>
-        <div className="group flex items-center-safe gap-1 text-text-muted text-sm">
+        <div className="group flex items-center gap-1 text-text-muted">
           <div
             className={`group-hover:text-red-500 duration-150 ${isLiked ? 'text-red-500' : 'text-text-muted'}`}
           >
@@ -122,25 +120,23 @@ export default function Tweet({ data, currentUserId }: TweetType) {
             className="hover:bg-red-500/10 p-1.5 rounded-full cursor-pointer"
           >
             <Heart
-              size={20}
               fill={isLiked ? 'currentColor' : 'none'}
-              className={`${isLiked ? 'text-red-500' : 'text-text-muted group-hover:text-red-500'}`}
+              className={`w-4 h-4 sm:w-5 sm:h-5 ${isLiked ? 'text-red-500' : 'text-text-muted group-hover:text-red-500'}`}
             />
           </div>
         </div>
-        <div className="group flex items-center-safe gap-1 text-text-muted text-sm">
+        <div className="group flex items-center gap-1 text-text-muted">
           <div className="group-hover:text-blue-500 duration-150">2</div>
           <div className="hover:bg-blue-500/10 p-1.5 rounded-full cursor-pointer">
             <ChartNoAxesColumnIcon
-              size={20}
-              className="text-text-muted group-hover:text-blue-500 duration-150"
+              className="w-4 h-4 sm:w-5 sm:h-5 text-text-muted group-hover:text-blue-500 duration-150"
             />
           </div>
         </div>
       </div>
-      <div className="flex flex-row justify-between items-end mt-2 pt-2 border-surface border-t">
-        <div className="flex items-end gap-1">
-          <Bird />
+      <div className="flex flex-row justify-between items-end mt-2 pt-2 border-surface border-t text-xs sm:text-sm text-text-muted">
+        <div className="flex items-center gap-1">
+          <Bird className="w-4 h-4" />
           Tweeter
         </div>
         <div>{formattedDate}</div>

@@ -9,11 +9,16 @@ export default async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
+  if (pathname === '/auth' && request.nextUrl.searchParams.has('callbackUrl')) {
+    return NextResponse.redirect(new URL('/auth', request.url));
+  }
+
   const isProtected = protectedRoutes.some((route) => pathname.startsWith(route));
 
   if (isProtected && !session) {
-    return NextResponse.redirect(new URL('/api/auth/signin', request.nextUrl));
+    return NextResponse.redirect(new URL('/auth', request.url));
   }
 
   return NextResponse.next();
 }
+
