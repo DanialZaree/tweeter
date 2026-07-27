@@ -16,9 +16,9 @@ export default function NewTweet() {
     >
       <Drawer.Trigger
         onClick={openDrawer}
-        className="bottom-4 right-4 sm:bottom-6 sm:right-6 fixed z-40 flex justify-center items-center bg-blue-500 hover:bg-blue-600 active:bg-blue-700 p-3.5 sm:p-4 text-white border border-blue-400/30 rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 focus-visible:outline-2 cursor-pointer select-none"
+        className="bottom-4 right-4 sm:bottom-6 sm:right-6 fixed z-40 flex justify-center items-center bg-blue-500 hover:bg-blue-600 active:bg-blue-700 p-2.5 sm:p-3 text-white border border-blue-400/30 rounded-full shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 focus-visible:outline-2 cursor-pointer select-none"
       >
-        <Plus className="w-5 h-5 sm:w-6 sm:h-6" />
+        <Plus className="w-5 h-5" />
       </Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Backdrop className="fixed supports-[-webkit-touch-callout:none]:absolute inset-0 bg-black data-ending-style:opacity-0 data-starting-style:opacity-0 [--backdrop-opacity:0.2] opacity-[calc(var(--backdrop-opacity)*(1-var(--drawer-swipe-progress)))] dark:[--backdrop-opacity:0.7] min-h-dvh transition-opacity duration-450 data-ending-style:duration-[calc(var(--drawer-swipe-strength)*400ms)] data-swiping:duration-0 ease-[cubic-bezier(0.32,0.72,0,1)] [--bleed:3rem]" />

@@ -41,7 +41,7 @@ export default async function UserProfilePage({ params }: { params: { username: 
   const isCurrentlyFollowing = !!existingFollow;
   
   return (
-    <div className="bg-black min-h-screen text-white w-full">
+    <div className="bg-black w-full min-h-screen text-white">
       <div className="mx-auto border-white/10 sm:border-x w-full max-w-2xl min-h-screen">
         {/* Top nav */}
         <div className="top-0 z-10 sticky flex items-center gap-4 sm:gap-6 bg-black/80 backdrop-blur-md px-3 sm:px-4 py-3 border-white/10 border-b">
@@ -57,15 +57,20 @@ export default async function UserProfilePage({ params }: { params: { username: 
             </svg>
           </Link>
           <div>
-            <p className="font-bold text-base sm:text-[17px] leading-tight truncate">{user?.name ?? 'Profile'}</p>
-            <p className="text-xs sm:text-[13px] text-white/50">{safeTweets.length} posts</p>
+            <p className="font-bold sm:text-[17px] text-base truncate leading-tight">{user?.name ?? 'Profile'}</p>
+            <p className="text-white/50 sm:text-[13px] text-xs">{safeTweets.length} posts</p>
           </div>
         </div>
 
         {/* Banner */}
-        <div className={`relative bg-linear-to-br ${bgGradient} w-full h-36 sm:h-48`}>
+        <div
+          className={`relative w-full h-36 sm:h-48 bg-cover bg-center ${
+            !user?.coverImage ? `bg-linear-to-br ${bgGradient}` : ''
+          }`}
+          style={user?.coverImage ? { backgroundImage: `url(${user.coverImage})` } : {}}
+        >
           {/* Avatar */}
-          <div className="-bottom-10 sm:-bottom-12 left-3 sm:left-4 absolute rounded-full outline-4 outline-surface-2 outline-offset-2 w-20 h-20 sm:w-24 sm:h-24 overflow-hidden">
+          <div className="-bottom-10 sm:-bottom-12 left-3 sm:left-4 absolute rounded-full outline-4 outline-surface-2 outline-offset-2 w-20 sm:w-24 h-20 sm:h-24 overflow-hidden">
             <Avatar name={user?.name} image={user?.avatar} size={96} className="" />
           </div>
         </div>
@@ -78,17 +83,17 @@ export default async function UserProfilePage({ params }: { params: { username: 
         {/* Profile info */}
         <div className="px-3 sm:px-4 pt-10 sm:pt-12 pb-4">
           <div className="flex items-center gap-1">
-            <span className="font-extrabold text-lg sm:text-[20px] leading-tight">
+            <span className="font-extrabold sm:text-[20px] text-lg leading-tight">
               {user?.name ?? 'Jane Doe'}
             </span>
           </div>
-          <p className="mt-0.5 text-xs sm:text-[14px] text-white/50">@{user?.userName ?? 'janedoe'}</p>
+          <p className="mt-0.5 text-white/50 sm:text-[14px] text-xs">@{user?.userName ?? 'janedoe'}</p>
 
-          <p className="mt-3 text-sm sm:text-[15px] text-white/90 leading-relaxed">
+          <p className="mt-3 text-white/90 sm:text-[15px] text-sm leading-relaxed">
             {user?.bio ?? 'User too busy to write a bio :('}
           </p>
 
-          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs sm:text-[13px] text-white/50">
+          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-white/50 sm:text-[13px] text-xs">
             <span className="flex items-center gap-1">
               <Calendar className="w-3.5 h-3.5" />
               Joined {new Date(user?.createdAt ?? new Date()).toLocaleDateString('en-US', {
@@ -98,7 +103,7 @@ export default async function UserProfilePage({ params }: { params: { username: 
             </span>
           </div>
 
-          <div className="flex flex-wrap gap-4 sm:gap-5 mt-3 text-xs sm:text-[14px]">
+          <div className="flex flex-wrap gap-4 sm:gap-5 mt-3 sm:text-[14px] text-xs">
             <span>
               {/* Dynamic Following */}
               <span className="font-bold text-white">{user?._count?.following ?? 0}</span>
@@ -114,7 +119,7 @@ export default async function UserProfilePage({ params }: { params: { username: 
 
         {/* Tabs */}
         <Tabs.Root className="w-full" defaultValue="tweets">
-          <Tabs.List className="z-1 relative flex gap-1 mx-auto -mb-4 p-1 border-3 border-border rounded-3xl w-full max-w-xs sm:w-fit">
+          <Tabs.List className="z-1 relative flex gap-1 mx-auto -mb-4 p-1 border-3 border-border rounded-3xl w-full sm:w-fit max-w-xs">
             <Tabs.Tab className={`${tabClassName} flex-1`} value="tweets">
               Posts
             </Tabs.Tab>

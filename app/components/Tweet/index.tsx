@@ -47,9 +47,11 @@ export default function Tweet({ data, currentUserId }: TweetType) {
 
   const { likedTweets, likeCounts, optimisticToggleLike, revertToggleLike } = useLikeStore();
 
-  const isLikedByCurrentUser = currentUserId ? data.likes?.some((like) => like.userId === currentUserId) : false;
+  const isLikedByCurrentUser = currentUserId
+    ? data.likes?.some((like) => like.userId === currentUserId)
+    : false;
   const isLiked = likedTweets[id] ?? isLikedByCurrentUser;
-  const currentLikes = likeCounts[id] ?? (data.likes?.length ?? 0);
+  const currentLikes = likeCounts[id] ?? data.likes?.length ?? 0;
 
   const formattedDate = useMemo(() => {
     const createdAtDate = typeof createdAt === 'string' ? new Date(createdAt) : createdAt;
@@ -75,38 +77,44 @@ export default function Tweet({ data, currentUserId }: TweetType) {
     <div className="flex flex-col my-4 sm:my-6 p-3 sm:p-4 border border-surface rounded-xl w-full transition hover:-translate-y-0.5 duration-300">
       <div className="flex justify-between items-start">
         <div className="flex flex-row items-center gap-2.5 sm:gap-3 min-w-0">
-          <Link className={`shrink-0 rounded-full outline-2 outline-surface-2 outline-offset-2 w-10 h-10 sm:w-12 sm:h-12 overflow-hidden ${bgGradient}`} href={`/${author.userName}`}>
+          <Link
+            className={`shrink-0 rounded-full outline-2 outline-surface-2 outline-offset-2 w-10 h-10 sm:w-12 sm:h-12 overflow-hidden ${bgGradient}`}
+            href={`/${author.userName}`}
+          >
             <Avatar name={author?.name} image={author?.avatar} size={48} className="" />
           </Link>
           <div className="flex flex-col gap-0.5 min-w-0">
-            <div className='font-semibold text-sm sm:text-base text-left truncate'>{author.name}</div>
+            <div className="font-semibold text-sm sm:text-base text-left truncate">
+              {author.name}
+            </div>
             <div className="flex flex-wrap items-center gap-1.5 text-text-muted text-xs sm:text-sm truncate">
               {author.job && (
-                <div className="px-1.5 py-0.5 border border-text-subtle rounded-lg text-xs">{author.job}</div>
+                <div className="px-1.5 py-0.5 border border-text-subtle rounded-lg text-xs">
+                  {author.job}
+                </div>
               )}
               <div className="truncate">@{author.userName}</div>
             </div>
           </div>
         </div>
-        <div className="shrink-0">
-          <MoreTweetButton />
-        </div>
+        <div className="shrink-0">{currentUserId === data.authorId && <MoreTweetButton />}</div>
       </div>
-      <div className="mt-3 sm:mt-4 text-sm sm:text-[16px] text-left break-words leading-relaxed tracking-wide">
+      <div className="mt-3 sm:mt-4 sm:text-[16px] text-sm text-left wrap-break-word leading-relaxed tracking-wide">
         {content}
       </div>
       <div className="flex flex-row justify-between items-center mt-3 sm:mt-4 text-xs sm:text-sm">
         <div className="group flex items-center gap-1 text-text-muted">
           <div className="hover:bg-green-500/10 p-1.5 rounded-full cursor-pointer">
-            <Repeat2 className="w-4 h-4 sm:w-5 sm:h-5 text-text-muted group-hover:text-green-500 duration-150" />
+            <Repeat2 className="w-4 sm:w-5 h-4 sm:h-5 text-text-muted group-hover:text-green-500 duration-150" />
           </div>
         </div>
         <div className="group flex items-center gap-1 text-text-muted">
           <div className="group-hover:text-blue-500 duration-150">2</div>
-          <Link href={`/tweet/${tweetId}`} className="hover:bg-blue-500/10 p-1.5 rounded-full cursor-pointer">
-            <MessageCircle
-              className="w-4 h-4 sm:w-5 sm:h-5 text-text-muted group-hover:text-blue-500 duration-150"
-            />
+          <Link
+            href={`/tweet/${tweetId}`}
+            className="hover:bg-blue-500/10 p-1.5 rounded-full cursor-pointer"
+          >
+            <MessageCircle className="w-4 sm:w-5 h-4 sm:h-5 text-text-muted group-hover:text-blue-500 duration-150" />
           </Link>
         </div>
         <div className="group flex items-center gap-1 text-text-muted">
@@ -128,13 +136,11 @@ export default function Tweet({ data, currentUserId }: TweetType) {
         <div className="group flex items-center gap-1 text-text-muted">
           <div className="group-hover:text-blue-500 duration-150">2</div>
           <div className="hover:bg-blue-500/10 p-1.5 rounded-full cursor-pointer">
-            <ChartNoAxesColumnIcon
-              className="w-4 h-4 sm:w-5 sm:h-5 text-text-muted group-hover:text-blue-500 duration-150"
-            />
+            <ChartNoAxesColumnIcon className="w-4 sm:w-5 h-4 sm:h-5 text-text-muted group-hover:text-blue-500 duration-150" />
           </div>
         </div>
       </div>
-      <div className="flex flex-row justify-between items-end mt-2 pt-2 border-surface border-t text-xs sm:text-sm text-text-muted">
+      <div className="flex flex-row justify-between items-end mt-2 pt-2 border-surface border-t text-text-muted text-xs sm:text-sm">
         <div className="flex items-center gap-1">
           <Bird className="w-4 h-4" />
           Tweeter

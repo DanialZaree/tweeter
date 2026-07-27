@@ -133,7 +133,7 @@ export default function SignUp() {
 
       <button
         type="submit"
-        className="flex justify-center items-center bg-foreground hover:bg-foreground/80 hover:data-disabled:bg-gray-50 active:bg-foreground/60 active:data-disabled:bg-gray-50 active:data-disabled:shadow-none active:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] m-0 px-3.5 border border-gray-200 active:border-foreground/60 active:border-t-gray-300 active:data-disabled:border-t-gray-200 rounded-md outline-0 focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1 h-10 font-inherit font-normal text-gray-900 data-disabled:text-gray-500 text-base leading-6 cursor-pointer select-none"
+        className="flex justify-center items-center bg-foreground hover:bg-foreground/80 hover:data-disabled:bg-gray-50 active:bg-foreground/60 active:data-disabled:bg-gray-50 active:data-disabled:shadow-none active:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] m-0 px-3 border border-gray-200 rounded-md outline-0 focus-visible:outline-2 focus-visible:outline-blue-800 h-8 sm:h-9 font-medium text-gray-900 text-xs sm:text-sm cursor-pointer select-none transition-colors"
       >
         Create account
       </button>
