@@ -17,18 +17,14 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         });
 
         if (!user) return null;
-
         const valid = await bcrypt.compare(credentials?.password as string, user.password);
-
         if (!valid) return null;
-        
-        const safeImage = user.avatar && !user.avatar.startsWith('data:') && user.avatar.length < 500 ? user.avatar : null;
 
         return {
           id: user.id,
           email: user.email,
           name: user.name,
-          image: safeImage, 
+          image: user.avatar,
         };
       },
     }),
@@ -37,15 +33,14 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        const picture = user.image;
-        token.picture = picture && !picture.startsWith('data:') && picture.length < 500 ? picture : null; 
+        token.picture = user.image;
       }
       return token;
     },
     async session({ session, token }) {
       if (token?.id) {
         session.user.id = token.id as string;
-        session.user.image = (token.picture as string) || null;
+        session.user.image = token.picture as string;
       }
       return session;
     },
