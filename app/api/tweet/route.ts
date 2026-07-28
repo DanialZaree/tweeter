@@ -36,7 +36,7 @@ export async function POST(request: Request) {
 
     const latestTweet = await prisma.tweet.findFirst({
       orderBy: {
-        tweetId: 'desc',
+        createdAt: 'desc',
       },
     });
 

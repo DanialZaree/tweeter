@@ -19,7 +19,6 @@ export default async function Home() {
         <Suspense fallback={<div>Loading tweets...</div>}>
           <TweetList success={success} tweets={tweets ?? []} error={error} currentUserId={currentUserId} />
         </Suspense>
-        <Test />
         <NewTweet />
       </Frame>
     </>
