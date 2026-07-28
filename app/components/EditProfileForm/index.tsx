@@ -162,9 +162,9 @@ export default function EditProfileForm({ initialUser }: { initialUser: UserProf
       <div className="mx-auto border-white/10 sm:border-x w-full max-w-2xl min-h-screen">
         <EditProfileHeader isSubmitting={isSubmitting} isUploading={isUploading} />
 
-        <form id="edit-profile-form" onSubmit={handleSubmit} className="p-4 space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6 p-4">
           {error && (
-            <div className="p-3 border border-red-500/50 rounded-lg bg-red-500/10 font-medium text-red-400 text-sm">
+            <div className="bg-red-500/10 p-3 border border-red-500/50 rounded-lg font-medium text-red-400 text-sm">
               {error}
             </div>
           )}
