@@ -4,6 +4,18 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { updateProfile } from '@/app/lib/actions/actionProfile';
 import { getGradientFromName } from '@/app/lib/avatar';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
+const schema = z.object({
+  name: z.string().min(1, 'Name is required').max(30, 'Name must be 30 characters or less'),
+  userName: z.string().min(1, 'Username is required').max(20, 'Username must be 20 characters or less').regex(/^[a-zA-Z0-9]+$/, 'Username can only contain letters and numbers'),
+  bio: z.string().max(200, 'Bio must be 200 characters or less').optional(),
+  job: z.string().max(50, 'Job must be 50 characters or less').optional(),
+});
+
+type FormData = z.infer<typeof schema>;
 
 import EditProfileHeader from './EditProfileHeader';
 import ProfileImageSection from './ProfileImageSection';
@@ -23,10 +35,23 @@ interface UserProfileData {
 export default function EditProfileForm({ initialUser }: { initialUser: UserProfileData }) {
   const router = useRouter();
 
-  const [name, setName] = useState(initialUser.name || '');
-  const [userName, setUserName] = useState(initialUser.userName || '');
-  const [bio, setBio] = useState(initialUser.bio || '');
-  const [job, setJob] = useState(initialUser.job || '');
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      name: initialUser.name || '',
+      userName: initialUser.userName || '',
+      bio: initialUser.bio || '',
+      job: initialUser.job || '',
+    },
+  });
+
+  const name = watch('name');
+  const userName = watch('userName');
   const [avatar, setAvatar] = useState(initialUser.avatar || '');
   const [coverImage, setCoverImage] = useState(initialUser.coverImage || '');
 
@@ -128,17 +153,16 @@ export default function EditProfileForm({ initialUser }: { initialUser: UserProf
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: FormData) => {
     setError(null);
     setIsSubmitting(true);
 
     try {
       const res = await updateProfile({
-        name,
-        userName,
-        bio,
-        job,
+        name: data.name,
+        userName: data.userName,
+        bio: data.bio || '',
+        job: data.job || '',
         avatar,
         coverImage,
       });
@@ -162,7 +186,7 @@ export default function EditProfileForm({ initialUser }: { initialUser: UserProf
       <div className="mx-auto border-white/10 sm:border-x w-full max-w-2xl min-h-screen">
         <EditProfileHeader isSubmitting={isSubmitting} isUploading={isUploading} />
 
-        <form onSubmit={handleSubmit} className="space-y-6 p-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 p-4">
           {error && (
             <div className="bg-red-500/10 p-3 border border-red-500/50 rounded-lg font-medium text-red-400 text-sm">
               {error}
@@ -195,16 +219,10 @@ export default function EditProfileForm({ initialUser }: { initialUser: UserProf
           />
 
           <ProfileFormFields
-            name={name}
-            userName={userName}
-            bio={bio}
-            job={job}
             isSubmitting={isSubmitting}
             isUploading={isUploading}
-            setName={setName}
-            setUserName={setUserName}
-            setBio={setBio}
-            setJob={setJob}
+            register={register}
+            errors={errors}
           />
         </form>
       </div>

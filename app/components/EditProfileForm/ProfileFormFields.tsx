@@ -2,31 +2,20 @@
 
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
+import { UseFormRegister, FieldErrors } from 'react-hook-form';
 
 interface ProfileFormFieldsProps {
-  name: string;
-  userName: string;
-  bio: string;
-  job: string;
   isSubmitting: boolean;
   isUploading: boolean;
-  setName: (val: string) => void;
-  setUserName: (val: string) => void;
-  setBio: (val: string) => void;
-  setJob: (val: string) => void;
+  register: UseFormRegister<any>;
+  errors: FieldErrors<any>;
 }
 
 export default function ProfileFormFields({
-  name,
-  userName,
-  bio,
-  job,
   isSubmitting,
   isUploading,
-  setName,
-  setUserName,
-  setBio,
-  setJob,
+  register,
+  errors,
 }: ProfileFormFieldsProps) {
   return (
     <>
@@ -36,12 +25,11 @@ export default function ProfileFormFields({
         </label>
         <input
           type="text"
-          required
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          {...register('name')}
           placeholder="Your display name"
-          className="w-full bg-black/50 px-3.5 py-2.5 border border-white/20 focus:border-sky-500 rounded-lg text-sm focus:outline-none transition-colors"
+          className={`w-full bg-black/50 px-3.5 py-2.5 border ${errors.name ? 'border-red-500' : 'border-white/20 focus:border-sky-500'} rounded-lg text-sm focus:outline-none transition-colors`}
         />
+        {errors.name && <p className="mt-1 text-red-500 text-xs">{errors.name.message as string}</p>}
       </div>
 
       <div>
@@ -52,13 +40,12 @@ export default function ProfileFormFields({
           <span className="top-2.5 left-3.5 absolute text-white/40 text-sm">@</span>
           <input
             type="text"
-            required
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
+            {...register('userName')}
             placeholder="username"
-            className="w-full bg-black/50 pr-3.5 pl-8 py-2.5 border border-white/20 focus:border-sky-500 rounded-lg text-sm focus:outline-none transition-colors"
+            className={`w-full bg-black/50 pr-3.5 pl-8 py-2.5 border ${errors.userName ? 'border-red-500' : 'border-white/20 focus:border-sky-500'} rounded-lg text-sm focus:outline-none transition-colors`}
           />
         </div>
+        {errors.userName && <p className="mt-1 text-red-500 text-xs">{errors.userName.message as string}</p>}
       </div>
 
       <div>
@@ -67,11 +54,11 @@ export default function ProfileFormFields({
         </label>
         <textarea
           rows={3}
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
+          {...register('bio')}
           placeholder="Tell the world about yourself..."
-          className="w-full bg-black/50 px-3.5 py-2.5 border border-white/20 focus:border-sky-500 rounded-lg text-sm focus:outline-none transition-colors resize-none"
+          className={`w-full bg-black/50 px-3.5 py-2.5 border ${errors.bio ? 'border-red-500' : 'border-white/20 focus:border-sky-500'} rounded-lg text-sm focus:outline-none transition-colors resize-none`}
         />
+        {errors.bio && <p className="mt-1 text-red-500 text-xs">{errors.bio.message as string}</p>}
       </div>
 
       <div>
@@ -80,11 +67,11 @@ export default function ProfileFormFields({
         </label>
         <input
           type="text"
-          value={job}
-          onChange={(e) => setJob(e.target.value)}
+          {...register('job')}
           placeholder="Developer, Designer, Writer..."
-          className="w-full bg-black/50 px-3.5 py-2.5 border border-white/20 focus:border-sky-500 rounded-lg text-sm focus:outline-none transition-colors"
+          className={`w-full bg-black/50 px-3.5 py-2.5 border ${errors.job ? 'border-red-500' : 'border-white/20 focus:border-sky-500'} rounded-lg text-sm focus:outline-none transition-colors`}
         />
+        {errors.job && <p className="mt-1 text-red-500 text-xs">{errors.job.message as string}</p>}
       </div>
 
       <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
