@@ -88,12 +88,12 @@ export default function Tweet({ data, currentUserId }: TweetType) {
               {author.name}
             </div>
             <div className="flex flex-wrap items-center gap-1.5 text-text-muted text-xs sm:text-sm truncate">
+              <div className="truncate">@{author.userName}</div>
               {author.job && (
                 <div className="px-1.5 py-0.5 border border-text-subtle rounded-lg text-xs">
                   {author.job}
                 </div>
               )}
-              <div className="truncate">@{author.userName}</div>
             </div>
           </div>
         </div>
