@@ -1,6 +1,6 @@
 'use server';
 
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import prisma from '../prisma';
 import { signIn } from '@/app/auth';
 import { redirect } from 'next/navigation';
