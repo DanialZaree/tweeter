@@ -12,7 +12,7 @@ const schema = z.object({
   name: z.string().min(1, 'Name is required').max(30, 'Name must be 30 characters or less'),
   userName: z.string().min(1, 'Username is required').max(20, 'Username must be 20 characters or less').regex(/^[a-zA-Z0-9]+$/, 'Username can only contain letters and numbers'),
   bio: z.string().max(200, 'Bio must be 200 characters or less').optional(),
-  job: z.string().max(50, 'Job must be 50 characters or less').optional(),
+  job: z.string().max(15, 'Job must be 15 characters or less').optional(),
 });
 
 type FormData = z.infer<typeof schema>;
