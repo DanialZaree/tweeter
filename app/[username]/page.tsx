@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { Calendar } from 'lucide-react';
 import { Tabs } from '@base-ui/react/tabs';
 import Follow from '@/app/components/Follow';
+import { redirect } from 'next/navigation';
 
 const tabClassName =
   'flex h-[calc(2rem+1px)] items-center justify-center bg-transparent px-2 py-0 font-inherit text-sm font-normal leading-5 break-keep cursor-pointer whitespace-nowrap text-neutral-600 outline-none select-none hover:text-neutral-950 data-active:text-neutral-950 dark:text-neutral-300 dark:hover:text-white dark:data-active:text-white';
@@ -23,6 +24,10 @@ export default async function UserProfilePage({ params }: { params: { username: 
 
     const session = await auth();
     const currentUserId = session?.user?.id;
+
+    if(username === session?.user?.name){
+      redirect("/profile")
+    }
 
   if (!user) notFound();
 
