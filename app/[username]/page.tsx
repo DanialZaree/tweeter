@@ -93,7 +93,14 @@ if (user?.id === currentUserId) {
               {user?.name ?? 'Jane Doe'}
             </span>
           </div>
-          <p className="mt-0.5 text-white/50 sm:text-[14px] text-xs">@{user?.userName ?? 'janedoe'}</p>
+          <div className="flex flex-wrap items-center gap-1.5 mt-0.5 text-white/50 sm:text-[14px] text-xs">
+            <span>@{user?.userName ?? 'janedoe'}</span>
+            {user?.job && (
+              <span className="px-1.5 py-0.5 border border-text-subtle rounded-lg text-xs">
+                {user.job}
+              </span>
+            )}
+          </div>
 
           <p className="mt-3 text-white/90 sm:text-[15px] text-sm leading-relaxed">
             {user?.bio ?? 'User too busy to write a bio :('}
