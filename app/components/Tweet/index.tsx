@@ -1,11 +1,13 @@
-'use client';
-import Image from 'next/image';
-import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { toggleTweetLike } from '@/app/lib/actions/actionLike';
 import { editTweet } from '@/app/lib/actions/tweet';
 import { Button } from '@/components/ui/button';
 import { useLikeStore } from '@/app/store/useLikeStore';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useCharLimitStore } from '@/app/store/useCharLimitStore';
+import CharLimit from '../CharLimit';
 import MoreTweetButton from '../ui/MoreTweetButton';
 import { getGradientFromName } from '@/app/lib/avatar';
 import Avatar from '../ui/Avatar';
@@ -18,6 +20,12 @@ import {
   Bird,
   Loader2,
 } from 'lucide-react';
+
+const schema = z.object({
+  tweet: z.string().trim().min(1, 'Tweet is required').max(500, 'Max character is 500'),
+});
+
+type FormData = z.infer<typeof schema>;
 
 export interface TweetType {
   data: {
@@ -63,19 +71,37 @@ export default function Tweet({ data, currentUserId }: TweetType) {
   }, [createdAt]);
 
   const [isEditing, setIsEditing] = useState(false);
-  const [editContent, setEditContent] = useState(content);
-  const [isSaving, setIsSaving] = useState(false);
+  const { updateChar } = useCharLimitStore();
 
-  async function handleSaveEdit() {
-    if (!editContent.trim()) return;
-    setIsSaving(true);
-    const result = await editTweet(id, editContent);
-    setIsSaving(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+    setValue,
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      tweet: content,
+    },
+  });
+
+  async function onSubmit(data: FormData) {
+    if (data.tweet === content) {
+      setIsEditing(false);
+      return;
+    }
+    const result = await editTweet(id, data.tweet);
     if (result?.success) {
       setIsEditing(false);
     } else {
       console.error(result?.error);
     }
+  }
+
+  function charLimitHandler(event: React.ChangeEvent<HTMLTextAreaElement>) {
+    const currentLength = event.target.value.length;
+    updateChar(currentLength);
   }
 
   async function handleLike() {
@@ -117,24 +143,35 @@ export default function Tweet({ data, currentUserId }: TweetType) {
             </div>
           </div>
         </div>
-        <div className="shrink-0">{currentUserId === data.authorId && <MoreTweetButton tweetId={data.id} onEdit={() => setIsEditing(true)} />}</div>
+        <div className="shrink-0">{currentUserId === data.authorId && <MoreTweetButton tweetId={data.id} onEdit={() => { setIsEditing(true); setValue('tweet', content); updateChar(content.length); }} />}</div>
       </div>
       {isEditing ? (
-        <div className="mt-3 sm:mt-4 flex flex-col gap-2">
-          <textarea
-            className="w-full bg-transparent border border-surface rounded-lg p-2 text-sm sm:text-base focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none min-h-[100px]"
-            value={editContent}
-            onChange={(e) => setEditContent(e.target.value)}
-            disabled={isSaving}
-          />
+        <form className="mt-3 sm:mt-4 flex flex-col gap-2" onSubmit={handleSubmit(onSubmit)}>
+          <div className="flex flex-col items-start gap-1">
+            <textarea
+              {...register('tweet', {
+                onChange: (e) => {
+                  charLimitHandler(e);
+                },
+              })}
+              rows={4}
+              placeholder="Edit tweet"
+              maxLength={500}
+              dir='auto'
+              disabled={isSubmitting}
+              className={`${errors.tweet ? 'focus:outline-red-500 border-red-500' : 'focus:outline-white'} pt-3 pb-10 pl-3.5 pr-2 border border-border/60 rounded-md focus:outline-2 focus:-outline-offset-1 w-full font-normal text-white text-sm sm:text-base resize-y disabled:opacity-50`}
+            />
+            <CharLimit charLimit={500} />
+            {errors.tweet && <p className="text-red-800 text-sm">{errors.tweet.message}</p>}
+          </div>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={() => { setIsEditing(false); setEditContent(content); }} disabled={isSaving}>Cancel</Button>
-            <Button size="sm" onClick={handleSaveEdit} disabled={isSaving}>
-              {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+            <Button type="button" variant="outline" size="sm" onClick={() => { setIsEditing(false); reset(); }} disabled={isSubmitting}>Cancel</Button>
+            <Button type="submit" size="sm" disabled={isSubmitting}>
+              {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Save
             </Button>
           </div>
-        </div>
+        </form>
       ) : (
         <div dir="auto" className="mt-3 sm:mt-4 sm:text-[16px] text-sm text-start whitespace-pre-line wrap-break-word leading-relaxed tracking-wide">
           {content}
