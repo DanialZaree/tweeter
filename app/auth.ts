@@ -22,11 +22,23 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           user = await prisma.user.findUnique({
             where: { userName },
           });
+
+          if (!user) {
+            user = await prisma.user.findUnique({
+              where: { userName: rawUserName.trim() },
+            });
+          }
         } else if (rawEmail) {
           const email = rawEmail.trim().toLowerCase();
           user = await prisma.user.findUnique({
             where: { email },
           });
+
+          if (!user) {
+            user = await prisma.user.findUnique({
+              where: { email: rawEmail.trim() },
+            });
+          }
         }
 
         if (!user) return null;
