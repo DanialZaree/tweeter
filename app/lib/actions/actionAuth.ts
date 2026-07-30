@@ -18,21 +18,23 @@ export type AuthActionResult = {
 };
 
 export async function registerUser(data: RegisterData): Promise<AuthActionResult | undefined> {
-  const { userName, email, password } = data;
+  const email = data.email?.trim().toLowerCase();
+  const userName = data.userName?.trim().toLowerCase();
+  const password = data.password;
 
   if (!email || !password || !userName) {
     return { success: false, error: 'missing fields' };
   }
 
   const existingEmail = await prisma.user.findUnique({
-    where: { email: email },
+    where: { email },
   });
   if (existingEmail) {
     return { success: false, error: 'email already exists' };
   }
 
   const existingUser = await prisma.user.findUnique({
-    where: { userName: userName },
+    where: { userName },
   });
   if (existingUser) {
     return { success: false, error: 'username already exists' };
@@ -42,10 +44,10 @@ export async function registerUser(data: RegisterData): Promise<AuthActionResult
 
   await prisma.user.create({
     data: {
-      email: email,
+      email,
       password: hashedPassword,
-      userName: userName,
-      name: userName,
+      userName,
+      name: data.userName.trim(),
     },
   });
 
@@ -69,8 +71,9 @@ export async function registerUser(data: RegisterData): Promise<AuthActionResult
 }
 
 export async function login(email: string, password: string): Promise<AuthActionResult | undefined> {
+  const normalizedEmail = email?.trim().toLowerCase();
   try {
-    await signIn('credentials', { email, password, redirect: false });
+    await signIn('credentials', { email: normalizedEmail, password, redirect: false });
   } catch (error) {
     if (error instanceof AuthError) {
       return { success: false, error: 'Invalid email or password' };

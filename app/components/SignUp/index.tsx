@@ -13,8 +13,9 @@ const schema = z
       .string()
       .min(3, 'Username must be at least 3 characters')
       .max(20, 'Username must be less than 20 characters')
-      .regex(/^[a-zA-Z0-9]+$/, 'Username can only contain letters and numbers'),
-    email: z.email('Invalid email address'),
+      .regex(/^[a-zA-Z0-9]+$/, 'Username can only contain letters and numbers')
+      .toLowerCase(),
+    email: z.email('Invalid email address').max(50, 'Email must be less than 50 characters').toLowerCase(),
     password: z
       .string()
       .min(6, 'Password must be at least 6 characters')

@@ -6,7 +6,7 @@ export async function getUser({ userName }: { userName: string }) {
   try {
     const user = await prisma.user.findUnique({
       where: {
-        userName: userName,
+        userName: userName.toLowerCase(),
       },
       include: {
       _count: {

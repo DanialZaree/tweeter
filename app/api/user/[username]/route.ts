@@ -12,7 +12,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<Pa
   try {
     const user = await prisma.user.findUnique({
       where: {
-        userName: username,
+        userName: username.toLowerCase(),
       },
     });
 
