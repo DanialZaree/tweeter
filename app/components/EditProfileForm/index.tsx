@@ -10,7 +10,12 @@ import { z } from 'zod';
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required').max(30, 'Name must be 30 characters or less'),
-  userName: z.string().min(1, 'Username is required').max(20, 'Username must be 20 characters or less').regex(/^[a-zA-Z0-9]+$/, 'Username can only contain letters and numbers'),
+  userName: z
+    .string()
+    .min(3, 'Username must be at least 3 characters')
+    .max(20, 'Username must be 20 characters or less')
+    .regex(/^[a-zA-Z0-9]+$/, 'Username can only contain letters and numbers')
+    .toLowerCase(),
   bio: z.string().max(200, 'Bio must be 200 characters or less').optional(),
   job: z.string().max(15, 'Job must be 15 characters or less').optional(),
 });
@@ -40,6 +45,7 @@ export default function EditProfileForm({ initialUser }: { initialUser: UserProf
     handleSubmit,
     formState: { errors },
     watch,
+    setError: setFieldError,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -168,7 +174,13 @@ export default function EditProfileForm({ initialUser }: { initialUser: UserProf
       });
 
       if (!res.success) {
-        setError(res.error || 'Failed to update profile');
+        if (res.error === 'Username already taken') {
+          setFieldError('userName', { message: 'Username already taken' });
+        } else if (res.error === 'Name is required') {
+          setFieldError('name', { message: 'Name is required' });
+        } else {
+          setError(res.error || 'Failed to update profile');
+        }
         setIsSubmitting(false);
         return;
       }
