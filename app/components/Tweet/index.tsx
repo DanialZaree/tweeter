@@ -1,3 +1,6 @@
+'use client';
+
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { toggleTweetLike } from '@/app/lib/actions/actionLike';
 import { editTweet } from '@/app/lib/actions/tweet';
