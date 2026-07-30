@@ -8,6 +8,7 @@ import { Form } from '@base-ui/react/form';
 import { Button } from '@base-ui/react/button';
 import { useDrawerStore } from '@/app/store/useDrawerStore';
 import { useCharLimitStore } from '@/app/store/useCharLimitStore';
+import { Loader2 } from 'lucide-react';
 import CharLimit from '../CharLimit';
 
 const schema = z.object({
@@ -20,14 +21,14 @@ export default function NewTweetForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
+    reset,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
 
   const { closeDrawer } = useDrawerStore();
   const { updateChar } = useCharLimitStore();
-
 
   async function onSubmit(data: FormData) {
     const formData = new FormData();
@@ -36,6 +37,8 @@ export default function NewTweetForm() {
     const result = await createTweet(formData);
     if (result.success) {
       console.log('Success!');
+      reset();
+      updateChar(0);
       closeDrawer();
     } else {    
       console.error(result.error);
@@ -59,16 +62,19 @@ export default function NewTweetForm() {
           rows={7}
           placeholder="Enter tweet"
           maxLength={500}
-          className={`${errors.tweet ? 'focus:outline-red-500 border-red-500' : 'focus:outline-white'} pt-3 pb-10 pl-3.5 pr-2 border border-border/60 rounded-md focus:outline-2  focus:-outline-offset-1 w-full font-normal text-white text-lg resize-y`}
+          disabled={isSubmitting}
+          className={`${errors.tweet ? 'focus:outline-red-500 border-red-500' : 'focus:outline-white'} pt-3 pb-10 pl-3.5 pr-2 border border-border/60 rounded-md focus:outline-2  focus:-outline-offset-1 w-full font-normal text-white text-lg resize-y disabled:opacity-50`}
         />
         <CharLimit charLimit={500} />
         {errors.tweet && <p className="text-red-800">{errors.tweet.message}</p>}
       </div>
       <Button
         type="submit"
-        className="flex justify-center items-center bg-foreground hover:bg-foreground/80 hover:data-disabled:bg-gray-50 active:bg-foreground/60 active:data-disabled:bg-gray-50 active:data-disabled:shadow-none active:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] m-0 px-3.5 border border-gray-200 active:border-foreground/60 active:border-t-gray-300 active:data-disabled:border-t-gray-200 rounded-md outline-0 focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1 h-10 font-inherit font-normal text-gray-900 data-disabled:text-gray-500 text-base leading-6 cursor-pointer select-none"
+        disabled={isSubmitting}
+        className="flex justify-center items-center gap-2 bg-foreground hover:bg-foreground/80 hover:data-disabled:bg-gray-50 active:bg-foreground/60 active:data-disabled:bg-gray-50 active:data-disabled:shadow-none active:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] m-0 px-3.5 border border-gray-200 active:border-foreground/60 active:border-t-gray-300 active:data-disabled:border-t-gray-200 rounded-md outline-0 focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1 h-10 font-inherit font-normal text-gray-900 data-disabled:text-gray-500 text-base leading-6 cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Submit
+        {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+        {isSubmitting ? 'Posting...' : 'Submit'}
       </Button>
     </Form>
   );

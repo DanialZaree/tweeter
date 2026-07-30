@@ -16,7 +16,7 @@ export default function NewTweet() {
     >
       <Drawer.Trigger
         onClick={openDrawer}
-        className="bottom-4 right-4 sm:bottom-6 sm:right-6 fixed z-40 flex justify-center items-center bg-blue-500 hover:bg-blue-600 active:bg-blue-700 p-2.5 sm:p-3 text-white border border-blue-400/30 rounded-full shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 focus-visible:outline-2 cursor-pointer select-none"
+        className="bottom-4 right-4 sm:bottom-6 sm:right-6 fixed z-40 flex justify-center items-center bg-white hover:bg-white/90 active:bg-white/80 p-2.5 sm:p-3 text-black border border-white/20 rounded-full shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 focus-visible:outline-2 cursor-pointer select-none"
       >
         <Plus className="w-5 h-5" />
       </Drawer.Trigger>
