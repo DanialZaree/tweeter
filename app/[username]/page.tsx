@@ -25,9 +25,10 @@ export default async function UserProfilePage({ params }: { params: { username: 
     const session = await auth();
     const currentUserId = session?.user?.id;
 
-    if(username === session?.user?.name){
-      redirect("/profile")
-    }
+if (user?.id === currentUserId) {
+  redirect("/profile");
+}
+
 
   if (!user) notFound();
 

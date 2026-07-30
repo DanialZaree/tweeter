@@ -47,7 +47,7 @@ model Comment {
   createdAt DateTime  @default(now()) @map("createdAt")
 
   author    User      @relation(fields: [authorId], references: [id])
-  tweet     Tweet     @relation(fields: [tweetId], references: [id])
+  tweet     Tweet     @relation(fields: [tweetId], references: [id], onDelete: Cascade)
 }
 
 model Like {
@@ -56,7 +56,7 @@ model Like {
   tweetId   String    @db.ObjectId
 
   user      User      @relation(fields: [userId], references: [id])
-  tweet     Tweet     @relation(fields: [tweetId], references: [id])
+  tweet     Tweet     @relation(fields: [tweetId], references: [id], onDelete: Cascade)
 
   @@unique([userId, tweetId])
 }

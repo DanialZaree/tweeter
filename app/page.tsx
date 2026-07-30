@@ -2,7 +2,6 @@ import { auth } from './auth';
 import Navbar from './components/Navbar';
 import Frame from './components/Frame';
 import TweetList from './components/TweetList';
-import Test from './components/Test';
 import NewTweet from './components/ui/NewTweet';
 import { allTweets } from './lib/actions/tweet';
 import { Suspense } from 'react';

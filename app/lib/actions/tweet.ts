@@ -115,3 +115,36 @@ export async function getTweetByUserId(userId: string) {
     return { success: false, error: 'Failed to fetch tweets' };
   }
 }
+
+export async function deleteTweet(tweetId: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, error: 'User not authenticated' };
+  }
+
+  try {
+    const tweet = await prisma.tweet.findUnique({
+      where: { id: tweetId },
+      select: { authorId: true },
+    });
+
+    if (!tweet) {
+      return { success: false, error: 'Tweet not found' };
+    }
+
+    if (tweet.authorId !== session.user.id) {
+      return { success: false, error: 'Unauthorized' };
+    }
+
+    await prisma.tweet.delete({
+      where: { id: tweetId },
+    });
+
+    revalidatePath('/');
+    revalidatePath('/profile');
+    return { success: true };
+  } catch (e) {
+    console.error('Error in deleteTweet:', e);
+    return { success: false, error: 'Failed to delete tweet' };
+  }
+}

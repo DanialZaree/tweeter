@@ -97,7 +97,7 @@ export default function Tweet({ data, currentUserId }: TweetType) {
             </div>
           </div>
         </div>
-        <div className="shrink-0">{currentUserId === data.authorId && <MoreTweetButton />}</div>
+        <div className="shrink-0">{currentUserId === data.authorId && <MoreTweetButton tweetId={data.id} />}</div>
       </div>
       <div dir="auto" className="mt-3 sm:mt-4 sm:text-[16px] text-sm text-start whitespace-pre-line wrap-break-word leading-relaxed tracking-wide">
         {content}
