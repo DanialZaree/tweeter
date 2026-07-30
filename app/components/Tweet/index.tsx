@@ -99,7 +99,7 @@ export default function Tweet({ data, currentUserId }: TweetType) {
         </div>
         <div className="shrink-0">{currentUserId === data.authorId && <MoreTweetButton />}</div>
       </div>
-      <div className="mt-3 sm:mt-4 sm:text-[16px] text-sm text-left wrap-break-word leading-relaxed tracking-wide">
+      <div dir="auto" className="mt-3 sm:mt-4 sm:text-[16px] text-sm text-start whitespace-pre-line wrap-break-word leading-relaxed tracking-wide">
         {content}
       </div>
       <div className="flex flex-row justify-between items-center mt-3 sm:mt-4 text-xs sm:text-sm">
