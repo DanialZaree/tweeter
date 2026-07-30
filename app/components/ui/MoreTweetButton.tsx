@@ -17,9 +17,10 @@ import {
 
 interface MoreTweetButtonProps {
   tweetId: string;
+  onEdit?: () => void;
 }
 
-export default function MoreTweetButton({ tweetId }: MoreTweetButtonProps) {
+export default function MoreTweetButton({ tweetId, onEdit }: MoreTweetButtonProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleDelete() {
@@ -51,7 +52,7 @@ export default function MoreTweetButton({ tweetId }: MoreTweetButtonProps) {
           />
           <DropdownMenuContent align="end" className="w-32">
             <DropdownMenuGroup>
-              <DropdownMenuItem className="items-center cursor-pointer">
+              <DropdownMenuItem className="items-center cursor-pointer" onClick={onEdit}>
                 <PenSquareIcon className="w-4 h-4 mr-2" />
                 Edit
               </DropdownMenuItem>

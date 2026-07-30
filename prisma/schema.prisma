@@ -14,6 +14,7 @@ model Tweet {
   content   String
   createdAt DateTime  @default(now()) @map("createdAt")
   viewCount Int       @default(0)
+  isEdited  Boolean   @default(false)
 
   author    User      @relation(fields: [authorId], references: [id])
   comments  Comment[]

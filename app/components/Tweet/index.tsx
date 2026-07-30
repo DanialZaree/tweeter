@@ -1,8 +1,10 @@
 'use client';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { toggleTweetLike } from '@/app/lib/actions/actionLike';
+import { editTweet } from '@/app/lib/actions/tweet';
+import { Button } from '@/components/ui/button';
 import { useLikeStore } from '@/app/store/useLikeStore';
 import MoreTweetButton from '../ui/MoreTweetButton';
 import { getGradientFromName } from '@/app/lib/avatar';
@@ -14,6 +16,7 @@ import {
   ChartNoAxesColumnIcon,
   MessageCircle,
   Bird,
+  Loader2,
 } from 'lucide-react';
 
 export interface TweetType {
@@ -22,6 +25,7 @@ export interface TweetType {
     authorId: string;
     tweetId: string;
     content: string;
+    isEdited?: boolean;
     createdAt: Date | string;
     author: {
       id: string;
@@ -41,7 +45,7 @@ export interface TweetType {
 }
 
 export default function Tweet({ data, currentUserId }: TweetType) {
-  const { content, createdAt, author, tweetId, id } = data;
+  const { content, createdAt, author, tweetId, id, isEdited } = data;
 
   const bgGradient = author.avatar ? 'bg-sky-500' : getGradientFromName(author.userName);
 
@@ -57,6 +61,22 @@ export default function Tweet({ data, currentUserId }: TweetType) {
     const createdAtDate = typeof createdAt === 'string' ? new Date(createdAt) : createdAt;
     return createdAtDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long' });
   }, [createdAt]);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(content);
+  const [isSaving, setIsSaving] = useState(false);
+
+  async function handleSaveEdit() {
+    if (!editContent.trim()) return;
+    setIsSaving(true);
+    const result = await editTweet(id, editContent);
+    setIsSaving(false);
+    if (result?.success) {
+      setIsEditing(false);
+    } else {
+      console.error(result?.error);
+    }
+  }
 
   async function handleLike() {
     console.log('Sending Tweet ID:', id);
@@ -97,11 +117,29 @@ export default function Tweet({ data, currentUserId }: TweetType) {
             </div>
           </div>
         </div>
-        <div className="shrink-0">{currentUserId === data.authorId && <MoreTweetButton tweetId={data.id} />}</div>
+        <div className="shrink-0">{currentUserId === data.authorId && <MoreTweetButton tweetId={data.id} onEdit={() => setIsEditing(true)} />}</div>
       </div>
-      <div dir="auto" className="mt-3 sm:mt-4 sm:text-[16px] text-sm text-start whitespace-pre-line wrap-break-word leading-relaxed tracking-wide">
-        {content}
-      </div>
+      {isEditing ? (
+        <div className="mt-3 sm:mt-4 flex flex-col gap-2">
+          <textarea
+            className="w-full bg-transparent border border-surface rounded-lg p-2 text-sm sm:text-base focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none min-h-[100px]"
+            value={editContent}
+            onChange={(e) => setEditContent(e.target.value)}
+            disabled={isSaving}
+          />
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" size="sm" onClick={() => { setIsEditing(false); setEditContent(content); }} disabled={isSaving}>Cancel</Button>
+            <Button size="sm" onClick={handleSaveEdit} disabled={isSaving}>
+              {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Save
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div dir="auto" className="mt-3 sm:mt-4 sm:text-[16px] text-sm text-start whitespace-pre-line wrap-break-word leading-relaxed tracking-wide">
+          {content}
+        </div>
+      )}
       <div className="flex flex-row justify-between items-center mt-3 sm:mt-4 text-xs sm:text-sm">
         <div className="group flex items-center gap-1 text-text-muted">
           <div className="hover:bg-green-500/10 p-1.5 rounded-full cursor-pointer">
@@ -145,7 +183,10 @@ export default function Tweet({ data, currentUserId }: TweetType) {
           <Bird className="w-4 h-4" />
           Tweeter
         </div>
-        <div>{formattedDate}</div>
+        <div className="flex items-center gap-1">
+          {isEdited && <span className="italic">(edited)</span>}
+          <span>{formattedDate}</span>
+        </div>
       </div>
     </div>
   );
