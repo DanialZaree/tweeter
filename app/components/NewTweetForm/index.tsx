@@ -62,6 +62,7 @@ export default function NewTweetForm() {
           rows={7}
           placeholder="Enter tweet"
           maxLength={500}
+          dir='auto'
           disabled={isSubmitting}
           className={`${errors.tweet ? 'focus:outline-red-500 border-red-500' : 'focus:outline-white'} pt-3 pb-10 pl-3.5 pr-2 border border-border/60 rounded-md focus:outline-2  focus:-outline-offset-1 w-full font-normal text-white text-lg resize-y disabled:opacity-50`}
         />

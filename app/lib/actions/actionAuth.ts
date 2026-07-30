@@ -70,18 +70,18 @@ export async function registerUser(data: RegisterData): Promise<AuthActionResult
   redirect('/');
 }
 
-export async function login(email: string, password: string): Promise<AuthActionResult | undefined> {
-  const normalizedEmail = email?.trim().toLowerCase();
+export async function login(userName: string, password: string): Promise<AuthActionResult | undefined> {
+  const normalizedUserName = userName?.trim().toLowerCase();
   try {
-    await signIn('credentials', { email: normalizedEmail, password, redirect: false });
+    await signIn('credentials', { userName: normalizedUserName, password, redirect: false });
   } catch (error) {
     if (error instanceof AuthError) {
-      return { success: false, error: 'Invalid email or password' };
+      return { success: false, error: 'Invalid userName or password' };
     }
     if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
       throw error;
     }
-    return { success: false, error: 'Invalid email or password' };
+    return { success: false, error: 'Invalid userName or password' };
   }
 
   redirect('/');

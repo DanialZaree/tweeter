@@ -8,7 +8,12 @@ import { login } from '@/app/lib/actions/actionAuth';
 import { z } from 'zod';
 
 const schema = z.object({
-  email: z.email('Invalid email address').toLowerCase(),
+  userName: z
+    .string()
+    .min(3, 'Username must be at least 3 characters')
+    .max(20, 'Username must be less than 20 characters')
+    .regex(/^[a-zA-Z0-9]+$/, 'Username can only contain letters and numbers')
+    .toLowerCase(),
   password: z
     .string()
     .min(6, 'Password must be at least 6 characters')
@@ -29,26 +34,26 @@ export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
 
   async function onSubmit(data: FormData) {
-    const result = await login(data.email, data.password);
+    const result = await login(data.userName, data.password);
     if (result && !result.success) {
-      setError('password', { message: result.error || 'Invalid email or password' });
+      setError('password', { message: result.error || 'Invalid userName or password' });
     }
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3 w-full">
-      {/* EMAIL */}
+      {/* userName */}
       <Field.Root className="flex flex-col gap-1">
-        <Field.Label>Email</Field.Label>
+        <Field.Label>Username</Field.Label>
         <Field.Control
-          {...register('email')}
-          name="email"
-          type="email"
-          placeholder="email"
+          {...register('userName')}
+          name="userName"
+          type="text"
+          placeholder="Username"
           required
-          className={`p-2 border ${errors.email ? 'focus:outline-red-500 border-red-500' : 'focus:outline-white'}`}
+          className={`p-2 border ${errors.userName ? 'focus:outline-red-500 border-red-500' : 'focus:outline-white'}`}
         />
-        {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+        {errors.userName && <p className="text-red-500 text-sm">{errors.userName.message}</p>}
       </Field.Root>
 
       {/* PASSWORD WITH TOGGLE */}
@@ -59,7 +64,7 @@ export default function SignIn() {
           <Field.Control
             {...register('password')}
             name="password"
-            placeholder="password"
+            placeholder="Password"
             type={showPassword ? 'text' : 'password'}
             required
             className={`p-2 pr-10 border w-full ${errors.password ? 'focus:outline-red-500 border-red-500' : 'focus:outline-white'}`}
