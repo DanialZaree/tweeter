@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
 import { cn } from '@/lib/utils';
+import { Analytics } from '@vercel/analytics/next';
 
 const myFont = localFont({
   src: '../public/fonts/font.ttf',
@@ -25,6 +26,7 @@ export default function RootLayout({
         cz-shortcut-listen="false"
       >
         {children}
+        <Analytics />
       </body>
     </html>
   );
