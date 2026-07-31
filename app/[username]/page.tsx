@@ -17,7 +17,7 @@ const tabClassName =
   'flex h-[calc(2rem+1px)] items-center justify-center bg-transparent px-2 py-0 font-inherit text-sm font-normal leading-5 break-keep cursor-pointer whitespace-nowrap text-neutral-600 outline-none select-none hover:text-neutral-950 data-active:text-neutral-950 dark:text-neutral-300 dark:hover:text-white dark:data-active:text-white';
 
 const panelClassName =
-  'col-start-1 row-start-1 flex w-full items-center justify-center bg-white p-4 text-center text-sm text-neutral-950 outline-none dark:bg-neutral-950 dark:text-white [&[hidden]]:hidden';
+  'col-start-1 row-start-1 flex w-full items-center justify-center  p-4 text-center text-sm text-neutral-950 outline-none  dark:text-white [&[hidden]]:hidden';
 
 export default async function UserProfilePage({ params }: { params: { username: string } }) {
   const { username } = await params;
