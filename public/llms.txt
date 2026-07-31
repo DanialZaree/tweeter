@@ -1,21 +1,22 @@
-# Boblo (https://www.boblo.ir)
+# Boblo
 
 > Boblo is a modern, full-stack social media platform built for real-time microblogging, post sharing, user interactions, and profile customisation.
 
-## Key Features
-- **Public Timeline**: Read community tweets, likes, retweets, and interactions in real time.
-- **User Profiles**: Custom user handles, avatars, cover images, and bio details (`https://www.boblo.ir/[username]`).
-- **Tweet Sharing**: Post, edit, and reply to tweets (`https://www.boblo.ir/tweet/[tweetId]`).
-- **Authentication**: Secure passwordless and credential-based account management (`https://www.boblo.ir/auth`).
+## Routes & Resources
 
-## Primary Public Routes
-- Home Feed: `https://www.boblo.ir/`
-- User Profiles: `https://www.boblo.ir/[username]`
-- Individual Tweets: `https://www.boblo.ir/tweet/[tweetId]`
-- Authentication & Login: `https://www.boblo.ir/auth`
+- [Home Feed](https://www.boblo.ir/): Main timeline displaying community posts and user activity.
+- [Authentication](https://www.boblo.ir/auth): Sign in or create a new user account.
+- [User Profile Management](https://www.boblo.ir/profile): View user profiles and posted content.
+- [Sitemap](https://www.boblo.ir/sitemap.xml): Full XML index of public profiles and posts.
 
-## Technology Stack
-- **Framework**: Next.js (App Router, Server Actions)
-- **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: NextAuth.js
-- **Styling**: Tailwind CSS & Base UI
+## Features
+
+- **Public Timeline**: Read community posts, likes, retweets, and interactions in real time.
+- **User Profiles**: Custom user handles, avatars, cover images, and bio details.
+- **Post Sharing**: Create, edit, and reply to posts.
+- **Authentication**: Secure account management and session control.
+
+## Optional
+
+- [Robots Directive](https://www.boblo.ir/robots.txt): Crawler rules and sitemap indexing directives.
+
