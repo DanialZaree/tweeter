@@ -48,7 +48,7 @@ export default async function Profile() {
 
         {/* Banner */}
         <div
-          className={`relative w-full h-36 sm:h-48 bg-cover bg-center overflow-hidden ${
+          className={`relative w-full h-36 sm:h-48 bg-cover bg-center  ${
             !user?.coverImage ? `bg-linear-to-br ${bgGradient}` : ''
           }`}
         >
