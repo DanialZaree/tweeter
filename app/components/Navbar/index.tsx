@@ -26,7 +26,7 @@ export default async function Navbar() {
     <nav className="top-4 z-50 sticky flex flex-row justify-between items-center gap-2 bg-surface/60 shadow-sm backdrop-blur-md mt-4 px-4 sm:px-6 border border-surface rounded-2xl w-full min-h-16 sm:min-h-20 transition-all duration-300">
       <Link href={'/'} className="group flex items-center gap-2 font-bold hover:text-blue-500 text-xl sm:text-2xl truncate tracking-tight transition-colors">
         <Bird className="text-blue-500 group-hover:scale-110 transition-transform" />
-        Tweeter
+        Boblo
       </Link>
       <div className="flex flex-row items-center gap-3 sm:gap-4 shrink-0">
         {session ? <SignOutBtn /> : <SignInBtn />}

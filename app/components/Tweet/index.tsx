@@ -224,7 +224,7 @@ export default function Tweet({ data, currentUserId }: TweetType) {
       <div className="flex flex-row justify-between items-end mt-2 pt-2 border-surface border-t text-text-muted text-xs sm:text-sm">
         <div className="flex items-center gap-1">
           <Bird className="w-4 h-4" />
-          Tweeter
+          Boblo
         </div>
         <div className="flex items-center gap-1">
           {isEdited && <span className="italic">(edited)</span>}
