@@ -26,7 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         take: 1000,
       }),
       prisma.tweet.findMany({
-        select: { id: true, createdAt: true },
+        select: { id: true, tweetId: true, createdAt: true },
         take: 1000,
         orderBy: { createdAt: 'desc' },
       }),
@@ -40,7 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     const tweetRoutes: MetadataRoute.Sitemap = tweets.map((tweet) => ({
-      url: `${baseUrl}/tweet/${tweet.id}`,
+      url: `${baseUrl}/tweet/${tweet.tweetId ?? tweet.id}`,
       lastModified: tweet.createdAt || new Date(),
       changeFrequency: 'weekly',
       priority: 0.6,

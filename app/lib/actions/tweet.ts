@@ -32,7 +32,9 @@ export async function createTweet(formData: FormData) {
       orderBy: { createdAt: 'desc' },
     });
 
-    const newTweetId = latestTweet ? (parseInt(latestTweet.tweetId, 10) + 1).toString() : '1';
+    const newTweetId = (latestTweet?.tweetId && !isNaN(parseInt(latestTweet.tweetId, 10)))
+      ? (parseInt(latestTweet.tweetId, 10) + 1).toString()
+      : '1';
 
     const tweet = await prisma.tweet.create({
       data: {

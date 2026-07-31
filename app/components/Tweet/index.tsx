@@ -33,7 +33,7 @@ export interface TweetType {
   data: {
     id: string;
     authorId: string;
-    tweetId: string;
+    tweetId?: string | null;
     content: string;
     isEdited?: boolean;
     createdAt: Date | string;
@@ -55,7 +55,8 @@ export interface TweetType {
 }
 
 export default function Tweet({ data, currentUserId }: TweetType) {
-  const { content, createdAt, author, tweetId, id, isEdited } = data;
+  const { content, createdAt, author, tweetId: rawTweetId, id, isEdited } = data;
+  const tweetId = rawTweetId || id;
 
   const bgGradient = author.avatar ? 'bg-sky-500' : getGradientFromName(author.userName);
 
