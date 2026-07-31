@@ -128,6 +128,7 @@ export default function Tweet({ data, currentUserId }: TweetType) {
           <Link
             className={`shrink-0 rounded-full outline-2 outline-surface-2 outline-offset-2 w-10 h-10 sm:w-12 sm:h-12 overflow-hidden ${bgGradient}`}
             href={`/${author.userName}`}
+            aria-label={`${author.name}'s profile`}
           >
             <Avatar name={author?.name} image={author?.avatar} size={48} className="" />
           </Link>
@@ -181,14 +182,15 @@ export default function Tweet({ data, currentUserId }: TweetType) {
       )}
       <div className="flex flex-row justify-between items-center mt-3 sm:mt-4 text-xs sm:text-sm">
         <div className="group flex items-center gap-1 text-text-muted">
-          <div className="hover:bg-green-500/10 p-1.5 rounded-full cursor-pointer">
+          <button type="button" aria-label="Retweet" className="hover:bg-green-500/10 p-1.5 rounded-full cursor-pointer bg-transparent border-0">
             <Repeat2 className="w-4 sm:w-5 h-4 sm:h-5 text-text-muted group-hover:text-green-500 duration-150" />
-          </div>
+          </button>
         </div>
         <div className="group flex items-center gap-1 text-text-muted">
           <div className="group-hover:text-blue-500 duration-150">2</div>
           <Link
             href={`/tweet/${tweetId}`}
+            aria-label="Reply to tweet"
             className="hover:bg-blue-500/10 p-1.5 rounded-full cursor-pointer"
           >
             <MessageCircle className="w-4 sm:w-5 h-4 sm:h-5 text-text-muted group-hover:text-blue-500 duration-150" />
@@ -200,21 +202,23 @@ export default function Tweet({ data, currentUserId }: TweetType) {
           >
             {currentLikes}
           </div>
-          <div
+          <button
+            type="button"
             onClick={handleLike}
-            className="hover:bg-red-500/10 p-1.5 rounded-full cursor-pointer"
+            aria-label={isLiked ? 'Unlike tweet' : 'Like tweet'}
+            className="hover:bg-red-500/10 p-1.5 rounded-full cursor-pointer bg-transparent border-0"
           >
             <Heart
               fill={isLiked ? 'currentColor' : 'none'}
               className={`w-4 h-4 sm:w-5 sm:h-5 ${isLiked ? 'text-red-500' : 'text-text-muted group-hover:text-red-500'}`}
             />
-          </div>
+          </button>
         </div>
         <div className="group flex items-center gap-1 text-text-muted">
           <div className="group-hover:text-blue-500 duration-150">2</div>
-          <div className="hover:bg-blue-500/10 p-1.5 rounded-full cursor-pointer">
+          <button type="button" aria-label="Views" className="hover:bg-blue-500/10 p-1.5 rounded-full cursor-pointer bg-transparent border-0">
             <ChartNoAxesColumnIcon className="w-4 sm:w-5 h-4 sm:h-5 text-text-muted group-hover:text-blue-500 duration-150" />
-          </div>
+          </button>
         </div>
       </div>
       <div className="flex flex-row justify-between items-end mt-2 pt-2 border-surface border-t text-text-muted text-xs sm:text-sm">

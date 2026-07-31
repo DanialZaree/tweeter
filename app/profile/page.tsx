@@ -29,7 +29,7 @@ export default async function Profile() {
       <div className="mx-auto border-white/10 sm:border-x w-full max-w-2xl min-h-screen">
         {/* Top nav */}
         <div className="top-0 z-10 sticky flex items-center gap-4 sm:gap-6 bg-black/80 backdrop-blur-md px-3 sm:px-4 py-3 border-white/10 border-b">
-          <Link href="/" className="hover:bg-white/10 p-2 rounded-full transition-colors">
+          <Link href="/" aria-label="Back to home" className="hover:bg-white/10 p-2 rounded-full transition-colors">
             <svg
               className="w-5 h-5"
               fill="none"

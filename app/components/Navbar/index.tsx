@@ -30,7 +30,7 @@ export default async function Navbar() {
       </Link>
       <div className="flex flex-row items-center gap-3 sm:gap-4 shrink-0">
         {session ? <SignOutBtn /> : <SignInBtn />}
-        <Link href={session ? '/profile' : '/auth'} className="group shrink-0">
+        <Link href={session ? '/profile' : '/auth'} aria-label="User Profile" className="group shrink-0">
           <div className={`rounded-full outline-2 outline-border outline-offset-2 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105 group-hover:shadow-lg ${bgGradient}`}>
             <Avatar name={name} image={image} size={48} className="" />
           </div>

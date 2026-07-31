@@ -16,6 +16,7 @@ export default function NewTweet() {
     >
       <Drawer.Trigger
         onClick={openDrawer}
+        aria-label="Create new tweet"
         className="bottom-4 right-4 sm:bottom-6 sm:right-6 fixed z-40 flex justify-center items-center bg-white hover:bg-white/90 active:bg-white/80 p-2.5 sm:p-3 text-black border border-white/20 rounded-full shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 focus-visible:outline-2 cursor-pointer select-none"
       >
         <Plus className="w-5 h-5" />
