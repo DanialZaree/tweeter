@@ -5,6 +5,7 @@ import { Field } from '@base-ui/react/field';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { login } from '@/app/lib/actions/actionAuth';
+import OAuthButtons from '../OAuthButtons';
 import { z } from 'zod';
 
 const schema = z.object({
@@ -42,6 +43,8 @@ export default function SignIn() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3 w-full">
+      <OAuthButtons />
+
       {/* userName */}
       <Field.Root className="flex flex-col gap-1">
         <Field.Label>Username</Field.Label>

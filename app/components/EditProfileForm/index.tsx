@@ -29,8 +29,8 @@ import ProfileFormFields from './ProfileFormFields';
 
 interface UserProfileData {
   id: string;
-  name: string;
-  userName: string;
+  name?: string | null;
+  userName?: string | null;
   bio?: string | null;
   job?: string | null;
   avatar?: string | null;

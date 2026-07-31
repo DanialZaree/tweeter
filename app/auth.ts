@@ -1,10 +1,22 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
+import Google from 'next-auth/providers/google';
+import GitHub from 'next-auth/providers/github';
+import { PrismaAdapter } from '@auth/prisma-adapter';
 import * as bcrypt from 'bcryptjs';
 import prisma from './lib/prisma';
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
+  adapter: PrismaAdapter(prisma),
   providers: [
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+    }),
+    GitHub({
+      clientId: process.env.AUTH_GITHUB_ID,
+      clientSecret: process.env.AUTH_GITHUB_SECRET,
+    }),
     Credentials({
       credentials: {
         email: {},
@@ -41,7 +53,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           }
         }
 
-        if (!user) return null;
+        if (!user || !user.password) return null;
         const valid = await bcrypt.compare(credentials?.password as string, user.password);
         if (!valid) return null;
 
@@ -49,7 +61,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           id: user.id,
           email: user.email,
           name: user.name,
-          image: user.avatar,
+          image: user.avatar || user.image,
         };
       },
     }),
@@ -60,11 +72,48 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         token.id = user.id;
         token.picture = user.image;
       }
+
+      if (token.id) {
+        let dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+        });
+
+        if (dbUser) {
+          if (!dbUser.userName) {
+            const baseName = (dbUser.name || dbUser.email?.split('@')[0] || 'user')
+              .toLowerCase()
+              .replace(/[^a-z0-9]/g, '')
+              .slice(0, 15);
+
+            let candidate = baseName || 'user';
+            let count = 0;
+            while (true) {
+              const existing = await prisma.user.findUnique({ where: { userName: candidate } });
+              if (!existing) break;
+              count++;
+              candidate = `${baseName}${count}`;
+            }
+
+            dbUser = await prisma.user.update({
+              where: { id: dbUser.id },
+              data: {
+                userName: candidate,
+                avatar: dbUser.avatar || dbUser.image,
+              },
+            });
+          }
+
+          token.userName = dbUser.userName;
+          token.picture = dbUser.avatar || dbUser.image || token.picture;
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
       if (token?.id) {
         session.user.id = token.id as string;
+        session.user.userName = token.userName as string;
         session.user.image = token.picture as string;
       }
       return session;

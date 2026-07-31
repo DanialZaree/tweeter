@@ -5,6 +5,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { Field } from '@base-ui/react/field';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import OAuthButtons from '../OAuthButtons';
 import { z } from 'zod';
 
 const schema = z
@@ -55,6 +56,8 @@ export default function SignUp() {
   }
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3 w-full">
+      <OAuthButtons />
+
       {/* USERNAME */}
       <Field.Root className="flex flex-col gap-1">
         <Field.Label>Username</Field.Label>

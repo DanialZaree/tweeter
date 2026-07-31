@@ -39,11 +39,11 @@ export interface TweetType {
     createdAt: Date | string;
     author: {
       id: string;
-      name: string;
+      name: string | null;
       createdAt: Date | string;
       job: string | null;
       avatar: string | null;
-      userName: string;
+      userName: string | null;
     };
     likes: {
       id: string;
@@ -58,7 +58,7 @@ export default function Tweet({ data, currentUserId }: TweetType) {
   const { content, createdAt, author, tweetId: rawTweetId, id, isEdited } = data;
   const tweetId = rawTweetId || id;
 
-  const bgGradient = author.avatar ? 'bg-sky-500' : getGradientFromName(author.userName);
+  const bgGradient = author?.avatar ? 'bg-sky-500' : getGradientFromName(author?.userName || 'user');
 
   const { likedTweets, likeCounts, optimisticToggleLike, revertToggleLike } = useLikeStore();
 
@@ -128,17 +128,17 @@ export default function Tweet({ data, currentUserId }: TweetType) {
         <div className="flex flex-row items-center gap-2.5 sm:gap-3 min-w-0">
           <Link
             className={`shrink-0 rounded-full outline-2 outline-surface-2 outline-offset-2 w-10 h-10 sm:w-12 sm:h-12 overflow-hidden ${bgGradient}`}
-            href={`/${author.userName}`}
-            aria-label={`${author.name}'s profile`}
+            href={`/${author?.userName || ''}`}
+            aria-label={`${author?.name || 'User'}'s profile`}
           >
-            <Avatar name={author?.name} image={author?.avatar} size={48} className="" />
+            <Avatar name={author?.name || 'User'} image={author?.avatar} size={48} className="" />
           </Link>
           <div className="flex flex-col gap-0.5 min-w-0">
             <div className="font-semibold text-sm sm:text-base text-left truncate">
-              {author.name}
+              {author?.name || 'User'}
             </div>
             <div className="flex flex-wrap items-center gap-1.5 text-text-muted text-xs sm:text-sm truncate">
-              <div className="truncate">@{author.userName}</div>
+              <div className="truncate">@{author?.userName || 'user'}</div>
               {author.job && (
                 <div className="px-1.5 py-0.5 border border-text-subtle rounded-lg text-xs">
                   {author.job}
