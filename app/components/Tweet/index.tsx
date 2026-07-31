@@ -1,5 +1,3 @@
-'use client';
-
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { toggleTweetLike } from '@/app/lib/actions/actionLike';
@@ -15,7 +13,6 @@ import MoreTweetButton from '../ui/MoreTweetButton';
 import { getGradientFromName } from '@/app/lib/avatar';
 import Avatar from '../ui/Avatar';
 import {
-  MoreHorizontal,
   Repeat2,
   Heart,
   ChartNoAxesColumnIcon,

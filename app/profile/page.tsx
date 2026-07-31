@@ -3,6 +3,7 @@ import { getTweetByUserId } from '../lib/actions/tweet';
 import TweetList from '../components/TweetList';
 import Avatar from '../components/ui/Avatar';
 import { getGradientFromName } from '../lib/avatar';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Calendar } from 'lucide-react';
 import { Tabs } from '@base-ui/react/tabs';
@@ -47,13 +48,22 @@ export default async function Profile() {
 
         {/* Banner */}
         <div
-          className={`relative w-full h-36 sm:h-48 bg-cover bg-center ${
+          className={`relative w-full h-36 sm:h-48 bg-cover bg-center overflow-hidden ${
             !user?.coverImage ? `bg-linear-to-br ${bgGradient}` : ''
           }`}
-          style={user?.coverImage ? { backgroundImage: `url(${user.coverImage})` } : {}}
         >
+          {user?.coverImage && (
+            <Image
+              src={user.coverImage}
+              alt="Cover Image"
+              fill
+              className="object-cover"
+              crossOrigin="anonymous"
+              priority
+            />
+          )}
           {/* Avatar */}
-          <div className="-bottom-10 sm:-bottom-12 left-3 sm:left-4 absolute rounded-full outline-4 outline-surface-2 outline-offset-2 w-20 sm:w-24 h-20 sm:h-24 overflow-hidden">
+          <div className="z-10 -bottom-10 sm:-bottom-12 left-3 sm:left-4 absolute rounded-full outline-4 outline-surface-2 outline-offset-2 w-20 sm:w-24 h-20 sm:h-24 overflow-hidden">
             <Avatar name={user?.name} image={user?.avatar} size={96} className="" />
           </div>
         </div>

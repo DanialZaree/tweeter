@@ -29,9 +29,9 @@ export default function Avatar({ name, image, size = 96, className = '' }: Avata
             width={size}
             height={size}
             loading="eager"
-            unoptimized
             alt={name ?? 'Avatar'}
             className="w-full h-full object-cover"
+            crossOrigin="anonymous"
           />
         ) : (
           <span>{initial}</span>
