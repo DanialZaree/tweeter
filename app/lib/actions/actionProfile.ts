@@ -5,16 +5,45 @@ import { auth } from '@/app/auth';
 import { revalidatePath } from 'next/cache';
 import z from 'zod';
 
+const optionalUrlSchema = z
+  .string()
+  .max(1000, 'URL must be 1000 characters or less')
+  .url('Must be a valid URL')
+  .refine((url) => url.startsWith('http://') || url.startsWith('https://'), {
+    message: 'URL must start with http:// or https://',
+  })
+  .optional()
+  .nullable();
+
 const schema = z.object({
-  name: z.string().min(1, 'Name is required').max(30, 'Name must be 30 characters or less'),
+  name: z
+    .string()
+    .trim()
+    .min(1, 'Name is required')
+    .max(30, 'Name must be 30 characters or less')
+    .refine((val) => !/[<>]/.test(val), { message: 'Name cannot contain < or > characters' }),
   userName: z
     .string()
     .min(3, 'Username must be at least 3 characters')
     .max(20, 'Username must be 20 characters or less')
     .regex(/^[a-zA-Z0-9]+$/, 'Username can only contain letters and numbers')
     .toLowerCase(),
-  bio: z.string().max(200, 'Bio must be 200 characters or less').optional().nullable(),
-  job: z.string().max(15, 'Job must be 15 characters or less').optional().nullable(),
+  bio: z
+    .string()
+    .trim()
+    .max(200, 'Bio must be 200 characters or less')
+    .refine((val) => !val || !/[<>]/.test(val), { message: 'Bio cannot contain < or > characters' })
+    .optional()
+    .nullable(),
+  job: z
+    .string()
+    .trim()
+    .max(15, 'Job must be 15 characters or less')
+    .refine((val) => !val || !/[<>]/.test(val), { message: 'Job cannot contain < or > characters' })
+    .optional()
+    .nullable(),
+  avatar: optionalUrlSchema,
+  coverImage: optionalUrlSchema,
 });
 
 
@@ -63,7 +92,7 @@ export async function updateProfile(data: {
   const avatar = data.avatar?.trim() || null;
   const coverImage = data.coverImage?.trim() || null;
 
-  const validation = schema.safeParse({name,userName,bio,job})
+  const validation = schema.safeParse({ name, userName, bio, job, avatar, coverImage });
 
   if (!validation.success) {
     return { success: false, error: validation.error.issues[0]?.message };
@@ -91,12 +120,12 @@ export async function updateProfile(data: {
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
-        name:validation.data.name,
+        name: validation.data.name,
         userName: validation.data.userName,
-        bio:validation.data.bio,
-        job:validation.data.job,
-        avatar,
-        coverImage,
+        bio: validation.data.bio,
+        job: validation.data.job,
+        avatar: validation.data.avatar ?? null,
+        coverImage: validation.data.coverImage ?? null,
       },
     });
 

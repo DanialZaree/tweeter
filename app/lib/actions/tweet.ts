@@ -88,6 +88,15 @@ export async function allTweets() {
   }
 }
 
+const safeAuthorSelect = {
+  id: true,
+  name: true,
+  userName: true,
+  avatar: true,
+  job: true,
+  createdAt: true,
+};
+
 export async function getTweetById(tweetId: string) {
   try {
     const tweet = await prisma.tweet.findUnique({
@@ -95,7 +104,9 @@ export async function getTweetById(tweetId: string) {
         tweetId: tweetId,
       },
       include: {
-        author: true,
+        author: {
+          select: safeAuthorSelect,
+        },
         likes: true,
       },
     });
@@ -115,7 +126,9 @@ export async function getTweetByUserId(userId: string) {
         createdAt: 'desc',
       },
       include: {
-        author: true,
+        author: {
+          select: safeAuthorSelect,
+        },
         likes: true,
       },
     });

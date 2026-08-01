@@ -9,15 +9,32 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 const schema = z.object({
-  name: z.string().min(1, 'Name is required').max(30, 'Name must be 30 characters or less'),
+  name: z
+    .string()
+    .trim()
+    .min(1, 'Name is required')
+    .max(30, 'Name must be 30 characters or less')
+    .refine((val) => !/[<>]/.test(val), { message: 'Name cannot contain < or > characters' }),
   userName: z
     .string()
     .min(3, 'Username must be at least 3 characters')
     .max(20, 'Username must be 20 characters or less')
     .regex(/^[a-zA-Z0-9]+$/, 'Username can only contain letters and numbers')
     .toLowerCase(),
-  bio: z.string().max(200, 'Bio must be 200 characters or less').optional().nullable(),
-  job: z.string().max(15, 'Job must be 15 characters or less').optional().nullable(),
+  bio: z
+    .string()
+    .trim()
+    .max(200, 'Bio must be 200 characters or less')
+    .refine((val) => !val || !/[<>]/.test(val), { message: 'Bio cannot contain < or > characters' })
+    .optional()
+    .nullable(),
+  job: z
+    .string()
+    .trim()
+    .max(15, 'Job must be 15 characters or less')
+    .refine((val) => !val || !/[<>]/.test(val), { message: 'Job cannot contain < or > characters' })
+    .optional()
+    .nullable(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -63,7 +80,9 @@ export default function EditProfileForm({ initialUser }: { initialUser: UserProf
 
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const isUploading = isUploadingAvatar || isUploadingCover;
 
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
@@ -130,7 +149,8 @@ export default function EditProfileForm({ initialUser }: { initialUser: UserProf
 
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    setter: (val: string) => void
+    setter: (val: string) => void,
+    isAvatar: boolean = false
   ) => {
     setError(null);
     const file = e.target.files?.[0];
@@ -148,14 +168,22 @@ export default function EditProfileForm({ initialUser }: { initialUser: UserProf
     }
 
     try {
-      setIsUploading(true);
+      if (isAvatar) {
+        setIsUploadingAvatar(true);
+      } else {
+        setIsUploadingCover(true);
+      }
       const cloudinaryUrl = await uploadToCloudinary(file);
       setter(cloudinaryUrl);
-      setIsUploading(false);
     } catch (err: any) {
-      setIsUploading(false);
       console.error('Error uploading file to Cloudinary:', err);
       setError(err.message || 'Failed to upload image to Cloudinary');
+    } finally {
+      if (isAvatar) {
+        setIsUploadingAvatar(false);
+      } else {
+        setIsUploadingCover(false);
+      }
     }
   };
 
@@ -213,6 +241,10 @@ export default function EditProfileForm({ initialUser }: { initialUser: UserProf
             coverImage={coverImage}
             bgGradient={bgGradient}
             uploadPreset={uploadPreset}
+            isUploadingAvatar={isUploadingAvatar}
+            isUploadingCover={isUploadingCover}
+            setIsUploadingAvatar={setIsUploadingAvatar}
+            setIsUploadingCover={setIsUploadingCover}
             setAvatar={setAvatar}
             setCoverImage={setCoverImage}
             avatarInputRef={avatarInputRef}
@@ -226,6 +258,10 @@ export default function EditProfileForm({ initialUser }: { initialUser: UserProf
             avatar={avatar}
             coverImage={coverImage}
             uploadPreset={uploadPreset}
+            isUploadingAvatar={isUploadingAvatar}
+            isUploadingCover={isUploadingCover}
+            setIsUploadingAvatar={setIsUploadingAvatar}
+            setIsUploadingCover={setIsUploadingCover}
             setAvatar={setAvatar}
             setCoverImage={setCoverImage}
             triggerAvatarUpload={triggerAvatarUpload}

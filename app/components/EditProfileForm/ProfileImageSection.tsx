@@ -3,7 +3,7 @@
 import { RefObject } from 'react';
 import { CldUploadWidget } from 'next-cloudinary';
 import Avatar from '@/app/components/ui/Avatar';
-import { Camera, X } from 'lucide-react';
+import { Camera, X, Loader2 } from 'lucide-react';
 
 interface ProfileImageSectionProps {
   name: string;
@@ -11,6 +11,10 @@ interface ProfileImageSectionProps {
   coverImage: string;
   bgGradient: string;
   uploadPreset?: string;
+  isUploadingAvatar: boolean;
+  isUploadingCover: boolean;
+  setIsUploadingAvatar: (val: boolean) => void;
+  setIsUploadingCover: (val: boolean) => void;
   setAvatar: (val: string) => void;
   setCoverImage: (val: string) => void;
   avatarInputRef: RefObject<HTMLInputElement | null>;
@@ -30,6 +34,10 @@ export default function ProfileImageSection({
   coverImage,
   bgGradient,
   uploadPreset,
+  isUploadingAvatar,
+  isUploadingCover,
+  setIsUploadingAvatar,
+  setIsUploadingCover,
   setAvatar,
   setCoverImage,
   avatarInputRef,
@@ -51,7 +59,7 @@ export default function ProfileImageSection({
             type="file"
             ref={coverInputRef}
             accept="image/*"
-            onChange={(e) => handleFileUpload(e, setCoverImage)}
+            onChange={(e) => handleFileUpload(e, setCoverImage, false)}
             className="hidden"
           />
           <CldUploadWidget
@@ -60,20 +68,23 @@ export default function ProfileImageSection({
               if (result?.info?.secure_url) {
                 setCoverImage(result.info.secure_url);
               }
+              setIsUploadingCover(false);
             }}
+            onError={() => setIsUploadingCover(false)}
           >
             {({ open }) => (
               <button
                 type="button"
+                disabled={isUploadingCover}
                 onClick={() => triggerCoverUpload(open)}
-                className="flex items-center gap-2 bg-black/60 hover:bg-black/80 px-3.5 py-2 rounded-full font-medium text-white text-xs sm:text-sm transition-colors cursor-pointer"
+                className="flex items-center gap-2 bg-black/60 hover:bg-black/80 disabled:opacity-75 px-3.5 py-2 rounded-full font-medium text-white text-xs sm:text-sm transition-colors cursor-pointer"
               >
-                <Camera className="w-4 h-4" />
-                <span>{coverImage ? 'Change Cover' : 'Upload Cover'}</span>
+                {isUploadingCover ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
+                <span>{isUploadingCover ? 'Uploading Cover...' : coverImage ? 'Change Cover' : 'Upload Cover'}</span>
               </button>
             )}
           </CldUploadWidget>
-          {coverImage && (
+          {coverImage && !isUploadingCover && (
             <button
               type="button"
               onClick={() => setCoverImage('')}
@@ -98,34 +109,45 @@ export default function ProfileImageSection({
                 onChange={(e) => handleFileUpload(e, setAvatar, true)}
                 className="hidden"
               />
-              <CldUploadWidget
-                uploadPreset={uploadPreset || 'my_avatar_preset'}
-                onSuccess={(result: any) => {
-                  if (result?.info?.secure_url) {
-                    setAvatar(result.info.secure_url);
-                  }
-                }}
-              >
-                {({ open }) => (
-                  <button
-                    type="button"
-                    onClick={() => triggerAvatarUpload(open)}
-                    className="hover:bg-white/30 p-2.5 rounded-full text-white transition-colors cursor-pointer"
-                    title="Upload Avatar Image"
+              {isUploadingAvatar ? (
+                <div className="flex items-center gap-1.5 font-medium text-white text-xs">
+                  <Loader2 className="w-6 h-6 animate-spin text-sky-400" />
+                </div>
+              ) : (
+                <>
+                  <CldUploadWidget
+                    uploadPreset={uploadPreset || 'my_avatar_preset'}
+                    onSuccess={(result: any) => {
+                      if (result?.info?.secure_url) {
+                        setAvatar(result.info.secure_url);
+                      }
+                      setIsUploadingAvatar(false);
+                    }}
+                    onError={() => setIsUploadingAvatar(false)}
                   >
-                    <Camera className="w-5 h-5" />
-                  </button>
-                )}
-              </CldUploadWidget>
-              {avatar && (
-                <button
-                  type="button"
-                  onClick={() => setAvatar('')}
-                  className="hover:bg-red-500/80 p-1.5 rounded-full text-white transition-colors cursor-pointer"
-                  title="Remove Avatar Image"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+                    {({ open }) => (
+                      <button
+                        type="button"
+                        disabled={isUploadingAvatar}
+                        onClick={() => triggerAvatarUpload(open)}
+                        className="hover:bg-white/30 p-2.5 rounded-full text-white transition-colors cursor-pointer"
+                        title="Upload Avatar Image"
+                      >
+                        <Camera className="w-5 h-5" />
+                      </button>
+                    )}
+                  </CldUploadWidget>
+                  {avatar && (
+                    <button
+                      type="button"
+                      onClick={() => setAvatar('')}
+                      className="hover:bg-red-500/80 p-1.5 rounded-full text-white transition-colors cursor-pointer"
+                      title="Remove Avatar Image"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </>
               )}
             </div>
           </div>
