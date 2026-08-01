@@ -15,11 +15,11 @@ export default async function Home() {
     <>
       <Frame>
         <Navbar />
-        <Suspense fallback={<div>Loading tweets...</div>}>
-          <main>
+        <main>
+          <Suspense fallback={<div>Loading tweets...</div>}>
             <TweetList success={success} tweets={tweets ?? []} error={error} currentUserId={currentUserId} />
-          </main>
-        </Suspense>
+          </Suspense>
+        </main>
         {session?.user && <NewTweet />}
       </Frame>
     </>
