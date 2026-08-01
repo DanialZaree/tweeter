@@ -93,7 +93,7 @@ if (user?.id === currentUserId) {
 
         {/* Edit / Follow row */}
         <div className="flex justify-end items-center gap-2 px-3 sm:px-4 pt-3 pb-0">
-          <Follow userId={user?.id ?? ''} followerId={currentUserId ?? ''} isCurrentlyFollowing={isCurrentlyFollowing} />
+          <Follow userId={user?.id ?? ''}  isCurrentlyFollowing={isCurrentlyFollowing} />
         </div>
 
         {/* Profile info */}

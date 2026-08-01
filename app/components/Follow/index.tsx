@@ -17,7 +17,7 @@ export default function Follow({
   const followHandler = () => {
     startTransition(async () => {
       try {
-        await followUser(userId, followerId);
+        await followUser(userId);
       } catch (error) {
         console.error('Failed to update follow status:', error);
       }

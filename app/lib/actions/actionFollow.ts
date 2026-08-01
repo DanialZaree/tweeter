@@ -4,40 +4,64 @@ import { auth } from '@/app/auth';
 import prisma from '../prisma';
 import { revalidatePath } from 'next/cache';
 
-export async function followUser(userId: string, followerId: string) {
+export async function followUser(targetUserId: string) {
   const session = await auth();
-  if (!session?.user?.id) {
+  const currentUserId = session?.user?.id;
+
+  if (!currentUserId) {
     return { error: 'Unauthorized' };
   }
-  const currentUserId = session.user.id;
 
-  
+  if (targetUserId === currentUserId) {
+    return { error: 'You cannot follow yourself' };
+  }
+
   try {
-    const existingFollow = await prisma.follower.findFirst({
+    const existingFollow = await prisma.follower.findUnique({
       where: {
-        userId: userId,
-        followerId: currentUserId,
-      },
-    });
-    const isCurrentlyFollowing = !!existingFollow;
-    if (existingFollow) {
-      await prisma.follower.deleteMany({
-        where: {
-          userId: userId,
+        userId_followerId: {
+          userId: targetUserId,
           followerId: currentUserId,
+        },
+      },
+      select: { id: true },
+    });
+
+    const isCurrentlyFollowing = !!existingFollow;
+
+    if (existingFollow) {
+      await prisma.follower.delete({
+        where: {
+          userId_followerId: {
+            userId: targetUserId,
+            followerId: currentUserId,
+          },
         },
       });
     } else {
       await prisma.follower.create({
         data: {
-          userId: userId,
+          userId: targetUserId,
           followerId: currentUserId,
         },
       });
     }
-    revalidatePath('/', 'layout');
-    return { success: true, followerId: currentUserId , isFollowing: !isCurrentlyFollowing };
+
+    const targetUser = await prisma.user.findUnique({
+      where: { id: targetUserId },
+      select: { userName: true },
+    });
+    if (targetUser?.userName) {
+      revalidatePath(`/${targetUser.userName}`);
+    }
+    revalidatePath('/');
+    return { 
+      success: true, 
+      followerId: currentUserId, 
+      isFollowing: !isCurrentlyFollowing 
+    };
   } catch (e) {
-    console.error('Error following user:', e);
+    console.error('Error toggling follow status:', e);
+    return { error: 'Failed to update follow status. Please try again.' };
   }
 }

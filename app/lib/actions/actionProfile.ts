@@ -3,6 +3,20 @@
 import prisma from '../prisma';
 import { auth } from '@/app/auth';
 import { revalidatePath } from 'next/cache';
+import z from 'zod';
+
+const schema = z.object({
+  name: z.string().min(1, 'Name is required').max(30, 'Name must be 30 characters or less'),
+  userName: z
+    .string()
+    .min(3, 'Username must be at least 3 characters')
+    .max(20, 'Username must be 20 characters or less')
+    .regex(/^[a-zA-Z0-9]+$/, 'Username can only contain letters and numbers')
+    .toLowerCase(),
+  bio: z.string().max(200, 'Bio must be 200 characters or less').optional(),
+  job: z.string().max(15, 'Job must be 15 characters or less').optional(),
+});
+
 
 export async function showProfile() {
   const session = await auth();
@@ -49,18 +63,15 @@ export async function updateProfile(data: {
   const avatar = data.avatar?.trim() || null;
   const coverImage = data.coverImage?.trim() || null;
 
-  if (!name) {
-    return { success: false, error: 'Name is required' };
-  }
+  const validation = schema.safeParse({name,userName,bio,job})
 
-  const USERNAME_REGEX = /^[a-z0-9]{3,20}$/;
-  if (!userName || !USERNAME_REGEX.test(userName)) {
-    return { success: false, error: 'Username can only contain letters and numbers (3 to 20 characters)' };
+  if (!validation.success) {
+    return { success: false, error: validation.error.issues[0]?.message };
   }
 
   const existingUser = await prisma.user.findFirst({
     where: {
-      userName: userName,
+      userName: validation.data.userName,
       NOT: {
         id: userId,
       },
@@ -75,10 +86,10 @@ export async function updateProfile(data: {
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
-        name,
-        userName,
-        bio,
-        job,
+        name:validation.data.name,
+        userName: validation.data.userName,
+        bio:validation.data.bio,
+        job:validation.data.job,
         avatar,
         coverImage,
       },

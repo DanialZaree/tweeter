@@ -3,6 +3,11 @@
 import prisma from '../prisma';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/app/auth';
+import {z} from 'zod'
+
+const tweetInputSchema = z.object({
+  content:z.string().min(1,'content is required').max(500,'content must be less than 500 characters')
+})
 
 export async function createTweet(formData: FormData) {
   const session = await auth();
@@ -21,11 +26,14 @@ export async function createTweet(formData: FormData) {
     throw new Error('User not found');
   }
   const authorId = user.id;
-  const content = formData.get('content') as string;
+  const rawContent = formData.get('content') as string;
 
-  if (!authorId || !content) {
-    throw new Error('content and id required');
+  const validation = tweetInputSchema.safeParse({content:rawContent});
+
+  if (!validation.success) {
+    return { success: false, error: validation.error?.message };
   }
+  const content = validation.data.content;
 
   try {
     const latestTweet = await prisma.tweet.findFirst({
@@ -156,10 +164,11 @@ export async function editTweet(tweetId: string, newContent: string) {
   if (!session?.user?.id) {
     return { success: false, error: 'User not authenticated' };
   }
-
-  if (!newContent) {
-    return { success: false, error: 'Content cannot be empty' };
+  const validation = tweetInputSchema.safeParse({content:newContent})
+  if (!validation.success) {
+    return { success: false, error: validation.error?.message };
   }
+  const content = validation.data.content;
 
   try {
     const tweet = await prisma.tweet.findUnique({
@@ -177,7 +186,7 @@ export async function editTweet(tweetId: string, newContent: string) {
 
     await prisma.tweet.update({
       where: { id: tweetId },
-      data: { content: newContent, isEdited: true },
+      data: { content: content, isEdited: true },
     });
 
     revalidatePath('/');
