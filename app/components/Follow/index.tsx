@@ -5,11 +5,9 @@ import { followUser } from '@/app/lib/actions/actionFollow';
 
 export default function Follow({
   userId,
-  followerId,
   isCurrentlyFollowing,
 }: {
   userId: string;
-  followerId: string;
   isCurrentlyFollowing?: boolean;
 }) {
   const [isPending, startTransition] = useTransition();

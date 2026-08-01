@@ -6,6 +6,22 @@ import { signIn } from '@/app/auth';
 import { redirect } from 'next/navigation';
 import { AuthError } from 'next-auth';
 
+import { z } from 'zod';
+
+const registerSchema = z.object({
+  userName: z
+    .string()
+    .min(3, 'Username must be at least 3 characters')
+    .max(20, 'Username must be 20 characters or less')
+    .regex(/^[a-zA-Z0-9]+$/, 'Username can only contain letters and numbers')
+    .toLowerCase(),
+  email: z.string().email('Invalid email address').max(50, 'Email must be less than 50 characters').toLowerCase(),
+  password: z
+    .string()
+    .min(6, 'Password must be at least 6 characters')
+    .max(64, 'Password must be under 64 characters'),
+});
+
 interface RegisterData {
   userName: string;
   email: string;
@@ -22,36 +38,37 @@ export async function registerUser(data: RegisterData): Promise<AuthActionResult
   const userName = data.userName?.trim().toLowerCase();
   const password = data.password;
 
-  if (!email || !password || !userName) {
-    return { success: false, error: 'missing fields' };
+  const validation = registerSchema.safeParse({ userName, email, password });
+  if (!validation.success) {
+    return { success: false, error: validation.error.issues[0]?.message };
   }
 
-  const USERNAME_REGEX = /^[a-z0-9]{3,20}$/;
-  if (!USERNAME_REGEX.test(userName)) {
-    return { success: false, error: 'Username can only contain letters and numbers (3 to 20 characters)' };
+  const RESERVED_USERNAMES = new Set(['profile', 'admin', 'administrator', 'api', 'auth', 'login', 'signup', 'register', 'settings', 'user', 'users', 'home', 'explore', 'notifications', 'messages', 'bookmarks', 'help', 'support', 'terms', 'privacy', 'about', 'dashboard', 'status', 'system']);
+  if (RESERVED_USERNAMES.has(validation.data.userName)) {
+    return { success: false, error: 'This username is reserved' };
   }
 
   const existingEmail = await prisma.user.findUnique({
-    where: { email },
+    where: { email: validation.data.email },
   });
   if (existingEmail) {
     return { success: false, error: 'email already exists' };
   }
 
   const existingUser = await prisma.user.findUnique({
-    where: { userName },
+    where: { userName: validation.data.userName },
   });
   if (existingUser) {
     return { success: false, error: 'username already exists' };
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await bcrypt.hash(validation.data.password, 10);
 
   await prisma.user.create({
     data: {
-      email,
+      email: validation.data.email,
       password: hashedPassword,
-      userName,
+      userName: validation.data.userName,
       name: data.userName.trim(),
     },
   });
