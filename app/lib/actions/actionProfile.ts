@@ -53,8 +53,9 @@ export async function updateProfile(data: {
     return { success: false, error: 'Name is required' };
   }
 
-  if (!userName || userName.length < 3) {
-    return { success: false, error: 'Username must be at least 3 characters' };
+  const USERNAME_REGEX = /^[a-z0-9]{3,20}$/;
+  if (!userName || !USERNAME_REGEX.test(userName)) {
+    return { success: false, error: 'Username can only contain letters and numbers (3 to 20 characters)' };
   }
 
   const existingUser = await prisma.user.findFirst({

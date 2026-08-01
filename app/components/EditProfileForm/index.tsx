@@ -178,6 +178,8 @@ export default function EditProfileForm({ initialUser }: { initialUser: UserProf
           setFieldError('userName', { message: 'Username already taken' });
         } else if (res.error === 'Name is required') {
           setFieldError('name', { message: 'Name is required' });
+        } else if (res.error?.toLowerCase().includes('username')) {
+          setFieldError('userName', { message: res.error });
         } else {
           setError(res.error || 'Failed to update profile');
         }

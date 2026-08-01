@@ -26,6 +26,11 @@ export async function registerUser(data: RegisterData): Promise<AuthActionResult
     return { success: false, error: 'missing fields' };
   }
 
+  const USERNAME_REGEX = /^[a-z0-9]{3,20}$/;
+  if (!USERNAME_REGEX.test(userName)) {
+    return { success: false, error: 'Username can only contain letters and numbers (3 to 20 characters)' };
+  }
+
   const existingEmail = await prisma.user.findUnique({
     where: { email },
   });
