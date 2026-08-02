@@ -112,7 +112,7 @@ export async function getTweetById(tweetId: string) {
         author: { select: safeAuthorSelect },
         likes: true,
         replies: {
-          orderBy: { createdAt: 'asc' },
+          orderBy: { createdAt: 'desc' },
           include: {
             author: { select: safeAuthorSelect },
             likes: true,
