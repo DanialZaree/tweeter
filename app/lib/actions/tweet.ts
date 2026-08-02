@@ -60,6 +60,7 @@ export async function createTweet(formData: FormData) {
         authorId: authorId,
         tweetId: newTweetId,
         content: content,
+        parentId: null,
         createdAt: new Date(),
       },
     });
@@ -76,7 +77,10 @@ export async function allTweets() {
   try {
     const tweets = await prisma.tweet.findMany({
       where: {
-        parentId: null,
+        OR: [
+          { parentId: null },
+          { parentId: { isSet: false } },
+        ],
       },
       include: {
         author: { select: safeAuthorSelect },
