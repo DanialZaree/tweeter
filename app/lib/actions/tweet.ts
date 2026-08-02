@@ -105,9 +105,13 @@ export async function allTweets() {
 
 export async function getTweetById(tweetId: string) {
   try {
-    const tweet = await prisma.tweet.findUnique({
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(tweetId);
+    const tweet = await prisma.tweet.findFirst({
       where: {
-        tweetId: tweetId,
+        OR: [
+          { tweetId: tweetId },
+          ...(isObjectId ? [{ id: tweetId }] : [])
+        ]
       },
       include: {
         author: { select: safeAuthorSelect },
@@ -230,9 +234,19 @@ export async function createReply(parentId: string, content: string) {
   if (!validation.success) return { success: false, error: validation.error?.message };
 
   try {
+    const latestTweet = await prisma.tweet.findFirst({
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const newTweetId =
+      latestTweet?.tweetId && !isNaN(parseInt(latestTweet.tweetId, 10))
+        ? (parseInt(latestTweet.tweetId, 10) + 1).toString()
+        : '1';
+
     const reply = await prisma.tweet.create({
       data: {
         authorId: session.user.id,
+        tweetId: newTweetId,
         content: validation.data.content,
         parentId: parentId,
         createdAt: new Date(),
