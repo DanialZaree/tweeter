@@ -82,6 +82,7 @@ export async function allTweets() {
           { parentId: { isSet: false } },
         ],
       },
+      orderBy: { createdAt: 'desc' },
       include: {
         author: { select: safeAuthorSelect },
         likes: true,

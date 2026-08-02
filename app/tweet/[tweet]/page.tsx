@@ -3,7 +3,7 @@ import { getTweetById } from '@/app/lib/actions/tweet';
 import Tweet from '@/app/components/Tweet';
 import Frame from '@/app/components/Frame';
 import Navbar from '@/app/components/Navbar';
-import NewTweetForm from '@/app/components/NewTweetForm';
+import ReplyDrawer from '@/app/components/ui/ReplyDrawer';
 import { auth } from '@/app/auth';
 
 export default async function TweetPage({ params }: { params: Promise<{ tweet: string }> }) {
@@ -33,10 +33,7 @@ export default async function TweetPage({ params }: { params: Promise<{ tweet: s
         <div className="mt-4">
           <Tweet data={tweet} currentUserId={currentUserId} />
           {currentUserId && (
-            <div className="mt-4 p-4 border border-surface rounded-xl">
-              <p className="mb-3 text-text-muted text-sm">Reply to this tweet</p>
-              <NewTweetForm parentId={tweet.id} />
-            </div>
+            <ReplyDrawer parentId={tweet.id} />
           )}
           {tweet.replies && tweet.replies.length > 0 && (
             <div className="flex flex-col mt-4">

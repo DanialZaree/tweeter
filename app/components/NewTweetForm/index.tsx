@@ -17,7 +17,7 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-export default function NewTweetForm({ parentId }: { parentId?: string }) {
+export default function NewTweetForm({ parentId, onSuccess }: { parentId?: string; onSuccess?: () => void }) {
   const {
     register,
     handleSubmit,
@@ -44,7 +44,11 @@ export default function NewTweetForm({ parentId }: { parentId?: string }) {
       if (result.success) {
         reset();
         updateChar(0);
-        if (!parentId) closeDrawer();
+        if (onSuccess) {
+          onSuccess();
+        } else if (!parentId) {
+          closeDrawer();
+        }
       } else {
         console.error(result.error);
       }
