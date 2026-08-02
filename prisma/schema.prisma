@@ -9,17 +9,21 @@ datasource db {
 
 model Tweet {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  tweetId   String?   @unique 
+  tweetId   String?   @unique
   authorId  String    @db.ObjectId
   content   String
   createdAt DateTime  @default(now()) @map("createdAt")
   viewCount Int       @default(0)
   isEdited  Boolean   @default(false)
 
+  parentId  String?   @db.ObjectId
+  parent    Tweet?    @relation("TweetReplies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies   Tweet[]   @relation("TweetReplies")
+
   author    User      @relation(fields: [authorId], references: [id])
-  comments  Comment[]
   likes     Like[]
 }
+
 
 model User {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
@@ -37,7 +41,6 @@ model User {
   updatedAt     DateTime? @updatedAt
   tweets        Tweet[]
   likes         Like[]
-  comments      Comment[]
   accounts      Account[]
   sessions      Session[]
 
@@ -85,17 +88,6 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
-}
-
-model Comment {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  content   String
-  authorId  String    @db.ObjectId
-  tweetId   String    @db.ObjectId
-  createdAt DateTime  @default(now()) @map("createdAt")
-
-  author    User      @relation(fields: [authorId], references: [id])
-  tweet     Tweet     @relation(fields: [tweetId], references: [id], onDelete: Cascade)
 }
 
 model Like {

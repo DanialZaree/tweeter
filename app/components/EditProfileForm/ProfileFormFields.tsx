@@ -30,7 +30,9 @@ export default function ProfileFormFields({
           placeholder="Your display name"
           className={`w-full bg-black/50 px-3.5 py-2.5 border ${errors.name ? 'border-red-500' : 'border-white/20 focus:border-sky-500'} rounded-lg text-sm focus:outline-none transition-colors`}
         />
-        {errors.name && <p className="mt-1 text-red-500 text-xs">{errors.name.message as string}</p>}
+        {errors.name && (
+          <p className="mt-1 text-red-500 text-xs">{errors.name.message as string}</p>
+        )}
       </Field.Root>
 
       <Field.Root className="flex flex-col gap-1">
@@ -46,7 +48,9 @@ export default function ProfileFormFields({
             className={`w-full bg-black/50 pr-3.5 pl-8 py-2.5 border ${errors.userName ? 'border-red-500' : 'border-white/20 focus:border-sky-500'} rounded-lg text-sm focus:outline-none transition-colors`}
           />
         </div>
-        {errors.userName && <p className="mt-1 text-red-500 text-xs">{errors.userName.message as string}</p>}
+        {errors.userName && (
+          <p className="mt-1 text-red-500 text-xs">{errors.userName.message as string}</p>
+        )}
       </Field.Root>
 
       <Field.Root className="flex flex-col gap-1">

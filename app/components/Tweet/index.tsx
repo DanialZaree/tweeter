@@ -14,14 +14,7 @@ import CharLimit from '../CharLimit';
 import MoreTweetButton from '../ui/MoreTweetButton';
 import { getGradientFromName } from '@/app/lib/avatar';
 import Avatar from '../ui/Avatar';
-import {
-  Repeat2,
-  Heart,
-  ChartNoAxesColumnIcon,
-  MessageCircle,
-  Bird,
-  Loader2,
-} from 'lucide-react';
+import { Repeat2, Heart, ChartNoAxesColumnIcon, MessageCircle, Bird, Loader2 } from 'lucide-react';
 
 const schema = z.object({
   tweet: z.string().trim().min(1, 'Tweet is required').max(500, 'Max character is 500'),
@@ -37,6 +30,7 @@ export interface TweetType {
     content: string;
     isEdited?: boolean;
     createdAt: Date | string;
+    parentId?: string | null;
     author: {
       id: string;
       name: string | null;
@@ -50,6 +44,25 @@ export interface TweetType {
       userId: string;
       tweetId: string;
     }[];
+    replies?: {
+      id: string;
+      authorId: string;
+      tweetId?: string | null;
+      content: string;
+      isEdited?: boolean;
+      createdAt: Date | string;
+      parentId: string | null;
+      author: {
+        id: string;
+        name: string | null;
+        createdAt: Date | string;
+        job: string | null;
+        avatar: string | null;
+        userName: string | null;
+      };
+      likes: { id: string; userId: string; tweetId: string }[];
+      _count?: { replies: number };
+    }[];
   };
   currentUserId?: string;
 }
@@ -58,7 +71,9 @@ export default function Tweet({ data, currentUserId }: TweetType) {
   const { content, createdAt, author, tweetId: rawTweetId, id, isEdited } = data;
   const tweetId = rawTweetId || id;
 
-  const bgGradient = author?.avatar ? 'bg-sky-500' : getGradientFromName(author?.userName || 'user');
+  const bgGradient = author?.avatar
+    ? 'bg-sky-500'
+    : getGradientFromName(author?.userName || 'user');
 
   const { likedTweets, likeCounts, optimisticToggleLike, revertToggleLike } = useLikeStore();
 
@@ -147,10 +162,21 @@ export default function Tweet({ data, currentUserId }: TweetType) {
             </div>
           </div>
         </div>
-        <div className="shrink-0">{currentUserId === data.authorId && <MoreTweetButton tweetId={data.id} onEdit={() => { setIsEditing(true); setValue('tweet', content); updateChar(content.length); }} />}</div>
+        <div className="shrink-0">
+          {currentUserId === data.authorId && (
+            <MoreTweetButton
+              tweetId={data.id}
+              onEdit={() => {
+                setIsEditing(true);
+                setValue('tweet', content);
+                updateChar(content.length);
+              }}
+            />
+          )}
+        </div>
       </div>
       {isEditing ? (
-        <form className="mt-3 sm:mt-4 flex flex-col gap-2" onSubmit={handleSubmit(onSubmit)}>
+        <form className="flex flex-col gap-2 mt-3 sm:mt-4" onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col items-start gap-1">
             <textarea
               {...register('tweet', {
@@ -161,7 +187,7 @@ export default function Tweet({ data, currentUserId }: TweetType) {
               rows={4}
               placeholder="Edit tweet"
               maxLength={500}
-              dir='auto'
+              dir="auto"
               disabled={isSubmitting}
               className={`${errors.tweet ? 'focus:outline-red-500 border-red-500' : 'focus:outline-white'} pt-3 pb-10 pl-3.5 pr-2 border border-border/60 rounded-md focus:outline-2 focus:-outline-offset-1 w-full font-normal text-white text-sm sm:text-base resize-y disabled:opacity-50`}
             />
@@ -169,26 +195,44 @@ export default function Tweet({ data, currentUserId }: TweetType) {
             {errors.tweet && <p className="text-red-800 text-sm">{errors.tweet.message}</p>}
           </div>
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={() => { setIsEditing(false); reset(); }} disabled={isSubmitting}>Cancel</Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setIsEditing(false);
+                reset();
+              }}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
             <Button type="submit" size="sm" disabled={isSubmitting}>
-              {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              {isSubmitting ? <Loader2 className="mr-2 w-4 h-4 animate-spin" /> : null}
               Save
             </Button>
           </div>
         </form>
       ) : (
-        <div dir="auto" className="mt-3 sm:mt-4 sm:text-[16px] text-sm text-start whitespace-pre-line wrap-break-word leading-relaxed tracking-wide">
+        <div
+          dir="auto"
+          className="mt-3 sm:mt-4 sm:text-[16px] text-sm text-start wrap-break-word leading-relaxed tracking-wide whitespace-pre-line"
+        >
           {content}
         </div>
       )}
       <div className="flex flex-row justify-between items-center mt-3 sm:mt-4 text-xs sm:text-sm">
         <div className="group flex items-center gap-1 text-text-muted">
-          <button type="button" aria-label="Retweet" className="hover:bg-green-500/10 p-1.5 rounded-full cursor-pointer bg-transparent border-0">
+          <button
+            type="button"
+            aria-label="Retweet"
+            className="bg-transparent hover:bg-green-500/10 p-1.5 border-0 rounded-full cursor-pointer"
+          >
             <Repeat2 className="w-4 sm:w-5 h-4 sm:h-5 text-text-muted group-hover:text-green-500 duration-150" />
           </button>
         </div>
         <div className="group flex items-center gap-1 text-text-muted">
-          <div className="group-hover:text-blue-500 duration-150">2</div>
+          <div className="group-hover:text-blue-500 duration-150">{data.replies?.length ?? 0}</div>
           <Link
             href={`/tweet/${tweetId}`}
             aria-label="Reply to tweet"
@@ -207,7 +251,7 @@ export default function Tweet({ data, currentUserId }: TweetType) {
             type="button"
             onClick={handleLike}
             aria-label={isLiked ? 'Unlike tweet' : 'Like tweet'}
-            className="hover:bg-red-500/10 p-1.5 rounded-full cursor-pointer bg-transparent border-0"
+            className="bg-transparent hover:bg-red-500/10 p-1.5 border-0 rounded-full cursor-pointer"
           >
             <Heart
               fill={isLiked ? 'currentColor' : 'none'}
@@ -217,7 +261,11 @@ export default function Tweet({ data, currentUserId }: TweetType) {
         </div>
         <div className="group flex items-center gap-1 text-text-muted">
           <div className="group-hover:text-blue-500 duration-150">2</div>
-          <button type="button" aria-label="Views" className="hover:bg-blue-500/10 p-1.5 rounded-full cursor-pointer bg-transparent border-0">
+          <button
+            type="button"
+            aria-label="Views"
+            className="bg-transparent hover:bg-blue-500/10 p-1.5 border-0 rounded-full cursor-pointer"
+          >
             <ChartNoAxesColumnIcon className="w-4 sm:w-5 h-4 sm:h-5 text-text-muted group-hover:text-blue-500 duration-150" />
           </button>
         </div>

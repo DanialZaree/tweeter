@@ -55,10 +55,10 @@ export async function followUser(targetUserId: string) {
       revalidatePath(`/${targetUser.userName}`);
     }
     revalidatePath('/');
-    return { 
-      success: true, 
-      followerId: currentUserId, 
-      isFollowing: !isCurrentlyFollowing 
+    return {
+      success: true,
+      followerId: currentUserId,
+      isFollowing: !isCurrentlyFollowing,
     };
   } catch (e) {
     console.error('Error toggling follow status:', e);

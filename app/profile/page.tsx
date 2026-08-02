@@ -29,7 +29,11 @@ export default async function Profile() {
       <div className="mx-auto border-white/10 sm:border-x w-full max-w-2xl min-h-screen">
         {/* Top nav */}
         <div className="top-0 z-10 sticky flex items-center gap-4 sm:gap-6 bg-black/80 backdrop-blur-md px-3 sm:px-4 py-3 border-white/10 border-b">
-          <Link href="/" aria-label="Back to home" className="hover:bg-white/10 p-2 rounded-full transition-colors">
+          <Link
+            href="/"
+            aria-label="Back to home"
+            className="hover:bg-white/10 p-2 rounded-full transition-colors"
+          >
             <svg
               className="w-5 h-5"
               fill="none"
@@ -41,7 +45,9 @@ export default async function Profile() {
             </svg>
           </Link>
           <div>
-            <p className="font-bold sm:text-[17px] text-base truncate leading-tight">{user?.name ?? 'Profile'}</p>
+            <p className="font-bold sm:text-[17px] text-base truncate leading-tight">
+              {user?.name ?? 'Profile'}
+            </p>
             <p className="text-white/50 sm:text-[13px] text-xs">{safeTweets.length} posts</p>
           </div>
         </div>
@@ -101,7 +107,8 @@ export default async function Profile() {
           <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-white/50 sm:text-[13px] text-xs">
             <span className="flex items-center gap-1">
               <Calendar className="w-3.5 h-3.5" />
-              Joined {new Date(user?.createdAt ?? new Date()).toLocaleDateString('en-US', {
+              Joined{' '}
+              {new Date(user?.createdAt ?? new Date()).toLocaleDateString('en-US', {
                 month: 'long',
                 year: 'numeric',
               })}
@@ -139,7 +146,12 @@ export default async function Profile() {
           <div className="grid grid-cols-1 w-full min-h-32">
             <Tabs.Panel className={panelClassName} value="tweets">
               {safeTweets?.length > 0 ? (
-                <TweetList success={success} tweets={safeTweets} error={error} currentUserId={currentUserId} />
+                <TweetList
+                  success={success}
+                  tweets={safeTweets}
+                  error={error}
+                  currentUserId={currentUserId}
+                />
               ) : (
                 <p>No Tweets :/</p>
               )}

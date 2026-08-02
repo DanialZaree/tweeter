@@ -15,7 +15,11 @@ const registerSchema = z.object({
     .max(20, 'Username must be 20 characters or less')
     .regex(/^[a-zA-Z0-9]+$/, 'Username can only contain letters and numbers')
     .toLowerCase(),
-  email: z.string().email('Invalid email address').max(50, 'Email must be less than 50 characters').toLowerCase(),
+  email: z
+    .string()
+    .email('Invalid email address')
+    .max(50, 'Email must be less than 50 characters')
+    .toLowerCase(),
   password: z
     .string()
     .min(6, 'Password must be at least 6 characters')
@@ -43,7 +47,32 @@ export async function registerUser(data: RegisterData): Promise<AuthActionResult
     return { success: false, error: validation.error.issues[0]?.message };
   }
 
-  const RESERVED_USERNAMES = new Set(['profile', 'admin', 'administrator', 'api', 'auth', 'login', 'signup', 'register', 'settings', 'user', 'users', 'home', 'explore', 'notifications', 'messages', 'bookmarks', 'help', 'support', 'terms', 'privacy', 'about', 'dashboard', 'status', 'system']);
+  const RESERVED_USERNAMES = new Set([
+    'profile',
+    'admin',
+    'administrator',
+    'api',
+    'auth',
+    'login',
+    'signup',
+    'register',
+    'settings',
+    'user',
+    'users',
+    'home',
+    'explore',
+    'notifications',
+    'messages',
+    'bookmarks',
+    'help',
+    'support',
+    'terms',
+    'privacy',
+    'about',
+    'dashboard',
+    'status',
+    'system',
+  ]);
   if (RESERVED_USERNAMES.has(validation.data.userName)) {
     return { success: false, error: 'This username is reserved' };
   }
@@ -92,7 +121,10 @@ export async function registerUser(data: RegisterData): Promise<AuthActionResult
   redirect('/');
 }
 
-export async function login(userName: string, password: string): Promise<AuthActionResult | undefined> {
+export async function login(
+  userName: string,
+  password: string,
+): Promise<AuthActionResult | undefined> {
   const normalizedUserName = userName?.trim().toLowerCase();
   try {
     await signIn('credentials', { userName: normalizedUserName, password, redirect: false });
@@ -108,4 +140,3 @@ export async function login(userName: string, password: string): Promise<AuthAct
 
   redirect('/');
 }
-

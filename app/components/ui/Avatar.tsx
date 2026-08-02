@@ -17,25 +17,25 @@ export default function Avatar({ name, image, size = 96, className = '' }: Avata
   const initial = name?.charAt(0)?.toUpperCase() ?? 'U';
 
   return (
-      <div
-        className={`flex justify-center items-center rounded-full overflow-hidden font-bold text-white shrink-0 w-full h-full  ${bgGradient} ${className}`}
-        style={{
-          fontSize: `${size / 2.5}px`,
-        }}
-      >
-        {image ? (
-          <Image
-            src={image}
-            width={size}
-            height={size}
-            loading="eager"
-            alt={name ?? 'Avatar'}
-            className="w-full h-full object-cover"
-            crossOrigin="anonymous"
-          />
-        ) : (
-          <span>{initial}</span>
-        )}
-      </div>
+    <div
+      className={`flex justify-center items-center rounded-full overflow-hidden font-bold text-white shrink-0 w-full h-full  ${bgGradient} ${className}`}
+      style={{
+        fontSize: `${size / 2.5}px`,
+      }}
+    >
+      {image ? (
+        <Image
+          src={image}
+          width={size}
+          height={size}
+          loading="eager"
+          alt={name ?? 'Avatar'}
+          className="w-full h-full object-cover"
+          crossOrigin="anonymous"
+        />
+      ) : (
+        <span>{initial}</span>
+      )}
+    </div>
   );
 }

@@ -64,7 +64,11 @@ export default function ImageUrlInputs({
                 className="hover:bg-white/20 p-2 border border-white/20 disabled:opacity-50 rounded-lg text-white bg-white/10 transition-colors cursor-pointer"
                 title="Upload Image File"
               >
-                {isUploadingAvatar ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                {isUploadingAvatar ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Upload className="w-4 h-4" />
+                )}
               </button>
             )}
           </CldUploadWidget>
@@ -103,7 +107,11 @@ export default function ImageUrlInputs({
                 className="hover:bg-white/20 p-2 border border-white/20 disabled:opacity-50 rounded-lg text-white bg-white/10 transition-colors cursor-pointer"
                 title="Upload Image File"
               >
-                {isUploadingCover ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                {isUploadingCover ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Upload className="w-4 h-4" />
+                )}
               </button>
             )}
           </CldUploadWidget>

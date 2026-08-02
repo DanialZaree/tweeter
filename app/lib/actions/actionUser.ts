@@ -9,14 +9,14 @@ export async function getUser({ userName }: { userName: string }) {
         userName: userName.toLowerCase(),
       },
       include: {
-      _count: {
-        select: {
-          tweets: true,
-          followers: true,
-          following: true,
+        _count: {
+          select: {
+            tweets: true,
+            followers: true,
+            following: true,
+          },
         },
       },
-    },
     });
     return user;
   } catch (e) {

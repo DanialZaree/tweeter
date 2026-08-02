@@ -46,7 +46,6 @@ const schema = z.object({
   coverImage: optionalUrlSchema,
 });
 
-
 export async function showProfile() {
   const session = await auth();
   if (!session?.user?.id) {
@@ -98,7 +97,32 @@ export async function updateProfile(data: {
     return { success: false, error: validation.error.issues[0]?.message };
   }
 
-  const RESERVED_USERNAMES = new Set(['profile', 'admin', 'administrator', 'api', 'auth', 'login', 'signup', 'register', 'settings', 'user', 'users', 'home', 'explore', 'notifications', 'messages', 'bookmarks', 'help', 'support', 'terms', 'privacy', 'about', 'dashboard', 'status', 'system']);
+  const RESERVED_USERNAMES = new Set([
+    'profile',
+    'admin',
+    'administrator',
+    'api',
+    'auth',
+    'login',
+    'signup',
+    'register',
+    'settings',
+    'user',
+    'users',
+    'home',
+    'explore',
+    'notifications',
+    'messages',
+    'bookmarks',
+    'help',
+    'support',
+    'terms',
+    'privacy',
+    'about',
+    'dashboard',
+    'status',
+    'system',
+  ]);
   if (RESERVED_USERNAMES.has(validation.data.userName)) {
     return { success: false, error: 'This username is reserved' };
   }
@@ -138,4 +162,3 @@ export async function updateProfile(data: {
     return { success: false, error: 'Failed to update profile' };
   }
 }
-

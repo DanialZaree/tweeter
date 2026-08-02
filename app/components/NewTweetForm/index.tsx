@@ -1,6 +1,6 @@
 'use client';
 
-import { createTweet } from '@/app/lib/actions/tweet';
+import { createTweet, createReply } from '@/app/lib/actions/tweet';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -17,7 +17,7 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-export default function NewTweetForm() {
+export default function NewTweetForm({ parentId }: { parentId?: string }) {
   const {
     register,
     handleSubmit,
@@ -31,17 +31,25 @@ export default function NewTweetForm() {
   const { updateChar } = useCharLimitStore();
 
   async function onSubmit(data: FormData) {
-    const formData = new FormData();
-    formData.append('content', data.tweet);
+    let result;
 
-    const result = await createTweet(formData);
-    if (result.success) {
-      console.log('Success!');
-      reset();
-      updateChar(0);
-      closeDrawer();
-    } else {    
-      console.error(result.error);
+    try {
+      if (parentId) {
+        result = await createReply(data.tweet, parentId);
+      } else {
+        const formData = new FormData();
+        formData.append('content', data.tweet);
+        result = await createTweet(formData);
+      }
+      if (result.success) {
+        reset();
+        updateChar(0);
+        if (!parentId) closeDrawer();
+      } else {
+        console.error(result.error);
+      }
+    } catch (e) {
+      console.error('there is a error', e);
     }
   }
 
@@ -62,7 +70,7 @@ export default function NewTweetForm() {
           rows={7}
           placeholder="Enter tweet"
           maxLength={500}
-          dir='auto'
+          dir="auto"
           disabled={isSubmitting}
           className={`${errors.tweet ? 'focus:outline-red-500 border-red-500' : 'focus:outline-white'} pt-3 pb-10 pl-3.5 pr-2 border border-border/60 rounded-md focus:outline-2  focus:-outline-offset-1 w-full font-normal text-white text-lg resize-y disabled:opacity-50`}
         />
@@ -72,7 +80,7 @@ export default function NewTweetForm() {
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="flex justify-center items-center gap-2 bg-foreground hover:bg-foreground/80 hover:data-disabled:bg-gray-50 active:bg-foreground/60 active:data-disabled:bg-gray-50 active:data-disabled:shadow-none active:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] m-0 px-3.5 border border-gray-200 active:border-foreground/60 active:border-t-gray-300 active:data-disabled:border-t-gray-200 rounded-md outline-0 focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1 h-10 font-inherit font-normal text-gray-900 data-disabled:text-gray-500 text-base leading-6 cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed"
+        className="flex justify-center items-center gap-2 bg-foreground hover:bg-foreground/80 hover:data-disabled:bg-gray-50 active:bg-foreground/60 active:data-disabled:bg-gray-50 disabled:opacity-50 active:data-disabled:shadow-none active:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] m-0 px-3.5 border border-gray-200 active:border-foreground/60 active:border-t-gray-300 active:data-disabled:border-t-gray-200 rounded-md outline-0 focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1 h-10 font-inherit font-normal text-gray-900 data-disabled:text-gray-500 text-base leading-6 cursor-pointer disabled:cursor-not-allowed select-none"
       >
         {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
         {isSubmitting ? 'Posting...' : 'Submit'}

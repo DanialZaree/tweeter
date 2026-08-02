@@ -8,7 +8,7 @@ export async function toggleTweetLike(tweetId: string) {
   try {
     const session = await auth();
     const userId = session?.user?.id;
-    
+
     if (!userId) {
       return { success: false, error: 'Unauthorized' };
     }

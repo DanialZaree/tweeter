@@ -150,7 +150,7 @@ export default function EditProfileForm({ initialUser }: { initialUser: UserProf
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     setter: (val: string) => void,
-    isAvatar: boolean = false
+    isAvatar: boolean = false,
   ) => {
     setError(null);
     const file = e.target.files?.[0];

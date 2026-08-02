@@ -3,12 +3,22 @@
 import prisma from '../prisma';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/app/auth';
-import {z} from 'zod'
+import { success, z } from 'zod';
 
 const tweetInputSchema = z.object({
-  content:z.string().min(1,'content is required').max(500,'content must be less than 500 characters')
-})
-
+  content: z
+    .string()
+    .min(1, 'content is required')
+    .max(500, 'content must be less than 500 characters'),
+});
+const safeAuthorSelect = {
+  id: true,
+  name: true,
+  userName: true,
+  avatar: true,
+  job: true,
+  createdAt: true,
+};
 export async function createTweet(formData: FormData) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -28,7 +38,7 @@ export async function createTweet(formData: FormData) {
   const authorId = user.id;
   const rawContent = formData.get('content') as string;
 
-  const validation = tweetInputSchema.safeParse({content:rawContent});
+  const validation = tweetInputSchema.safeParse({ content: rawContent });
 
   if (!validation.success) {
     return { success: false, error: validation.error?.message };
@@ -40,9 +50,10 @@ export async function createTweet(formData: FormData) {
       orderBy: { createdAt: 'desc' },
     });
 
-    const newTweetId = (latestTweet?.tweetId && !isNaN(parseInt(latestTweet.tweetId, 10)))
-      ? (parseInt(latestTweet.tweetId, 10) + 1).toString()
-      : '1';
+    const newTweetId =
+      latestTweet?.tweetId && !isNaN(parseInt(latestTweet.tweetId, 10))
+        ? (parseInt(latestTweet.tweetId, 10) + 1).toString()
+        : '1';
 
     const tweet = await prisma.tweet.create({
       data: {
@@ -64,21 +75,20 @@ export async function createTweet(formData: FormData) {
 export async function allTweets() {
   try {
     const tweets = await prisma.tweet.findMany({
+      where: {
+        parentId: null,
+      },
       include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            userName: true,
-            avatar: true,
-            job: true,
-            createdAt: true,
+        author: { select: safeAuthorSelect },
+        likes: true,
+        replies: {
+          orderBy: { createdAt: 'asc' },
+          include: {
+            author: { select: safeAuthorSelect },
+            likes: true,
+            _count: { select: { replies: true } },
           },
         },
-        likes: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
       },
     });
     return { success: true, tweets };
@@ -88,15 +98,6 @@ export async function allTweets() {
   }
 }
 
-const safeAuthorSelect = {
-  id: true,
-  name: true,
-  userName: true,
-  avatar: true,
-  job: true,
-  createdAt: true,
-};
-
 export async function getTweetById(tweetId: string) {
   try {
     const tweet = await prisma.tweet.findUnique({
@@ -104,10 +105,16 @@ export async function getTweetById(tweetId: string) {
         tweetId: tweetId,
       },
       include: {
-        author: {
-          select: safeAuthorSelect,
-        },
+        author: { select: safeAuthorSelect },
         likes: true,
+        replies: {
+          orderBy: { createdAt: 'asc' },
+          include: {
+            author: { select: safeAuthorSelect },
+            likes: true,
+            _count: { select: { replies: true } },
+          },
+        },
       },
     });
     return { success: true, tweet };
@@ -177,7 +184,7 @@ export async function editTweet(tweetId: string, newContent: string) {
   if (!session?.user?.id) {
     return { success: false, error: 'User not authenticated' };
   }
-  const validation = tweetInputSchema.safeParse({content:newContent})
+  const validation = tweetInputSchema.safeParse({ content: newContent });
   if (!validation.success) {
     return { success: false, error: validation.error?.message };
   }
@@ -208,5 +215,29 @@ export async function editTweet(tweetId: string, newContent: string) {
   } catch (e) {
     console.error('Error in editTweet:', e);
     return { success: false, error: 'Failed to edit tweet' };
+  }
+}
+export async function createReply(parentId: string, content: string) {
+  const session = await auth();
+  if (!session?.user.id) return { success: false, error: 'User not authenticated' };
+
+  const validation = tweetInputSchema.safeParse({ content: content });
+  if (!validation.success) return { success: false, error: validation.error?.message };
+
+  try {
+    const reply = await prisma.tweet.create({
+      data: {
+        authorId: session.user.id,
+        content: validation.data.content,
+        parentId: parentId,
+        createdAt: new Date(),
+      },
+    });
+
+    revalidatePath(`/tweet/${parentId}`);
+    return { success: true, reply };
+  } catch (e) {
+    console.error('Error in createReply:', e);
+    return { success: false, error: 'Failed to create reply' };
   }
 }

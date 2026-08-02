@@ -24,7 +24,7 @@ interface ProfileImageSectionProps {
   handleFileUpload: (
     e: React.ChangeEvent<HTMLInputElement>,
     setter: (val: string) => void,
-    isAvatar?: boolean
+    isAvatar?: boolean,
   ) => void;
 }
 
@@ -79,8 +79,18 @@ export default function ProfileImageSection({
                 onClick={() => triggerCoverUpload(open)}
                 className="flex items-center gap-2 bg-black/60 hover:bg-black/80 disabled:opacity-75 px-3.5 py-2 rounded-full font-medium text-white text-xs sm:text-sm transition-colors cursor-pointer"
               >
-                {isUploadingCover ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
-                <span>{isUploadingCover ? 'Uploading Cover...' : coverImage ? 'Change Cover' : 'Upload Cover'}</span>
+                {isUploadingCover ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Camera className="w-4 h-4" />
+                )}
+                <span>
+                  {isUploadingCover
+                    ? 'Uploading Cover...'
+                    : coverImage
+                      ? 'Change Cover'
+                      : 'Upload Cover'}
+                </span>
               </button>
             )}
           </CldUploadWidget>

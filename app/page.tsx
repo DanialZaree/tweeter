@@ -17,7 +17,12 @@ export default async function Home() {
         <Navbar />
         <main>
           <Suspense fallback={<div>Loading tweets...</div>}>
-            <TweetList success={success} tweets={tweets ?? []} error={error} currentUserId={currentUserId} />
+            <TweetList
+              success={success}
+              tweets={tweets ?? []}
+              error={error}
+              currentUserId={currentUserId}
+            />
           </Suspense>
         </main>
         {session?.user && <NewTweet />}
