@@ -47,6 +47,7 @@ export async function createTweet(formData: FormData) {
 
   try {
     const latestTweet = await prisma.tweet.findFirst({
+      where: { tweetId: { not: null } },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -235,6 +236,7 @@ export async function createReply(parentId: string, content: string) {
 
   try {
     const latestTweet = await prisma.tweet.findFirst({
+      where: { tweetId: { not: null } },
       orderBy: { createdAt: 'desc' },
     });
 
