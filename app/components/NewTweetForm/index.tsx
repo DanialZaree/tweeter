@@ -35,7 +35,7 @@ export default function NewTweetForm({ parentId }: { parentId?: string }) {
 
     try {
       if (parentId) {
-        result = await createReply(data.tweet, parentId);
+        result = await createReply(parentId, data.tweet);
       } else {
         const formData = new FormData();
         formData.append('content', data.tweet);

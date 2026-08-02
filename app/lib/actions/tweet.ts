@@ -238,7 +238,8 @@ export async function createReply(parentId: string, content: string) {
       },
     });
 
-    revalidatePath(`/tweet/${parentId}`);
+    revalidatePath('/tweet/[tweet]', 'page');
+    revalidatePath('/');
     return { success: true, reply };
   } catch (e) {
     console.error('Error in createReply:', e);
