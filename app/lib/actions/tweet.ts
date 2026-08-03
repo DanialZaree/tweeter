@@ -4,6 +4,7 @@ import prisma from '../prisma';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/app/auth';
 import { success, z } from 'zod';
+import { checkRateLimit } from '@/app/lib/ratelimit';
 
 const tweetInputSchema = z.object({
   content: z
@@ -44,6 +45,11 @@ export async function createTweet(formData: FormData) {
     return { success: false, error: validation.error?.message };
   }
   const content = validation.data.content;
+
+  const rateCheck = await checkRateLimit(`tweet:${authorId}`, 5, 60);
+  if (!rateCheck.success) {
+    return { success: false, error: rateCheck.error || 'Rate limit exceeded. Please wait a bit.' };
+  }
 
   try {
     const latestTweet = await prisma.tweet.findFirst({
@@ -87,6 +93,7 @@ export async function allTweets() {
       include: {
         author: { select: safeAuthorSelect },
         likes: true,
+        _count: { select: { replies: true } },
         replies: {
           orderBy: { createdAt: 'asc' },
           include: {
@@ -117,6 +124,7 @@ export async function getTweetById(tweetId: string) {
       include: {
         author: { select: safeAuthorSelect },
         likes: true,
+        _count: { select: { replies: true } },
         replies: {
           orderBy: { createdAt: 'desc' },
           include: {
@@ -147,6 +155,7 @@ export async function getTweetByUserId(userId: string) {
           select: safeAuthorSelect,
         },
         likes: true,
+        _count: { select: { replies: true } },
       },
     });
     return { success: true, tweets };
@@ -200,6 +209,11 @@ export async function editTweet(tweetId: string, newContent: string) {
   }
   const content = validation.data.content;
 
+  const rateCheck = await checkRateLimit(`edit:${session.user.id}`, 5, 60);
+  if (!rateCheck.success) {
+    return { success: false, error: rateCheck.error || 'Rate limit exceeded. Please wait a bit.' };
+  }
+
   try {
     const tweet = await prisma.tweet.findUnique({
       where: { id: tweetId },
@@ -233,6 +247,11 @@ export async function createReply(parentId: string, content: string) {
 
   const validation = tweetInputSchema.safeParse({ content: content });
   if (!validation.success) return { success: false, error: validation.error?.message };
+
+  const rateCheck = await checkRateLimit(`reply:${session.user.id}`, 5, 60);
+  if (!rateCheck.success) {
+    return { success: false, error: rateCheck.error || 'Rate limit exceeded. Please wait a bit.' };
+  }
 
   try {
     const latestTweet = await prisma.tweet.findFirst({

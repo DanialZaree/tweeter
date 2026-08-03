@@ -3,6 +3,7 @@
 import { auth } from '@/app/auth';
 import prisma from '../prisma';
 import { revalidatePath } from 'next/cache';
+import { checkRateLimit } from '@/app/lib/ratelimit';
 
 export async function followUser(targetUserId: string) {
   const session = await auth();
@@ -10,6 +11,11 @@ export async function followUser(targetUserId: string) {
 
   if (!currentUserId) {
     return { error: 'Unauthorized' };
+  }
+
+  const rateCheck = await checkRateLimit(`follow:${currentUserId}`, 20, 60);
+  if (!rateCheck.success) {
+    return { error: rateCheck.error || 'Rate limit exceeded. Please wait a bit.' };
   }
 
   if (targetUserId === currentUserId) {

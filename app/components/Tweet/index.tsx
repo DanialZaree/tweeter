@@ -44,6 +44,7 @@ export interface TweetType {
       userId: string;
       tweetId: string;
     }[];
+    _count?: { replies: number };
     replies?: {
       id: string;
       authorId: string;
@@ -82,6 +83,16 @@ export default function Tweet({ data, currentUserId }: TweetType) {
     : false;
   const isLiked = likedTweets[id] ?? isLikedByCurrentUser;
   const currentLikes = likeCounts[id] ?? data.likes?.length ?? 0;
+
+  const replyCount = useMemo(() => {
+    if (data.replies && Array.isArray(data.replies)) {
+      return data.replies.reduce(
+        (acc, r) => acc + 1 + (r._count?.replies ?? 0),
+        0
+      );
+    }
+    return data._count?.replies ?? 0;
+  }, [data.replies, data._count]);
 
   const formattedDate = useMemo(() => {
     const createdAtDate = typeof createdAt === 'string' ? new Date(createdAt) : createdAt;
@@ -232,7 +243,7 @@ export default function Tweet({ data, currentUserId }: TweetType) {
           </button>
         </div>
         <div className="group flex items-center gap-1 text-text-muted">
-          <div className="group-hover:text-blue-500 duration-150">{data.replies?.length ?? 0}</div>
+          <div className="group-hover:text-blue-500 duration-150">{replyCount}</div>
           <Link
             href={`/tweet/${tweetId}`}
             aria-label="Reply to tweet"

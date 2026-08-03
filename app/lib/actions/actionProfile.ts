@@ -69,6 +69,8 @@ export async function showProfile() {
   return user;
 }
 
+import { checkRateLimit } from '@/app/lib/ratelimit';
+
 export async function updateProfile(data: {
   name: string;
   userName: string;
@@ -83,6 +85,11 @@ export async function updateProfile(data: {
   }
 
   const userId = session.user.id;
+
+  const rateCheck = await checkRateLimit(`updateProfile:${userId}`, 5, 60);
+  if (!rateCheck.success) {
+    return { success: false, error: rateCheck.error || 'Rate limit exceeded. Please wait a bit.' };
+  }
 
   const name = data.name.trim();
   const userName = data.userName.trim().toLowerCase();

@@ -3,6 +3,7 @@
 import prisma from '../prisma';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/app/auth';
+import { checkRateLimit } from '@/app/lib/ratelimit';
 
 export async function toggleTweetLike(tweetId: string) {
   try {
@@ -11,6 +12,11 @@ export async function toggleTweetLike(tweetId: string) {
 
     if (!userId) {
       return { success: false, error: 'Unauthorized' };
+    }
+
+    const rateCheck = await checkRateLimit(`like:${userId}`, 30, 60);
+    if (!rateCheck.success) {
+      return { success: false, error: rateCheck.error || 'Rate limit exceeded. Please wait a bit.' };
     }
 
     const existingLike = await prisma.like.findUnique({

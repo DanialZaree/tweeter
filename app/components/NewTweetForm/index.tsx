@@ -11,6 +11,8 @@ import { useCharLimitStore } from '@/app/store/useCharLimitStore';
 import { Loader2 } from 'lucide-react';
 import CharLimit from '../CharLimit';
 
+import { useRouter } from 'next/navigation';
+
 const schema = z.object({
   tweet: z.string().trim().min(1, 'Tweet is required').max(500, 'Max character is 500'),
 });
@@ -18,6 +20,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function NewTweetForm({ parentId, onSuccess }: { parentId?: string; onSuccess?: () => void }) {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -44,6 +47,7 @@ export default function NewTweetForm({ parentId, onSuccess }: { parentId?: strin
       if (result.success) {
         reset();
         updateChar(0);
+        router.refresh();
         if (onSuccess) {
           onSuccess();
         } else if (!parentId) {
@@ -63,7 +67,7 @@ export default function NewTweetForm({ parentId, onSuccess }: { parentId?: strin
   }
 
   return (
-    <Form className="flex flex-col gap-4 w-full max-w-2xl" onSubmit={handleSubmit(onSubmit)}>
+    <Form className="flex flex-col gap-3 w-full max-w-2xl" onSubmit={handleSubmit(onSubmit)}>
       <div className="flex flex-col items-start gap-1">
         <textarea
           {...register('tweet', {
@@ -71,24 +75,26 @@ export default function NewTweetForm({ parentId, onSuccess }: { parentId?: strin
               charLimitHandler(e);
             },
           })}
-          rows={7}
-          placeholder="Enter tweet"
+          rows={parentId ? 3 : 7}
+          placeholder={parentId ? 'Post your reply...' : 'Enter tweet'}
           maxLength={500}
           dir="auto"
           disabled={isSubmitting}
-          className={`${errors.tweet ? 'focus:outline-red-500 border-red-500' : 'focus:outline-white'} pt-3 pb-10 pl-3.5 pr-2 border border-border/60 rounded-md focus:outline-2  focus:-outline-offset-1 w-full font-normal text-white text-lg resize-y disabled:opacity-50`}
+          className={`${errors.tweet ? 'focus:outline-red-500 border-red-500' : 'focus:outline-white'} pt-3 pb-10 pl-3.5 pr-2 border border-border/60 rounded-md focus:outline-2 focus:-outline-offset-1 w-full font-normal text-white text-base sm:text-lg resize-y disabled:opacity-50`}
         />
         <CharLimit charLimit={500} />
-        {errors.tweet && <p className="text-red-800">{errors.tweet.message}</p>}
+        {errors.tweet && <p className="text-red-800 text-sm">{errors.tweet.message}</p>}
       </div>
-      <Button
-        type="submit"
-        disabled={isSubmitting}
-        className="flex justify-center items-center gap-2 bg-foreground hover:bg-foreground/80 hover:data-disabled:bg-gray-50 active:bg-foreground/60 active:data-disabled:bg-gray-50 disabled:opacity-50 active:data-disabled:shadow-none active:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] m-0 px-3.5 border border-gray-200 active:border-foreground/60 active:border-t-gray-300 active:data-disabled:border-t-gray-200 rounded-md outline-0 focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1 h-10 font-inherit font-normal text-gray-900 data-disabled:text-gray-500 text-base leading-6 cursor-pointer disabled:cursor-not-allowed select-none"
-      >
-        {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-        {isSubmitting ? 'Posting...' : 'Submit'}
-      </Button>
+      <div className="flex justify-end">
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="flex justify-center items-center gap-2 bg-foreground hover:bg-foreground/80 hover:data-disabled:bg-gray-50 active:bg-foreground/60 active:data-disabled:bg-gray-50 disabled:opacity-50 active:data-disabled:shadow-none active:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] m-0 px-4 border border-gray-200 active:border-foreground/60 active:border-t-gray-300 active:data-disabled:border-t-gray-200 rounded-md outline-0 focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1 h-10 font-inherit font-medium text-gray-900 data-disabled:text-gray-500 text-sm sm:text-base cursor-pointer disabled:cursor-not-allowed select-none"
+        >
+          {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+          {isSubmitting ? (parentId ? 'Replying...' : 'Posting...') : (parentId ? 'Reply' : 'Submit')}
+        </Button>
+      </div>
     </Form>
   );
 }

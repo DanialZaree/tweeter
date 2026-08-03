@@ -1,9 +1,10 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTweetById } from '@/app/lib/actions/tweet';
 import Tweet from '@/app/components/Tweet';
 import Frame from '@/app/components/Frame';
 import Navbar from '@/app/components/Navbar';
-import ReplyDrawer from '@/app/components/ui/ReplyDrawer';
+import NewTweetForm from '@/app/components/NewTweetForm';
 import { auth } from '@/app/auth';
 
 export default async function TweetPage({ params }: { params: Promise<{ tweet: string }> }) {
@@ -27,18 +28,34 @@ export default async function TweetPage({ params }: { params: Promise<{ tweet: s
 
     if (!tweet) notFound();
 
+    const totalReplies = tweet.replies
+      ? tweet.replies.reduce((acc, r) => acc + 1 + (r._count?.replies ?? 0), 0)
+      : (tweet._count?.replies ?? 0);
+
     return (
       <Frame>
         <Navbar />
         <div className="mt-4">
           <Tweet data={tweet} currentUserId={currentUserId} />
-          {currentUserId && (
-            <ReplyDrawer parentId={tweet.id} />
+          {currentUserId ? (
+            <div className="mt-4 p-4 border border-surface rounded-xl bg-surface/30">
+              <h3 className="mb-3 font-medium text-text-muted text-sm">
+                Replying to <span className="text-sky-400">@{tweet.author.userName || 'user'}</span>
+              </h3>
+              <NewTweetForm parentId={tweet.id} />
+            </div>
+          ) : (
+            <div className="mt-4 p-4 border border-surface rounded-xl bg-surface/20 text-center text-text-muted text-sm">
+              <Link href="/auth" className="text-sky-400 underline hover:text-sky-300">
+                Sign in
+              </Link>{' '}
+              to reply
+            </div>
           )}
           {tweet.replies && tweet.replies.length > 0 && (
-            <div className="flex flex-col mt-4">
-              <p className="mb-2 px-1 text-text-muted text-sm">
-                {tweet.replies.length} {tweet.replies.length === 1 ? 'Reply' : 'Replies'}
+            <div className="flex flex-col mt-6">
+              <p className="mb-2 px-1 font-semibold text-text-muted text-sm">
+                {totalReplies} {totalReplies === 1 ? 'Reply' : 'Replies'}
               </p>
               {tweet.replies.map((reply) => (
                 <Tweet key={reply.id} data={reply} currentUserId={currentUserId} />
@@ -46,7 +63,7 @@ export default async function TweetPage({ params }: { params: Promise<{ tweet: s
             </div>
           )}
           {tweet.replies?.length === 0 && (
-            <p className="mt-8 text-text-muted text-sm text-center">
+            <p className="mt-8 text-center text-text-muted text-sm">
               No replies yet. Be the first!
             </p>
           )}
