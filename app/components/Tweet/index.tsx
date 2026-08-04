@@ -86,7 +86,7 @@ export default function Tweet({ data, currentUserId }: TweetType) {
   const isLiked = likedTweets[id] ?? isLikedByCurrentUser;
   const currentLikes = likeCounts[id] ?? data.likes?.length ?? 0;
 
-  const replyCount = data.totalReplies ?? data._count?.replies ?? 0;
+  const replyCount = Math.max(data.totalReplies ?? 0, data._count?.replies ?? 0);
 
   const formattedDate = useMemo(() => {
     const createdAtDate = typeof createdAt === 'string' ? new Date(createdAt) : createdAt;
