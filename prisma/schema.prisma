@@ -20,6 +20,9 @@ model Tweet {
   parent    Tweet?    @relation("TweetReplies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   replies   Tweet[]   @relation("TweetReplies")
 
+  ancestorIds  String[]  @db.ObjectId
+  totalReplies Int       @default(0)
+
   author    User      @relation(fields: [authorId], references: [id])
   likes     Like[]
 }

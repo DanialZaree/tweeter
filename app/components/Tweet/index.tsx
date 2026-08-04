@@ -14,7 +14,7 @@ import CharLimit from '../CharLimit';
 import MoreTweetButton from '../ui/MoreTweetButton';
 import { getGradientFromName } from '@/app/lib/avatar';
 import Avatar from '../ui/Avatar';
-import { Repeat2, Heart, ChartNoAxesColumnIcon, MessageCircle, Bird, Loader2 } from 'lucide-react';
+import { Repeat2, Heart, Share2, MessageCircle, Bird, Loader2 } from 'lucide-react';
 
 const schema = z.object({
   tweet: z.string().trim().min(1, 'Tweet is required').max(500, 'Max character is 500'),
@@ -45,6 +45,7 @@ export interface TweetType {
       tweetId: string;
     }[];
     _count?: { replies: number };
+    totalReplies?: number;
     replies?: {
       id: string;
       authorId: string;
@@ -63,6 +64,7 @@ export interface TweetType {
       };
       likes: { id: string; userId: string; tweetId: string }[];
       _count?: { replies: number };
+      totalReplies?: number;
     }[];
   };
   currentUserId?: string;
@@ -84,19 +86,20 @@ export default function Tweet({ data, currentUserId }: TweetType) {
   const isLiked = likedTweets[id] ?? isLikedByCurrentUser;
   const currentLikes = likeCounts[id] ?? data.likes?.length ?? 0;
 
-  const replyCount = useMemo(() => {
-    if (data.replies && Array.isArray(data.replies)) {
-      return data.replies.reduce(
-        (acc, r) => acc + 1 + (r._count?.replies ?? 0),
-        0
-      );
-    }
-    return data._count?.replies ?? 0;
-  }, [data.replies, data._count]);
+  const replyCount = data.totalReplies ?? data._count?.replies ?? 0;
 
   const formattedDate = useMemo(() => {
     const createdAtDate = typeof createdAt === 'string' ? new Date(createdAt) : createdAt;
     return createdAtDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long' });
+  }, [createdAt]);
+
+  const formattedTime = useMemo(() => {
+    const createdAtDate = typeof createdAt === 'string' ? new Date(createdAt) : createdAt;
+    return createdAtDate.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: false,
+    });
   }, [createdAt]);
 
   const [isEditing, setIsEditing] = useState(false);
@@ -271,13 +274,12 @@ export default function Tweet({ data, currentUserId }: TweetType) {
           </button>
         </div>
         <div className="group flex items-center gap-1 text-text-muted">
-          <div className="group-hover:text-blue-500 duration-150">2</div>
           <button
             type="button"
             aria-label="Views"
             className="bg-transparent hover:bg-blue-500/10 p-1.5 border-0 rounded-full cursor-pointer"
           >
-            <ChartNoAxesColumnIcon className="w-4 sm:w-5 h-4 sm:h-5 text-text-muted group-hover:text-blue-500 duration-150" />
+            <Share2 className="w-4 sm:w-5 h-4 sm:h-5 text-text-muted group-hover:text-blue-500 duration-150" />
           </button>
         </div>
       </div>
@@ -288,7 +290,9 @@ export default function Tweet({ data, currentUserId }: TweetType) {
         </div>
         <div className="flex items-center gap-1">
           {isEdited && <span className="italic">(edited)</span>}
-          <span>{formattedDate}</span>
+          <span>
+            {formattedTime} &middot; {formattedDate}
+          </span>
         </div>
       </div>
     </div>

@@ -27,7 +27,7 @@ export default function Follow({
       <button
         onClick={followHandler}
         disabled={isPending}
-        className="hover:bg-white/10 disabled:opacity-50 px-4 py-1.5 border border-white/20 rounded-full font-bold text-[14px] transition-colors cursor-pointer"
+        className="hover:bg-white/10 disabled:opacity-50 px-4 py-1.5 pt-2 border border-white/20 rounded-full font-bold text-[14px] transition-colors cursor-pointer"
       >
         {isPending ? 'Loading...' : isCurrentlyFollowing ? 'Unfollow' : 'Follow'}
       </button>

@@ -50,7 +50,10 @@ export async function registerUser(data: RegisterData): Promise<AuthActionResult
 
   const rateCheck = await checkRateLimit(`register:${email}`, 5, 900);
   if (!rateCheck.success) {
-    return { success: false, error: rateCheck.error || 'Too many registration attempts. Please try again later.' };
+    return {
+      success: false,
+      error: rateCheck.error || 'Too many registration attempts. Please try again later.',
+    };
   }
 
   const RESERVED_USERNAMES = new Set([
@@ -135,7 +138,10 @@ export async function login(
 
   const rateCheck = await checkRateLimit(`login:${normalizedUserName}`, 5, 900);
   if (!rateCheck.success) {
-    return { success: false, error: rateCheck.error || 'Too many login attempts. Please try again later.' };
+    return {
+      success: false,
+      error: rateCheck.error || 'Too many login attempts. Please try again later.',
+    };
   }
   try {
     await signIn('credentials', { userName: normalizedUserName, password, redirect: false });

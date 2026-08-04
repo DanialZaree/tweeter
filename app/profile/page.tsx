@@ -1,5 +1,5 @@
 import { showProfile } from '../lib/actions/actionProfile';
-import { getTweetByUserId } from '../lib/actions/tweet';
+import { getTweetByUserId, getRepliesByUserId } from '../lib/actions/tweet';
 import TweetList from '../components/TweetList';
 import Avatar from '../components/ui/Avatar';
 import { getGradientFromName } from '../lib/avatar';
@@ -22,8 +22,18 @@ export default async function Profile() {
 
   const bgGradient = getGradientFromName(user?.userName);
 
-  const { success, tweets, error } = await getTweetByUserId(user?.id ?? '');
-  const safeTweets = tweets ?? [];
+  const {
+    success: tweetsSuccess,
+    tweets: userTweets,
+    error: tweetsError,
+  } = await getTweetByUserId(user?.id ?? '');
+  const {
+    success: repliesSuccess,
+    tweets: userReplies,
+    error: repliesError,
+  } = await getRepliesByUserId(user?.id ?? '');
+  const safeTweets = userTweets ?? [];
+  const safeReplies = userReplies ?? [];
   return (
     <div className="bg-black w-full min-h-screen text-white">
       <div className="mx-auto border-white/10 sm:border-x w-full max-w-2xl min-h-screen">
@@ -68,9 +78,14 @@ export default async function Profile() {
               priority
             />
           )}
-          {/* Avatar */}
-          <div className="z-10 -bottom-10 sm:-bottom-12 left-3 sm:left-4 absolute rounded-full outline-4 outline-surface-2 outline-offset-2 w-20 sm:w-24 h-20 sm:h-24 overflow-hidden">
-            <Avatar name={user?.name} image={user?.avatar} size={96} className="" />
+          {/* Avatar wrapper */}
+          <div className="z-10 -bottom-10 sm:-bottom-12 left-4 sm:left-4 absolute">
+            {/* Black background for the outline offset gap */}
+            <div className="absolute -inset-1 bg-black rounded-full z-0" />
+
+            <div className="relative z-10 rounded-full outline-4 outline-surface-2 outline-offset-4 w-20 sm:w-24 h-20 sm:h-24 overflow-hidden">
+              <Avatar name={user?.name} image={user?.avatar} size={96} className="" />
+            </div>
           </div>
         </div>
 
@@ -85,7 +100,7 @@ export default async function Profile() {
         </div>
 
         {/* Profile info */}
-        <div className="px-3 sm:px-4 pt-10 sm:pt-12 pb-4">
+        <div className="px-3 sm:px-4 pt-5 sm:pt-6 pb-4">
           <div className="flex items-center gap-1">
             <span className="font-extrabold sm:text-[20px] text-lg leading-tight">
               {user?.name ?? 'Jane Doe'}
@@ -147,9 +162,9 @@ export default async function Profile() {
             <Tabs.Panel className={panelClassName} value="tweets">
               {safeTweets?.length > 0 ? (
                 <TweetList
-                  success={success}
+                  success={tweetsSuccess}
                   tweets={safeTweets}
-                  error={error}
+                  error={tweetsError}
                   currentUserId={currentUserId}
                 />
               ) : (
@@ -157,7 +172,16 @@ export default async function Profile() {
               )}
             </Tabs.Panel>
             <Tabs.Panel className={panelClassName} value="replies">
-              <p>Milestones and deadlines.</p>
+              {safeReplies?.length > 0 ? (
+                <TweetList
+                  success={repliesSuccess}
+                  tweets={safeReplies}
+                  error={repliesError}
+                  currentUserId={currentUserId}
+                />
+              ) : (
+                <p>No Replies :/</p>
+              )}
             </Tabs.Panel>
             <Tabs.Panel className={panelClassName} value="account">
               <p>Profile and preferences.</p>

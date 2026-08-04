@@ -16,7 +16,10 @@ export async function toggleTweetLike(tweetId: string) {
 
     const rateCheck = await checkRateLimit(`like:${userId}`, 30, 60);
     if (!rateCheck.success) {
-      return { success: false, error: rateCheck.error || 'Rate limit exceeded. Please wait a bit.' };
+      return {
+        success: false,
+        error: rateCheck.error || 'Rate limit exceeded. Please wait a bit.',
+      };
     }
 
     const existingLike = await prisma.like.findUnique({

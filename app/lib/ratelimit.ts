@@ -51,7 +51,7 @@ function getUpstashLimiter(limit: number, windowSeconds: number) {
         redis,
         limiter: Ratelimit.slidingWindow(limit, `${windowSeconds} s`),
         analytics: true,
-      })
+      }),
     );
   }
   return upstashLimiters.get(configKey);
@@ -66,7 +66,7 @@ function getUpstashLimiter(limit: number, windowSeconds: number) {
 export async function checkRateLimit(
   key: string,
   limit: number = 5,
-  windowSeconds: number = 60
+  windowSeconds: number = 60,
 ): Promise<{ success: boolean; error?: string; remaining?: number }> {
   if (hasUpstash && redis) {
     try {

@@ -19,7 +19,13 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-export default function NewTweetForm({ parentId, onSuccess }: { parentId?: string; onSuccess?: () => void }) {
+export default function NewTweetForm({
+  parentId,
+  onSuccess,
+}: {
+  parentId?: string;
+  onSuccess?: () => void;
+}) {
   const router = useRouter();
   const {
     register,
@@ -92,7 +98,7 @@ export default function NewTweetForm({ parentId, onSuccess }: { parentId?: strin
           className="flex justify-center items-center gap-2 bg-foreground hover:bg-foreground/80 hover:data-disabled:bg-gray-50 active:bg-foreground/60 active:data-disabled:bg-gray-50 disabled:opacity-50 active:data-disabled:shadow-none active:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] m-0 px-4 border border-gray-200 active:border-foreground/60 active:border-t-gray-300 active:data-disabled:border-t-gray-200 rounded-md outline-0 focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1 h-10 font-inherit font-medium text-gray-900 data-disabled:text-gray-500 text-sm sm:text-base cursor-pointer disabled:cursor-not-allowed select-none"
         >
           {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-          {isSubmitting ? (parentId ? 'Replying...' : 'Posting...') : (parentId ? 'Reply' : 'Submit')}
+          {isSubmitting ? (parentId ? 'Replying...' : 'Posting...') : parentId ? 'Reply' : 'Submit'}
         </Button>
       </div>
     </Form>

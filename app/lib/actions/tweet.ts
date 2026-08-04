@@ -68,6 +68,7 @@ export async function createTweet(formData: FormData) {
         tweetId: newTweetId,
         content: content,
         parentId: null,
+        ancestorIds: [],
         createdAt: new Date(),
       },
     });
@@ -84,10 +85,7 @@ export async function allTweets() {
   try {
     const tweets = await prisma.tweet.findMany({
       where: {
-        OR: [
-          { parentId: null },
-          { parentId: { isSet: false } },
-        ],
+        OR: [{ parentId: null }, { parentId: { isSet: false } }],
       },
       orderBy: { createdAt: 'desc' },
       include: {
@@ -116,10 +114,7 @@ export async function getTweetById(tweetId: string) {
     const isObjectId = /^[0-9a-fA-F]{24}$/.test(tweetId);
     const tweet = await prisma.tweet.findFirst({
       where: {
-        OR: [
-          { tweetId: tweetId },
-          ...(isObjectId ? [{ id: tweetId }] : [])
-        ]
+        OR: [{ tweetId: tweetId }, ...(isObjectId ? [{ id: tweetId }] : [])],
       },
       include: {
         author: { select: safeAuthorSelect },
@@ -146,6 +141,7 @@ export async function getTweetByUserId(userId: string) {
     const tweets = await prisma.tweet.findMany({
       where: {
         authorId: userId,
+        OR: [{ parentId: null }, { parentId: { isSet: false } }],
       },
       orderBy: {
         createdAt: 'desc',
@@ -165,6 +161,31 @@ export async function getTweetByUserId(userId: string) {
   }
 }
 
+export async function getRepliesByUserId(userId: string) {
+  try {
+    const tweets = await prisma.tweet.findMany({
+      where: {
+        authorId: userId,
+        parentId: { not: null },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        author: {
+          select: safeAuthorSelect,
+        },
+        likes: true,
+        _count: { select: { replies: true } },
+      },
+    });
+    return { success: true, tweets };
+  } catch (e) {
+    console.error('Error in getRepliesByUserId:', e);
+    return { success: false, error: 'Failed to fetch replies' };
+  }
+}
+
 export async function deleteTweet(tweetId: string) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -174,7 +195,7 @@ export async function deleteTweet(tweetId: string) {
   try {
     const tweet = await prisma.tweet.findUnique({
       where: { id: tweetId },
-      select: { authorId: true },
+      select: { authorId: true, ancestorIds: true, totalReplies: true },
     });
 
     if (!tweet) {
@@ -184,6 +205,17 @@ export async function deleteTweet(tweetId: string) {
     if (tweet.authorId !== session.user.id) {
       return { success: false, error: 'Unauthorized' };
     }
+
+    if (tweet.ancestorIds && tweet.ancestorIds.length > 0) {
+      await prisma.tweet.updateMany({
+        where: { id: { in: tweet.ancestorIds } },
+        data: { totalReplies: { decrement: 1 + (tweet.totalReplies || 0) } },
+      });
+    }
+
+    await prisma.tweet.deleteMany({
+      where: { ancestorIds: { has: tweetId } },
+    });
 
     await prisma.tweet.delete({
       where: { id: tweetId },
@@ -264,15 +296,29 @@ export async function createReply(parentId: string, content: string) {
         ? (parseInt(latestTweet.tweetId, 10) + 1).toString()
         : '1';
 
+    const parentTweet = await prisma.tweet.findUnique({
+      where: { id: parentId },
+      select: { ancestorIds: true },
+    });
+    const ancestorIds = parentTweet ? [...(parentTweet.ancestorIds || []), parentId] : [parentId];
+
     const reply = await prisma.tweet.create({
       data: {
         authorId: session.user.id,
         tweetId: newTweetId,
         content: validation.data.content,
         parentId: parentId,
+        ancestorIds: ancestorIds,
         createdAt: new Date(),
       },
     });
+
+    if (ancestorIds.length > 0) {
+      await prisma.tweet.updateMany({
+        where: { id: { in: ancestorIds } },
+        data: { totalReplies: { increment: 1 } },
+      });
+    }
 
     revalidatePath('/tweet/[tweet]', 'page');
     revalidatePath('/');
