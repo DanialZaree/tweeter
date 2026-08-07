@@ -28,7 +28,7 @@
     "dotenv": "^17.4.2",
     "lucide-react": "^1.17.0",
     "mongodb": "^7.5.0",
-    "next": "^16.2.12",
+    "next": "^16.3.0",
     "next-auth": "^5.0.0-beta.31",
     "next-cloudinary": "^6.17.5",
     "prisma": "^6.19.3",
