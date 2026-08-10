@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect, useTransition, useRef } from 'react';
 import { OTPInput, OTPStatus } from '@/components/motion/otp-input';
 import { handleSendOtp, verifyOtp } from '@/app/lib/actions/actionAuth';
 import { RotateCcw, Loader2 } from 'lucide-react';
@@ -28,6 +28,8 @@ export default function Otp({
   const [successMessage, setSuccessMessage] = useState('');
   const [timer, setTimer] = useState(60);
   const [isPending, startTransition] = useTransition();
+  const [isResending, setIsResending] = useState(false);
+  const isResendingRef = useRef(false);
 
   useEffect(() => {
     if (timer <= 0) return;
@@ -79,18 +81,29 @@ export default function Otp({
     });
   };
 
-  const handleResend = () => {
-    if (timer > 0 || isPending) return;
+  const handleResend = async () => {
+    if (timer > 0 || isPending || isResending || isResendingRef.current) return;
 
+    isResendingRef.current = true;
     setTimer(60);
     setCode('');
     resetFeedback();
-    setSuccessMessage('A new code has been sent.');
+    setIsResending(true);
 
-    startTransition(async () => {
-      if (email) await handleSendOtp(email);
-      onResendCode?.();
-    });
+    try {
+      if (onResendCode) {
+        await onResendCode();
+      } else if (email) {
+        await handleSendOtp(email);
+      }
+      setSuccessMessage('A new code has been sent.');
+    } catch (err) {
+      setStatus('error');
+      setErrorMessage('Failed to resend code');
+    } finally {
+      setIsResending(false);
+      isResendingRef.current = false;
+    }
   };
 
   return (
@@ -116,21 +129,21 @@ export default function Otp({
         status={status}
         errorMessage={errorMessage}
         successMessage={successMessage}
-        disabled={isPending || status === 'success'}
+        disabled={isPending || isResending || status === 'success'}
         autoFocus
       />
 
-      {isPending && (
+      {(isPending || isResending) && (
         <div className="flex items-center gap-2 text-xs text-blue-400">
           <Loader2 className="w-3.5 h-3.5 animate-spin" />
-          Verifying code...
+          {isResending ? 'Sending new code...' : 'Verifying code...'}
         </div>
       )}
 
       <div className="flex items-center justify-between gap-3 w-full pt-2 border-t border-zinc-800/80 text-xs">
         <button
           type="button"
-          disabled={isPending}
+          disabled={isPending || isResending}
           onClick={onChangeEmail}
           className="text-zinc-400 hover:text-zinc-200 disabled:cursor-not-allowed transition-colors cursor-pointer"
         >
@@ -139,7 +152,7 @@ export default function Otp({
 
         <button
           type="button"
-          disabled={timer > 0 || isPending}
+          disabled={timer > 0 || isPending || isResending}
           onClick={handleResend}
           className="flex items-center gap-1.5 text-blue-400 hover:text-blue-300 disabled:text-zinc-500 disabled:cursor-not-allowed transition-colors cursor-pointer"
         >

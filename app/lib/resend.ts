@@ -12,7 +12,7 @@ export async function sendOtpEmail(email: string, otp: string) {
       subject: 'Your Boblo Verification Code',
       text: `Your Boblo verification code is: ${code}. This code will expire in 10 minutes.`,
       html: `
-        <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
