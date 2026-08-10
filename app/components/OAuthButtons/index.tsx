@@ -4,7 +4,7 @@ import { signIn } from 'next-auth/react';
 
 export default function OAuthButtons() {
   return (
-    <div className="flex flex-col gap-3 w-full my-2">
+    <div className="flex flex-col gap-3 w-full">
       <button
         type="button"
         onClick={() => signIn('google', { callbackUrl: '/' })}

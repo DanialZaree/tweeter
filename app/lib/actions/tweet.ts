@@ -73,7 +73,7 @@ export async function createTweet(formData: FormData) {
       },
     });
 
-    revalidatePath('/');
+    revalidatePath('/', 'layout');
     return { success: true, tweet };
   } catch (error) {
     console.error('Error in createTweet:', error);
@@ -214,15 +214,19 @@ export async function deleteTweet(tweetId: string) {
     }
 
     await prisma.tweet.deleteMany({
-      where: { ancestorIds: { has: tweetId } },
+      where: { 
+        OR: [
+          { ancestorIds: { has: tweetId } },
+          { parentId: tweetId }
+        ]
+      },
     });
 
     await prisma.tweet.delete({
       where: { id: tweetId },
     });
 
-    revalidatePath('/');
-    revalidatePath('/profile');
+    revalidatePath('/', 'layout');
     return { success: true };
   } catch (e) {
     console.error('Error in deleteTweet:', e);
@@ -265,8 +269,7 @@ export async function editTweet(tweetId: string, newContent: string) {
       data: { content: content, isEdited: true },
     });
 
-    revalidatePath('/');
-    revalidatePath('/profile');
+    revalidatePath('/', 'layout');
     return { success: true };
   } catch (e) {
     console.error('Error in editTweet:', e);
@@ -320,8 +323,7 @@ export async function createReply(parentId: string, content: string) {
       });
     }
 
-    revalidatePath('/tweet/[tweet]', 'page');
-    revalidatePath('/');
+    revalidatePath('/', 'layout');
     return { success: true, reply };
   } catch (e) {
     console.error('Error in createReply:', e);

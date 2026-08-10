@@ -114,3 +114,12 @@ model Follower {
 
   @@unique([userId, followerId])
 }
+
+model Verification {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier  String
+  token       String
+  expires     DateTime
+
+  @@unique([identifier, token])
+}
