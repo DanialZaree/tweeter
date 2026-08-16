@@ -2,13 +2,25 @@
 
 import prisma from '../prisma';
 
+const safeUserSelect = {
+  id: true,
+  name: true,
+  userName: true,
+  avatar: true,
+  coverImage: true,
+  bio: true,
+  job: true,
+  createdAt: true,
+};
+
 export async function getUser({ userName }: { userName: string }) {
   try {
     const user = await prisma.user.findUnique({
       where: {
         userName: userName.toLowerCase(),
       },
-      include: {
+      select: {
+        ...safeUserSelect,
         _count: {
           select: {
             tweets: true,

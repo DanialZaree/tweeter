@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useMemo, useState } from 'react';
 import { toggleTweetLike } from '@/app/lib/actions/actionLike';
 import { editTweet } from '@/app/lib/actions/tweet';
@@ -30,6 +31,7 @@ export interface TweetType {
     tweetId?: string | null;
     content: string;
     isEdited?: boolean;
+    mediaUrl?: string;
     createdAt: Date | string;
     parentId?: string | null;
     author: {
@@ -72,6 +74,7 @@ export interface TweetType {
       id: string;
       tweetId?: string | null;
       content: string;
+      mediaUrl?: string | null;
       createdAt: Date | string;
       author: {
         id: string;
@@ -178,7 +181,7 @@ export default function Tweet({ data, currentUserId }: TweetType) {
   }
 
   return (
-    <div className="flex flex-col my-4 sm:my-6 p-3 sm:p-4 border border-surface rounded-xl w-full ">
+    <div className="flex flex-col my-4 sm:my-6 p-3 sm:p-4 border border-surface rounded-xl w-full">
       <div className="flex justify-between items-start">
         <div className="flex flex-row items-center gap-2.5 sm:gap-3 min-w-0">
           <Link
@@ -259,40 +262,55 @@ export default function Tweet({ data, currentUserId }: TweetType) {
           className="mt-3 sm:mt-4 sm:text-[16px] text-sm text-start wrap-break-word leading-relaxed tracking-wide whitespace-pre-line"
         >
           {content}
-          {data.retweetOf && ( <div dir="ltr">
-            <Link
-              href={`/tweet/${data.retweetOf.tweetId || data.retweetOf.id}`}
-              className="block mt-3 p-3 border border-border hover:border-white/30 rounded-xl transition duration-200"
-            >
-              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                <div
-                  className={`shrink-0 rounded-full outline-2 outline-surface-2 outline-offset-2 w-10 h-10 sm:w-12 sm:h-12 overflow-hidden ${bgGradient}`}
+          {data.mediaUrl && (
+            <div className="block mt-3 border border-border hover:border-white/30 rounded-xl transition duration-200">
+              <Image src={data.mediaUrl} alt="Tweet media" className="w-full max-h-[450px] h-auto rounded-xl object-cover" width={500} height={300} unoptimized />
+            </div>
+          )}
+          {data.retweetOf && (
+            <div dir="ltr">
+              <Link
+                href={`/tweet/${data.retweetOf.tweetId || data.retweetOf.id}`}
+                className="block mt-3 p-3 border border-border hover:border-white/30 rounded-xl transition duration-200"
+              >
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                  <div
+                    className={`shrink-0 rounded-full outline-2 outline-surface-2 outline-offset-2 w-10 h-10 sm:w-12 sm:h-12 overflow-hidden ${bgGradient}`}
+                  >
+                    <Avatar
+                      name={data.retweetOf.author?.name || 'User'}
+                      image={data.retweetOf.author?.avatar}
+                      size={24}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-0.5 min-w-0">
+                    <div className="font-semibold text-sm sm:text-base text-left truncate">
+                      {data.retweetOf.author?.name || 'User'}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-1.5 text-text-muted text-xs sm:text-sm truncate">
+                      <div className="truncate">@{data.retweetOf.author?.userName || 'user'}</div>
+                      {data.retweetOf.author?.job && (
+                        <div className="px-1.5 py-0.5 border border-text-subtle rounded-lg text-xs">
+                          {data.retweetOf.author?.job}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <p
+                  dir="auto"
+                  className="mt-3 sm:mt-4 sm:text-[16px] text-sm text-start wrap-break-word leading-relaxed tracking-wide whitespace-pre-line"
                 >
-                  <Avatar
-                    name={data.retweetOf.author?.name || 'User'}
-                    image={data.retweetOf.author?.avatar}
-                    size={24}
-                  />
-                </div>
-                <div className="flex flex-col gap-0.5 min-w-0">
-                  <div className="font-semibold text-sm sm:text-base text-left truncate">
-                   {data.retweetOf.author?.name || 'User'}
+                  {data.retweetOf.content}
+                </p>
+                {data.retweetOf.mediaUrl && (
+                  <div className="block mt-3 border border-border hover:border-white/30 rounded-xl transition duration-200">
+                    <Image src={data.retweetOf.mediaUrl} alt="Retweet media" className="w-full max-h-[450px] h-auto rounded-xl object-cover" width={500} height={300} unoptimized />
                   </div>
-                  <div className="flex flex-wrap items-center gap-1.5 text-text-muted text-xs sm:text-sm truncate">
-                    <div className="truncate">@{data.retweetOf.author?.userName || 'user'}</div>
-                    {data.retweetOf.author?.job && (
-                      <div className="px-1.5 py-0.5 border border-text-subtle rounded-lg text-xs">
-                        {data.retweetOf.author?.job}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <p dir='auto' className="mt-3 sm:mt-4 sm:text-[16px] text-sm text-start wrap-break-word leading-relaxed tracking-wide whitespace-pre-line">
-                {data.retweetOf.content}
-              </p>
-            </Link>
-          </div>)}
+                )}
+              </Link>
+            </div>
+          )}
         </div>
       )}
       <div className="flex flex-row justify-between items-center mt-3 sm:mt-4 text-xs sm:text-sm">

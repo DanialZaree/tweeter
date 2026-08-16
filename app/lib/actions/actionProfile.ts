@@ -46,6 +46,17 @@ const schema = z.object({
   coverImage: optionalUrlSchema,
 });
 
+const safeUserSelect = {
+  id: true,
+  name: true,
+  userName: true,
+  avatar: true,
+  coverImage: true,
+  bio: true,
+  job: true,
+  createdAt: true,
+};
+
 export async function showProfile() {
   const session = await auth();
   if (!session?.user?.id) {
@@ -56,7 +67,8 @@ export async function showProfile() {
     where: {
       id: session.user.id,
     },
-    include: {
+    select: {
+      ...safeUserSelect,
       _count: {
         select: {
           tweets: true,
@@ -112,6 +124,7 @@ export async function updateProfile(data: {
     'auth',
     'login',
     'signup',
+    'signin',
     'register',
     'settings',
     'user',
@@ -158,6 +171,7 @@ export async function updateProfile(data: {
         avatar: validation.data.avatar ?? null,
         coverImage: validation.data.coverImage ?? null,
       },
+      select: safeUserSelect,
     });
 
     revalidatePath('/profile');

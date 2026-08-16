@@ -15,6 +15,7 @@ model Tweet {
   createdAt DateTime  @default(now()) @map("createdAt")
   viewCount Int       @default(0)
   isEdited  Boolean   @default(false)
+  mediaUrl  String?
 
   parentId  String?   @db.ObjectId
   parent    Tweet?    @relation("TweetReplies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)

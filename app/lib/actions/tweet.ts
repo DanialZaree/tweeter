@@ -11,6 +11,14 @@ const tweetInputSchema = z.object({
     .string()
     .min(1, 'content is required')
     .max(500, 'content must be less than 500 characters'),
+  mediaUrl: z
+    .string()
+    .url('mediaUrl must be a valid URL')
+    .refine((url) => url.startsWith('https://res.cloudinary.com/'), {
+      message: 'mediaUrl must be a secure Cloudinary URL',
+    })
+    .optional()
+    .nullable(),
 });
 const safeAuthorSelect = {
   id: true,
@@ -39,13 +47,15 @@ export async function createTweet(formData: FormData) {
   const authorId = user.id;
   const rawContent = formData.get('content') as string;
   const retweetOfId = formData.get('retweetOfId') as string | null;
+  const mediaUrl = formData.get('mediaUrl') as string | null;
 
-  const validation = tweetInputSchema.safeParse({ content: rawContent });
+  const validation = tweetInputSchema.safeParse({ content: rawContent, mediaUrl });
 
   if (!validation.success) {
-    return { success: false, error: validation.error?.message };
+    return { success: false, error: validation.error.issues[0]?.message || 'Invalid input' };
   }
   const content = validation.data.content;
+  const validatedMediaUrl = validation.data.mediaUrl;
 
   const rateCheck = await checkRateLimit(`tweet:${authorId}`, 5, 60);
   if (!rateCheck.success) {
@@ -69,6 +79,7 @@ export async function createTweet(formData: FormData) {
         tweetId: newTweetId,
         content: content,
         retweetOfId: retweetOfId,
+        mediaUrl: validatedMediaUrl,
         parentId: null,
         ancestorIds: [],
         createdAt: new Date(),
@@ -302,12 +313,12 @@ export async function editTweet(tweetId: string, newContent: string) {
     return { success: false, error: 'Failed to edit tweet' };
   }
 }
-export async function createReply(parentId: string, content: string) {
+export async function createReply(parentId: string, content: string, mediaUrl?: string | null) {
   const session = await auth();
   if (!session?.user.id) return { success: false, error: 'User not authenticated' };
 
-  const validation = tweetInputSchema.safeParse({ content: content });
-  if (!validation.success) return { success: false, error: validation.error?.message };
+  const validation = tweetInputSchema.safeParse({ content: content, mediaUrl });
+  if (!validation.success) return { success: false, error: validation.error.issues[0]?.message || 'Invalid input' };
 
   const rateCheck = await checkRateLimit(`reply:${session.user.id}`, 5, 60);
   if (!rateCheck.success) {
@@ -336,6 +347,7 @@ export async function createReply(parentId: string, content: string) {
         authorId: session.user.id,
         tweetId: newTweetId,
         content: validation.data.content,
+        mediaUrl: validation.data.mediaUrl,
         parentId: parentId,
         ancestorIds: ancestorIds,
         createdAt: new Date(),
