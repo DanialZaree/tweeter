@@ -31,7 +31,7 @@ export interface TweetType {
     tweetId?: string | null;
     content: string;
     isEdited?: boolean;
-    mediaUrl?: string;
+    mediaUrl?: string | null;
     createdAt: Date | string;
     parentId?: string | null;
     author: {
@@ -55,6 +55,7 @@ export interface TweetType {
       tweetId?: string | null;
       content: string;
       isEdited?: boolean;
+      mediaUrl?: string | null;
       createdAt: Date | string;
       parentId: string | null;
       author: {
