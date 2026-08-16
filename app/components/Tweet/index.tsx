@@ -259,7 +259,7 @@ export default function Tweet({ data, currentUserId }: TweetType) {
           className="mt-3 sm:mt-4 sm:text-[16px] text-sm text-start wrap-break-word leading-relaxed tracking-wide whitespace-pre-line"
         >
           {content}
-          {data.retweetOf && (
+          {data.retweetOf && ( <div dir="ltr">
             <Link
               href={`/tweet/${data.retweetOf.tweetId || data.retweetOf.id}`}
               className="block mt-3 p-3 border border-border hover:border-white/30 rounded-xl transition duration-200"
@@ -288,11 +288,11 @@ export default function Tweet({ data, currentUserId }: TweetType) {
                   </div>
                 </div>
               </div>
-              <p className="mt-3 sm:mt-4 sm:text-[16px] text-sm text-start wrap-break-word leading-relaxed tracking-wide whitespace-pre-line">
+              <p dir='auto' className="mt-3 sm:mt-4 sm:text-[16px] text-sm text-start wrap-break-word leading-relaxed tracking-wide whitespace-pre-line">
                 {data.retweetOf.content}
               </p>
             </Link>
-          )}
+          </div>)}
         </div>
       )}
       <div className="flex flex-row justify-between items-center mt-3 sm:mt-4 text-xs sm:text-sm">
