@@ -21,9 +21,11 @@ type FormData = z.infer<typeof schema>;
 
 export default function NewTweetForm({
   parentId,
+  retweetOfId,
   onSuccess,
 }: {
   parentId?: string;
+  retweetOfId?: string|null;
   onSuccess?: () => void;
 }) {
   const router = useRouter();
@@ -48,6 +50,9 @@ export default function NewTweetForm({
       } else {
         const formData = new FormData();
         formData.append('content', data.tweet);
+        if(retweetOfId) {
+          formData.append('retweetOfId', retweetOfId);
+        }
         result = await createTweet(formData);
       }
       if (result.success) {
@@ -86,16 +91,16 @@ export default function NewTweetForm({
           maxLength={500}
           dir="auto"
           disabled={isSubmitting}
-          className={`${errors.tweet ? 'focus:outline-red-500 border-red-500' : 'focus:outline-white'} pt-3 pb-10 pl-3.5 pr-2 border border-border/60 rounded-md focus:outline-2 focus:-outline-offset-1 w-full font-normal text-white text-base sm:text-lg resize-y disabled:opacity-50`}
+          className={`${errors.tweet ? 'focus:outline-red-500 border-red-500' : 'focus:outline-white'} pt-3 pb-10 pl-3.5 pr-2 border border-border rounded-md focus:outline-2 focus:-outline-offset-1 w-full font-normal text-white text-base sm:text-lg resize-y disabled:opacity-50`}
         />
         <CharLimit charLimit={500} />
         {errors.tweet && <p className="text-red-800 text-sm">{errors.tweet.message}</p>}
       </div>
-      <div className="flex justify-end">
+      <div className="">
         <Button
-          type="submit"
+          type={"submit"}
           disabled={isSubmitting}
-          className="flex justify-center items-center gap-2 bg-foreground hover:bg-foreground/80 hover:data-disabled:bg-gray-50 active:bg-foreground/60 active:data-disabled:bg-gray-50 disabled:opacity-50 active:data-disabled:shadow-none active:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] m-0 px-4 border border-gray-200 active:border-foreground/60 active:border-t-gray-300 active:data-disabled:border-t-gray-200 rounded-md outline-0 focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1 h-10 font-inherit font-medium text-gray-900 data-disabled:text-gray-500 text-sm sm:text-base cursor-pointer disabled:cursor-not-allowed select-none"
+          className="flex justify-center items-center gap-2 bg-foreground hover:bg-foreground/80 hover:data-disabled:bg-gray-50 active:bg-foreground/60 active:data-disabled:bg-gray-50 disabled:opacity-50 active:data-disabled:shadow-none active:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] m-0 px-4 border border-gray-200 active:border-foreground/60 active:border-t-gray-300 active:data-disabled:border-t-gray-200 rounded-md outline-0 focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1 w-full h-10 font-inherit font-medium text-gray-900 data-disabled:text-gray-500 text-sm sm:text-base cursor-pointer disabled:cursor-not-allowed select-none"
         >
           {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
           {isSubmitting ? (parentId ? 'Replying...' : 'Posting...') : parentId ? 'Reply' : 'Submit'}

@@ -23,6 +23,11 @@ model Tweet {
   ancestorIds  String[]  @db.ObjectId
   totalReplies Int       @default(0)
 
+  retweetOfId String? 
+  retweetOf   Tweet?  @relation("TweetRetweets", fields: [retweetOfId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  retweets    Tweet[] @relation("TweetRetweets")
+
+
   author    User      @relation(fields: [authorId], references: [id])
   likes     Like[]
 }

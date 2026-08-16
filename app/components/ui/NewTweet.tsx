@@ -5,7 +5,7 @@ import NewTweetForm from '../NewTweetForm';
 import { useDrawerStore } from '@/app/store/useDrawerStore';
 
 export default function NewTweet() {
-  const { isOpen, openDrawer, closeDrawer } = useDrawerStore();
+  const { isOpen, openDrawer, closeDrawer,retweetOfId } = useDrawerStore();
 
   return (
     <Drawer.Root
@@ -15,9 +15,9 @@ export default function NewTweet() {
       }}
     >
       <Drawer.Trigger
-        onClick={openDrawer}
+        onClick={() => openDrawer()}
         aria-label="Create new tweet"
-        className="bottom-4 right-4 sm:bottom-6 sm:right-6 fixed z-40 flex justify-center items-center bg-white hover:bg-white/90 active:bg-white/80 p-2.5 sm:p-3 text-black border border-white/20 rounded-full shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 focus-visible:outline-2 cursor-pointer select-none"
+        className="right-4 sm:right-6 bottom-4 sm:bottom-6 z-40 fixed flex justify-center items-center bg-white hover:bg-white/90 active:bg-white/80 shadow-md hover:shadow-lg p-2.5 sm:p-3 border border-white/20 rounded-full focus-visible:outline-2 text-black hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer select-none"
       >
         <Plus className="w-5 h-5" />
       </Drawer.Trigger>
@@ -31,9 +31,9 @@ export default function NewTweet() {
             <div className="bg-gray-300 mx-auto mb-4 rounded-full w-12 h-1" />
             <Drawer.Content className="flex flex-col items-center mx-auto w-full max-w-xl">
               <Drawer.Title className="mb-1 font-bold text-foreground text-xl text-center">
-                Make New Tweet
+                {retweetOfId ? 'Retweet' : 'Create Tweet'}
               </Drawer.Title>
-              <NewTweetForm />
+              <NewTweetForm retweetOfId={retweetOfId} />
             </Drawer.Content>
           </Drawer.Popup>
         </Drawer.Viewport>

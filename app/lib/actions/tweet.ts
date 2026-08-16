@@ -38,6 +38,7 @@ export async function createTweet(formData: FormData) {
   }
   const authorId = user.id;
   const rawContent = formData.get('content') as string;
+  const retweetOfId = formData.get('retweetOfId') as string | null;
 
   const validation = tweetInputSchema.safeParse({ content: rawContent });
 
@@ -67,6 +68,7 @@ export async function createTweet(formData: FormData) {
         authorId: authorId,
         tweetId: newTweetId,
         content: content,
+        retweetOfId: retweetOfId,
         parentId: null,
         ancestorIds: [],
         createdAt: new Date(),
@@ -91,7 +93,16 @@ export async function allTweets() {
       include: {
         author: { select: safeAuthorSelect },
         likes: true,
-        _count: { select: { replies: true } },
+        retweetOf: {
+          include: {
+            author: { select: safeAuthorSelect },
+            likes: true,
+            retweets: { select: { authorId: true } },
+            _count: { select: { replies: true, retweets: true } },
+          },
+        },
+        retweets: { select: { authorId: true } },
+        _count: { select: { replies: true, retweets: true } },
         replies: {
           orderBy: { createdAt: 'asc' },
           include: {
@@ -119,7 +130,16 @@ export async function getTweetById(tweetId: string) {
       include: {
         author: { select: safeAuthorSelect },
         likes: true,
-        _count: { select: { replies: true } },
+        retweetOf: {
+          include: {
+            author: { select: safeAuthorSelect },
+            likes: true,
+            retweets: { select: { authorId: true } },
+            _count: { select: { replies: true, retweets: true } },
+          },
+        },
+        retweets: { select: { authorId: true } },
+        _count: { select: { replies: true, retweets: true } },
         replies: {
           orderBy: { createdAt: 'desc' },
           include: {
@@ -151,7 +171,16 @@ export async function getTweetByUserId(userId: string) {
           select: safeAuthorSelect,
         },
         likes: true,
-        _count: { select: { replies: true } },
+        retweetOf: {
+          include: {
+            author: { select: safeAuthorSelect },
+            likes: true,
+            retweets: { select: { authorId: true } },
+            _count: { select: { replies: true, retweets: true } },
+          },
+        },
+        retweets: { select: { authorId: true } },
+        _count: { select: { replies: true, retweets: true } },
       },
     });
     return { success: true, tweets };
@@ -214,11 +243,8 @@ export async function deleteTweet(tweetId: string) {
     }
 
     await prisma.tweet.deleteMany({
-      where: { 
-        OR: [
-          { ancestorIds: { has: tweetId } },
-          { parentId: tweetId }
-        ]
+      where: {
+        OR: [{ ancestorIds: { has: tweetId } }, { parentId: tweetId }],
       },
     });
 

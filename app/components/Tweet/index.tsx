@@ -10,6 +10,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCharLimitStore } from '@/app/store/useCharLimitStore';
+import { useDrawerStore } from '@/app/store/useDrawerStore';
 import CharLimit from '../CharLimit';
 import MoreTweetButton from '../ui/MoreTweetButton';
 import { getGradientFromName } from '@/app/lib/avatar';
@@ -44,7 +45,7 @@ export interface TweetType {
       userId: string;
       tweetId: string;
     }[];
-    _count?: { replies: number };
+    _count?: { replies?: number; retweets?: number };
     totalReplies?: number;
     replies?: {
       id: string;
@@ -66,6 +67,25 @@ export interface TweetType {
       _count?: { replies: number };
       totalReplies?: number;
     }[];
+    retweetOfId?: string | null;
+    retweetOf?: {
+      id: string;
+      tweetId?: string | null;
+      content: string;
+      createdAt: Date | string;
+      author: {
+        id: string;
+        name: string | null;
+        userName: string | null;
+        avatar: string | null;
+        job: string | null;
+      };
+      likes?: { id: string; userId: string; tweetId: string }[];
+      retweets?: { authorId: string }[];
+      _count?: { replies: number; retweets: number };
+      totalReplies?: number;
+    } | null;
+    retweets?: { authorId: string }[];
   };
   currentUserId?: string;
 }
@@ -79,12 +99,18 @@ export default function Tweet({ data, currentUserId }: TweetType) {
     : getGradientFromName(author?.userName || 'user');
 
   const { likedTweets, likeCounts, optimisticToggleLike, revertToggleLike } = useLikeStore();
+  const { openDrawer } = useDrawerStore();
 
   const isLikedByCurrentUser = currentUserId
     ? data.likes?.some((like) => like.userId === currentUserId)
     : false;
   const isLiked = likedTweets[id] ?? isLikedByCurrentUser;
   const currentLikes = likeCounts[id] ?? data.likes?.length ?? 0;
+
+  const isRetweetedByCurrentUser = currentUserId
+    ? data.retweets?.some((r) => r.authorId === currentUserId)
+    : false;
+  const retweetCount = data.retweets?.length ?? data._count?.retweets ?? 0;
 
   const replyCount = Math.max(data.totalReplies ?? 0, data._count?.replies ?? 0);
 
@@ -233,16 +259,60 @@ export default function Tweet({ data, currentUserId }: TweetType) {
           className="mt-3 sm:mt-4 sm:text-[16px] text-sm text-start wrap-break-word leading-relaxed tracking-wide whitespace-pre-line"
         >
           {content}
+          {data.retweetOf && (
+            <Link
+              href={`/tweet/${data.retweetOf.tweetId || data.retweetOf.id}`}
+              className="block mt-3 p-3 border border-border hover:border-white/30 rounded-xl transition duration-200"
+            >
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                <div
+                  className={`shrink-0 rounded-full outline-2 outline-surface-2 outline-offset-2 w-10 h-10 sm:w-12 sm:h-12 overflow-hidden ${bgGradient}`}
+                >
+                  <Avatar
+                    name={data.retweetOf.author?.name || 'User'}
+                    image={data.retweetOf.author?.avatar}
+                    size={24}
+                  />
+                </div>
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <div className="font-semibold text-sm sm:text-base text-left truncate">
+                   {data.retweetOf.author?.name || 'User'}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1.5 text-text-muted text-xs sm:text-sm truncate">
+                    <div className="truncate">@{data.retweetOf.author?.userName || 'user'}</div>
+                    {data.retweetOf.author?.job && (
+                      <div className="px-1.5 py-0.5 border border-text-subtle rounded-lg text-xs">
+                        {data.retweetOf.author?.job}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <p className="mt-3 sm:mt-4 sm:text-[16px] text-sm text-start wrap-break-word leading-relaxed tracking-wide whitespace-pre-line">
+                {data.retweetOf.content}
+              </p>
+            </Link>
+          )}
         </div>
       )}
       <div className="flex flex-row justify-between items-center mt-3 sm:mt-4 text-xs sm:text-sm">
         <div className="group flex items-center gap-1 text-text-muted">
+          <span
+            className={`duration-150 ${isRetweetedByCurrentUser ? 'text-green-500' : 'group-hover:text-green-500'}`}
+          >
+            {retweetCount > 0 ? retweetCount : ''}
+          </span>
           <button
             type="button"
             aria-label="Retweet"
             className="bg-transparent hover:bg-green-500/10 p-1.5 border-0 rounded-full cursor-pointer"
+            onClick={() => {
+              openDrawer(data.id);
+            }}
           >
-            <Repeat2 className="w-4 sm:w-5 h-4 sm:h-5 text-text-muted group-hover:text-green-500 duration-150" />
+            <Repeat2
+              className={`w-4 sm:w-5 h-4 sm:h-5 duration-150 ${isRetweetedByCurrentUser ? 'text-green-500' : 'text-text-muted group-hover:text-green-500'}`}
+            />
           </button>
         </div>
         <div className="group flex items-center gap-1 text-text-muted">
@@ -286,9 +356,11 @@ export default function Tweet({ data, currentUserId }: TweetType) {
       <div className="flex flex-row justify-between items-end mt-2 pt-2 border-surface border-t text-text-muted text-xs sm:text-sm">
         <div className="flex items-center gap-1">
           <Bird className="w-4 h-4" />
-          Boblo
+          <span>Boblo</span>
+          {data.parentId && <span className="text-text-muted">|  Replied</span>}
+          {data.retweetOf && <span className="text-text-muted">|  Reposted</span>}
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 text-text-muted">
           {isEdited && <span className="italic">(edited)</span>}
           <span>
             {formattedTime} &middot; {formattedDate}
