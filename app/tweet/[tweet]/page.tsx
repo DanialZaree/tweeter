@@ -5,6 +5,7 @@ import Tweet from '@/app/components/Tweet';
 import Frame from '@/app/components/Frame';
 import Navbar from '@/app/components/Navbar';
 import NewTweetForm from '@/app/components/NewTweetForm';
+import NewTweet from '@/app/components/ui/NewTweet';
 import { auth } from '@/app/auth';
 
 export default async function TweetPage({ params }: { params: Promise<{ tweet: string }> }) {
@@ -65,6 +66,7 @@ export default async function TweetPage({ params }: { params: Promise<{ tweet: s
           </p>
         )}
       </div>
+      {session?.user && <NewTweet />}
     </Frame>
   );
 }

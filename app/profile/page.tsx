@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Calendar } from 'lucide-react';
 import { Tabs } from '@base-ui/react/tabs';
+import NewTweet from '@/app/components/ui/NewTweet';
 import { auth } from '../auth';
 
 const tabClassName =
@@ -189,6 +190,7 @@ export default async function Profile() {
           </div>
         </Tabs.Root>
       </div>
+      {session?.user && <NewTweet />}
     </div>
   );
 }

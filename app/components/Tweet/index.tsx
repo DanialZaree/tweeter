@@ -178,7 +178,7 @@ export default function Tweet({ data, currentUserId }: TweetType) {
   }
 
   return (
-    <div className="flex flex-col my-4 sm:my-6 p-3 sm:p-4 border border-surface rounded-xl w-full transition hover:-translate-y-0.5 duration-300">
+    <div className="flex flex-col my-4 sm:my-6 p-3 sm:p-4 border border-surface rounded-xl w-full ">
       <div className="flex justify-between items-start">
         <div className="flex flex-row items-center gap-2.5 sm:gap-3 min-w-0">
           <Link

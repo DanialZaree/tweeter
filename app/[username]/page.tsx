@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { Calendar } from 'lucide-react';
 import { Tabs } from '@base-ui/react/tabs';
 import Follow from '@/app/components/Follow';
+import NewTweet from '@/app/components/ui/NewTweet';
 import { redirect } from 'next/navigation';
 
 const tabClassName =
@@ -205,6 +206,7 @@ export default async function UserProfilePage({ params }: { params: { username: 
           </div>
         </Tabs.Root>
       </div>
+      {session?.user && <NewTweet />}
     </div>
   );
 }
