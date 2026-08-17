@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import { toggleTweetLike } from '@/app/lib/actions/actionLike';
 import { editTweet } from '@/app/lib/actions/tweet';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ import CharLimit from '../CharLimit';
 import MoreTweetButton from '../ui/MoreTweetButton';
 import { getGradientFromName } from '@/app/lib/avatar';
 import Avatar from '../ui/Avatar';
+import { domToBlob } from 'modern-screenshot';
 import { Repeat2, Heart, Share2, MessageCircle, Bird, Loader2 } from 'lucide-react';
 
 const schema = z.object({
@@ -95,6 +96,8 @@ export interface TweetType {
 }
 
 export default function Tweet({ data, currentUserId }: TweetType) {
+  const tweetRef = useRef<HTMLDivElement>(null);
+
   const { content, createdAt, author, tweetId: rawTweetId, id, isEdited } = data;
   const tweetId = rawTweetId || id;
 
@@ -181,8 +184,67 @@ export default function Tweet({ data, currentUserId }: TweetType) {
     }
   }
 
+  async function inlineImages(container: HTMLElement) {
+    const images = container.querySelectorAll('img');
+    const originals = new Map<HTMLImageElement, string>();
+
+    await Promise.all(
+      Array.from(images).map(async (img) => {
+        if (!img.src || img.src.startsWith('data:')) return;
+        try {
+          originals.set(img, img.src);
+          const res = await fetch(`/api/image-proxy?url=${encodeURIComponent(img.src)}`);
+          const blob = await res.blob();
+          img.src = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(blob);
+          });
+        } catch { /* keep original */ }
+      })
+    );
+
+    return () => originals.forEach((src, img) => { img.src = src; });
+  }
+
+  async function handleShareScreenshot(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!tweetRef.current) return;
+
+    try {
+      const restore = await inlineImages(tweetRef.current);
+      const blob = await domToBlob(tweetRef.current, { scale: 2, backgroundColor: '#0b0f14' });
+      restore();
+
+      if (!blob) return;
+
+      const file = new File([blob], `tweet-${tweetId}.png`, { type: 'image/png' });
+
+      if (navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: `Tweet by ${author?.name || 'User'}`, text: content });
+          return;
+        } catch (err) {
+          if ((err as Error).name === 'AbortError') return;
+        }
+      }
+
+      const link = document.createElement('a');
+      link.download = `tweet-${tweetId}.png`;
+      link.href = URL.createObjectURL(blob);
+      link.click();
+      URL.revokeObjectURL(link.href);
+    } catch (error) {
+      console.error('Failed to capture tweet screenshot:', error);
+    }
+  }
+
   return (
-    <div className="flex flex-col my-4 sm:my-6 p-3 sm:p-4 border border-surface rounded-xl w-full">
+    <div
+      ref={tweetRef}
+      className="flex flex-col my-4 sm:my-6 p-3 sm:p-4 border border-surface rounded-xl w-full"
+    >
       <div className="flex justify-between items-start">
         <div className="flex flex-row items-center gap-2.5 sm:gap-3 min-w-0">
           <Link
@@ -265,7 +327,16 @@ export default function Tweet({ data, currentUserId }: TweetType) {
           {content}
           {data.mediaUrl && (
             <div className="block mt-3 border border-border hover:border-white/30 rounded-xl transition duration-200">
-              <Image src={data.mediaUrl} alt="Tweet media" className="w-full max-h-[450px] h-auto rounded-xl object-cover" width={500} height={300} unoptimized />
+              <Image
+                src={data.mediaUrl}
+                alt="Tweet media"
+                className="w-full max-h-112.5 h-auto rounded-xl object-cover"
+                width={500}
+                height={300}
+                loading="eager"
+                unoptimized
+                crossOrigin="anonymous"
+              />
             </div>
           )}
           {data.retweetOf && (
@@ -306,7 +377,16 @@ export default function Tweet({ data, currentUserId }: TweetType) {
                 </p>
                 {data.retweetOf.mediaUrl && (
                   <div className="block mt-3 border border-border hover:border-white/30 rounded-xl transition duration-200">
-                    <Image src={data.retweetOf.mediaUrl} alt="Retweet media" className="w-full max-h-[450px] h-auto rounded-xl object-cover" width={500} height={300} unoptimized />
+                    <Image
+                      src={data.retweetOf.mediaUrl}
+                      alt="Retweet media"
+                      className="w-full max-h-112.5 h-auto rounded-xl object-cover"
+                      width={500}
+                      height={300}
+                      loading="eager"
+                      unoptimized
+                      crossOrigin="anonymous"
+                    />
                   </div>
                 )}
               </Link>
@@ -364,6 +444,7 @@ export default function Tweet({ data, currentUserId }: TweetType) {
         </div>
         <div className="group flex items-center gap-1 text-text-muted">
           <button
+            onClick={handleShareScreenshot}
             type="button"
             aria-label="Views"
             className="bg-transparent hover:bg-blue-500/10 p-1.5 border-0 rounded-full cursor-pointer"
