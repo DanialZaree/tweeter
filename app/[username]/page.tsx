@@ -171,7 +171,7 @@ export default async function UserProfilePage({ params }: { params: { username: 
               Replies
             </Tabs.Tab>
             <Tabs.Tab className={`${tabClassName} flex-1`} value="account">
-              Account
+              Retweets
             </Tabs.Tab>
             <Tabs.Indicator className="absolute top-1 bottom-1 left-0 -z-1 bg-surface/60 border-2 border-border rounded-2xl w-(--active-tab-width) translate-x-(--active-tab-left) transition-[translate,width] duration-150 ease-in-out" />
           </Tabs.List>

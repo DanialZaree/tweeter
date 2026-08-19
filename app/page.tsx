@@ -1,31 +1,37 @@
 import { auth } from './auth';
 import Navbar from './components/Navbar';
 import Frame from './components/Frame';
-import TweetList from './components/TweetList';
-import NewTweet from './components/ui/NewTweet';
-import { allTweets } from './lib/actions/tweet';
-import { Suspense } from 'react';
+import { Home as HomeIcon, Lock } from 'lucide-react';
+import SignInBtn from './components/SignInBtn';
 
 export default async function Home() {
   const session = await auth();
-  const currentUserId = session?.user?.id;
 
-  const { success, tweets, error } = await allTweets();
   return (
     <>
       <Frame>
         <Navbar />
-        <main>
-          <Suspense fallback={<div>Loading tweets...</div>}>
-            <TweetList
-              success={success}
-              tweets={tweets ?? []}
-              error={error}
-              currentUserId={currentUserId}
-            />
-          </Suspense>
+        <main className="flex flex-col items-center justify-center flex-1 h-[60vh] text-center gap-4 px-4">
+          {!session ? (
+            <>
+              <div className="bg-surface p-6 rounded-full">
+                <Lock size={48} className="text-blue-500" />
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight">Sign In Required</h1>
+              <p className="text-muted-foreground max-w-sm mb-4">
+                You need to be signed in to view your personalized home feed.
+              </p>
+              <SignInBtn />
+            </>
+          ) : (
+            <>
+              <div className="bg-surface p-6 rounded-full">
+                <HomeIcon size={48} className="text-blue-500" />
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight">Coming Soon</h1>
+            </>
+          )}
         </main>
-        {session?.user && <NewTweet />}
       </Frame>
     </>
   );

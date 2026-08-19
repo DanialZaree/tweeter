@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import SignOutBtn from '../SignOutBtn';
 
 interface EditProfileHeaderProps {
   isSubmitting: boolean;
@@ -17,6 +18,8 @@ export default function EditProfileHeader({ isSubmitting, isUploading }: EditPro
         </Link>
         <h1 className="font-bold text-lg sm:text-xl">Edit profile</h1>
       </div>
+      
+      <SignOutBtn />
     </div>
   );
 }

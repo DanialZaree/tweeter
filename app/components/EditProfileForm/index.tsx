@@ -41,7 +41,6 @@ type FormData = z.infer<typeof schema>;
 
 import EditProfileHeader from './EditProfileHeader';
 import ProfileImageSection from './ProfileImageSection';
-import ImageUrlInputs from './ImageUrlInputs';
 import ProfileFormFields from './ProfileFormFields';
 
 interface UserProfileData {
@@ -252,20 +251,6 @@ export default function EditProfileForm({ initialUser }: { initialUser: UserProf
             triggerAvatarUpload={triggerAvatarUpload}
             triggerCoverUpload={triggerCoverUpload}
             handleFileUpload={handleFileUpload}
-          />
-
-          <ImageUrlInputs
-            avatar={avatar}
-            coverImage={coverImage}
-            uploadPreset={uploadPreset}
-            isUploadingAvatar={isUploadingAvatar}
-            isUploadingCover={isUploadingCover}
-            setIsUploadingAvatar={setIsUploadingAvatar}
-            setIsUploadingCover={setIsUploadingCover}
-            setAvatar={setAvatar}
-            setCoverImage={setCoverImage}
-            triggerAvatarUpload={triggerAvatarUpload}
-            triggerCoverUpload={triggerCoverUpload}
           />
 
           <ProfileFormFields

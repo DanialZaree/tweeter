@@ -4,6 +4,7 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { JellyTabs } from '@/components/ui/jelly-tabs';
 
 const myFont = localFont({
   src: '../public/fonts/font.ttf',
@@ -23,13 +24,15 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn('h-full', 'antialiased', 'dark', 'font-sans', myFont.className)}>
       <body
-        className={`${myFont.className} flex flex-col min-h-full dark root`}
+        className={`${myFont.className} flex flex-col min-h-full dark root pb-18`}
         cz-shortcut-listen="false"
       >
         {children}
         <Analytics />
         <SpeedInsights />
+        <JellyTabs />
       </body>
     </html>
   );
 }
+

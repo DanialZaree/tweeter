@@ -1,5 +1,5 @@
 import { showProfile } from '../lib/actions/actionProfile';
-import { getTweetByUserId, getRepliesByUserId } from '../lib/actions/tweet';
+import { getTweetByUserId, getRepliesByUserId, getRetweetsByUserId } from '../lib/actions/tweet';
 import TweetList from '../components/TweetList';
 import Avatar from '../components/ui/Avatar';
 import { getGradientFromName } from '../lib/avatar';
@@ -33,8 +33,15 @@ export default async function Profile() {
     tweets: userReplies,
     error: repliesError,
   } = await getRepliesByUserId(user?.id ?? '');
+  const {
+    success: retweetsSuccess,
+    tweets: userRetweets,
+    error: retweetsError,
+  } = await getRetweetsByUserId(user?.id ?? '');
+  
   const safeTweets = userTweets ?? [];
   const safeReplies = userReplies ?? [];
+  const safeRetweets = userRetweets ?? [];
   return (
     <div className="bg-black w-full min-h-screen text-white">
       <div className="mx-auto border-white/10 sm:border-x w-full max-w-2xl min-h-screen">
@@ -154,8 +161,8 @@ export default async function Profile() {
             <Tabs.Tab className={`${tabClassName} flex-1`} value="replies">
               Replies
             </Tabs.Tab>
-            <Tabs.Tab className={`${tabClassName} flex-1`} value="account">
-              Account
+            <Tabs.Tab className={`${tabClassName} flex-1`} value="retweets">
+              Retweets
             </Tabs.Tab>
             <Tabs.Indicator className="absolute top-1 bottom-1 left-0 -z-1 bg-surface/60 border-2 border-border rounded-2xl w-(--active-tab-width) translate-x-(--active-tab-left) transition-[translate,width] duration-150 ease-in-out" />
           </Tabs.List>
@@ -184,8 +191,17 @@ export default async function Profile() {
                 <p>No Replies :/</p>
               )}
             </Tabs.Panel>
-            <Tabs.Panel className={panelClassName} value="account">
-              <p>Profile and preferences.</p>
+            <Tabs.Panel className={panelClassName} value="retweets">
+              {safeRetweets?.length > 0 ? (
+                <TweetList
+                  success={retweetsSuccess}
+                  tweets={safeRetweets}
+                  error={retweetsError}
+                  currentUserId={currentUserId}
+                />
+              ) : (
+                <p>No Retweets :/</p>
+              )}
             </Tabs.Panel>
           </div>
         </Tabs.Root>

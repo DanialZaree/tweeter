@@ -368,3 +368,37 @@ export async function createReply(parentId: string, content: string, mediaUrl?: 
     return { success: false, error: 'Failed to create reply' };
   }
 }
+
+export async function getRetweetsByUserId(userId: string) {
+  try {
+    const tweets = await prisma.tweet.findMany({
+      where: {
+        authorId: userId,
+        retweetOfId: { not: null },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        author: {
+          select: safeAuthorSelect,
+        },
+        likes: true,
+        retweetOf: {
+          include: {
+            author: { select: safeAuthorSelect },
+            likes: true,
+            retweets: { select: { authorId: true } },
+            _count: { select: { replies: true, retweets: true } },
+          },
+        },
+        retweets: { select: { authorId: true } },
+        _count: { select: { replies: true, retweets: true } },
+      },
+    });
+    return { success: true, tweets };
+  } catch (e) {
+    console.error('Error in getRetweetsByUserId:', e);
+    return { success: false, error: 'Failed to fetch retweets' };
+  }
+}
