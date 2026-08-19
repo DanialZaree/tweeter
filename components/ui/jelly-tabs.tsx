@@ -16,10 +16,7 @@ const TABS = [
 
 export function JellyTabs() {
   const pathname = usePathname();
-  
-  const [activeTab, setActiveTab] = useState(() => {
-    return TABS.find((tab) => pathname === tab.href)?.id || "home";
-  });
+  const [activeTab, setActiveTab] = useState("home");
 
   useEffect(() => {
     const current = TABS.find((tab) => pathname === tab.href);
@@ -32,10 +29,10 @@ export function JellyTabs() {
   const safeIndex = activeIndex >= 0 ? activeIndex : 0;
 
   return (
-    <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
+    <div className="bottom-3 left-1/2 z-50 fixed -translate-x-1/2">
       <div className="relative flex items-center gap-2 bg-surface/60 shadow-sm backdrop-blur-md p-1 rounded-full">
         <motion.div
-          className="absolute inset-y-1 w-20 bg-white shadow-sm rounded-full"
+          className="absolute inset-y-1 bg-white shadow-sm rounded-full w-20"
           animate={{ x: safeIndex * 88 }}
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
         />
@@ -69,5 +66,5 @@ export function JellyTabs() {
         })}
       </div>
     </div>
-  );
+    );
 }

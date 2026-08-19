@@ -7,9 +7,10 @@ import SignInBtn from '../components/SignInBtn';
 export default async function Chat() {
   const session = await auth();
   return (
-    <Frame>
+    <>
       <Navbar />
-      <main className="flex flex-col items-center justify-center flex-1 h-[60vh] text-center gap-4 px-4">
+      <Frame>
+        <main className="flex flex-col items-center justify-center flex-1 h-[60vh] text-center gap-4 px-4">
         {!session ? (
           <>
             <div className="bg-surface p-6 rounded-full">
@@ -31,5 +32,6 @@ export default async function Chat() {
         )}
       </main>
     </Frame>
+    </>
   );
 }

@@ -9,8 +9,8 @@ export default async function Home() {
 
   return (
     <>
+      <Navbar />
       <Frame>
-        <Navbar />
         <main className="flex flex-col items-center justify-center flex-1 h-[60vh] text-center gap-4 px-4">
           {!session ? (
             <>

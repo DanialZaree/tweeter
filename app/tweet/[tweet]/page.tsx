@@ -19,10 +19,12 @@ export default async function TweetPage({ params }: { params: Promise<{ tweet: s
 
   if (!success) {
     return (
-      <Frame>
+      <>
         <Navbar />
-        <div className="mt-8 text-red-500 text-center">{error}</div>
-      </Frame>
+        <Frame>
+          <div className="mt-8 text-red-500 text-center">{error}</div>
+        </Frame>
+      </>
     );
   }
 
@@ -31,9 +33,10 @@ export default async function TweetPage({ params }: { params: Promise<{ tweet: s
   const totalReplies = tweet.totalReplies ?? tweet.replies?.reduce((acc, r) => acc + 1 + (r._count?.replies ?? 0), 0) ?? tweet._count?.replies ?? 0;
 
   return (
-    <Frame>
+    <>
       <Navbar />
-      <div className="mt-4">
+      <Frame>
+        <div className="mt-4">
         <Tweet data={tweet} currentUserId={currentUserId} />
         {currentUserId ? (
           <div className="mt-4 p-4 border border-surface rounded-xl bg-surface/30">
@@ -68,5 +71,6 @@ export default async function TweetPage({ params }: { params: Promise<{ tweet: s
       </div>
       {session?.user && <NewTweet />}
     </Frame>
+    </>
   );
 }

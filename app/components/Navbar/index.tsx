@@ -3,7 +3,7 @@ import { Bird, Search } from 'lucide-react';
 
 export default function Navbar() {
   return (
-    <div className="top-0 z-10 sticky flex items-center justify-between bg-black/80 backdrop-blur-md py-3 mb-4 border-white/10 border-b w-full">
+    <div className="top-0 z-10 sticky flex items-center justify-between bg-black/80 backdrop-blur-md py-3 px-4 sm:px-6 mb-4 border-white/10 border-b w-full">
       <Link
         href={'/'}
         className="group flex items-center gap-2 font-bold hover:text-blue-500 text-xl sm:text-2xl truncate tracking-tight transition-colors"

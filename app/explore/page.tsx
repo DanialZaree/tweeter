@@ -13,8 +13,8 @@ export default async function Explore() {
   const { success, tweets, error } = await allTweets();
   return (
     <>
+      <Navbar />
       <Frame>
-        <Navbar />
         <main>
           <Suspense fallback={<div className="p-4 text-center text-muted-foreground">Loading tweets...</div>}>
             <TweetList
