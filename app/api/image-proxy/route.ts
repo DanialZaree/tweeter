@@ -8,7 +8,11 @@ export async function GET(req: NextRequest) {
   if (!raw) return err('Missing url', 400);
 
   let url: URL;
-  try { url = new URL(raw); } catch { return err('Invalid url', 400); }
+  try {
+    url = new URL(raw);
+  } catch {
+    return err('Invalid url', 400);
+  }
 
   if (!ALLOWED.some((h) => url.hostname.endsWith(h))) return err('Blocked', 403);
 

@@ -9,6 +9,7 @@ import { Suspense } from 'react';
 export default async function Explore() {
   const session = await auth();
   const currentUserId = session?.user?.id;
+  const currentUserName = session?.user?.userName;
 
   const { success, tweets, error } = await allTweets();
   return (
@@ -16,12 +17,17 @@ export default async function Explore() {
       <Navbar />
       <Frame>
         <main>
-          <Suspense fallback={<div className="p-4 text-center text-muted-foreground">Loading tweets...</div>}>
+          <Suspense
+            fallback={
+              <div className="p-4 text-center text-muted-foreground">Loading tweets...</div>
+            }
+          >
             <TweetList
               success={success}
               tweets={tweets ?? []}
               error={error}
               currentUserId={currentUserId}
+              currentUserName={currentUserName}
             />
           </Suspense>
         </main>

@@ -28,7 +28,7 @@ export default function NewTweetForm({
   onSuccess,
 }: {
   parentId?: string;
-  retweetOfId?: string|null;
+  retweetOfId?: string | null;
   onSuccess?: () => void;
 }) {
   const router = useRouter();
@@ -105,7 +105,7 @@ export default function NewTweetForm({
       } else {
         const formData = new FormData();
         formData.append('content', data.tweet);
-        if(retweetOfId) {
+        if (retweetOfId) {
           formData.append('retweetOfId', retweetOfId);
         }
         if (mediaUrl) {
@@ -155,10 +155,14 @@ export default function NewTweetForm({
           disabled={isSubmitting || isUploading}
           className={`${errors.tweet ? 'focus:outline-red-500 border-red-500' : 'focus:outline-white'} pt-3 pb-10 pl-3.5 pr-2 border border-border rounded-md focus:outline-2 focus:-outline-offset-1 w-full font-normal text-white text-base sm:text-lg resize-y disabled:opacity-50`}
         />
-        
+
         {fileState.files.length > 0 && (
           <div className="relative w-max mt-2">
-            <img src={fileState.files[0].preview} alt="preview" className="rounded-lg max-h-64 object-contain" />
+            <img
+              src={fileState.files[0].preview}
+              alt="preview"
+              className="rounded-lg max-h-64 object-contain"
+            />
             <button
               type="button"
               onClick={() => removeFile(fileState.files[0].id)}
@@ -172,9 +176,7 @@ export default function NewTweetForm({
         {fileState.errors.length > 0 && (
           <p className="text-red-500 text-sm mt-1">{fileState.errors[0]}</p>
         )}
-        {uploadError && (
-          <p className="text-red-500 text-sm mt-1">{uploadError}</p>
-        )}
+        {uploadError && <p className="text-red-500 text-sm mt-1">{uploadError}</p>}
 
         <div className="flex justify-between items-center w-full mt-2">
           <div className="flex items-center text-blue-400">
@@ -195,12 +197,20 @@ export default function NewTweetForm({
       </div>
       <div className="">
         <Button
-          type={"submit"}
+          type={'submit'}
           disabled={isSubmitting || isUploading}
           className="flex justify-center items-center gap-2 bg-foreground hover:bg-foreground/80 hover:data-disabled:bg-gray-50 active:bg-foreground/60 active:data-disabled:bg-gray-50 disabled:opacity-50 active:data-disabled:shadow-none active:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] m-0 px-4 border border-gray-200 active:border-foreground/60 active:border-t-gray-300 active:data-disabled:border-t-gray-200 rounded-md outline-0 focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1 w-full h-10 font-inherit font-medium text-gray-900 data-disabled:text-gray-500 text-sm sm:text-base cursor-pointer disabled:cursor-not-allowed select-none"
         >
           {(isSubmitting || isUploading) && <Loader2 className="w-4 h-4 animate-spin" />}
-          {isUploading ? 'Uploading Image...' : isSubmitting ? (parentId ? 'Replying...' : 'Posting...') : parentId ? 'Reply' : 'Submit'}
+          {isUploading
+            ? 'Uploading Image...'
+            : isSubmitting
+              ? parentId
+                ? 'Replying...'
+                : 'Posting...'
+              : parentId
+                ? 'Reply'
+                : 'Submit'}
         </Button>
       </div>
     </Form>

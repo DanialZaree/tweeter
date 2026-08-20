@@ -5,7 +5,7 @@ import NewTweetForm from '../NewTweetForm';
 import { useDrawerStore } from '@/app/store/useDrawerStore';
 
 export default function NewTweet() {
-  const { isOpen, openDrawer, closeDrawer,retweetOfId } = useDrawerStore();
+  const { isOpen, openDrawer, closeDrawer, retweetOfId } = useDrawerStore();
 
   return (
     <Drawer.Root

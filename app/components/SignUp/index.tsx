@@ -71,7 +71,10 @@ export default function SignUp() {
 
   async function handleVerifyOtp(code: string) {
     if (!pendingData) {
-      return { success: false, error: 'Registration details missing. Please try signing up again.' };
+      return {
+        success: false,
+        error: 'Registration details missing. Please try signing up again.',
+      };
     }
 
     const res = await registerUser(pendingData, code);

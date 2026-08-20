@@ -18,7 +18,7 @@ export default function EditProfileHeader({ isSubmitting, isUploading }: EditPro
         </Link>
         <h1 className="font-bold text-lg sm:text-xl">Edit profile</h1>
       </div>
-      
+
       <SignOutBtn />
     </div>
   );

@@ -93,13 +93,15 @@ export interface TweetType {
     retweets?: { authorId: string }[];
   };
   currentUserId?: string;
+  currentUserName?: string;
 }
 
-export default function Tweet({ data, currentUserId }: TweetType) {
+export default function Tweet({ data, currentUserId, currentUserName }: TweetType) {
   const tweetRef = useRef<HTMLDivElement>(null);
 
   const { content, createdAt, author, tweetId: rawTweetId, id, isEdited } = data;
   const tweetId = rawTweetId || id;
+  const isAdmin = currentUserName?.toLowerCase() === 'danial';
 
   const bgGradient = author?.avatar
     ? 'bg-sky-500'
@@ -200,11 +202,16 @@ export default function Tweet({ data, currentUserId }: TweetType) {
             reader.onloadend = () => resolve(reader.result as string);
             reader.readAsDataURL(blob);
           });
-        } catch { /* keep original */ }
-      })
+        } catch {
+          /* keep original */
+        }
+      }),
     );
 
-    return () => originals.forEach((src, img) => { img.src = src; });
+    return () =>
+      originals.forEach((src, img) => {
+        img.src = src;
+      });
   }
 
   async function handleShareScreenshot(e: React.MouseEvent) {
@@ -223,7 +230,11 @@ export default function Tweet({ data, currentUserId }: TweetType) {
 
       if (navigator.canShare?.({ files: [file] })) {
         try {
-          await navigator.share({ files: [file], title: `Tweet by ${author?.name || 'User'}`, text: content });
+          await navigator.share({
+            files: [file],
+            title: `Tweet by ${author?.name || 'User'}`,
+            text: content,
+          });
           return;
         } catch (err) {
           if ((err as Error).name === 'AbortError') return;
@@ -269,7 +280,7 @@ export default function Tweet({ data, currentUserId }: TweetType) {
           </div>
         </div>
         <div className="shrink-0">
-          {currentUserId === data.authorId && (
+          {(currentUserId === data.authorId || isAdmin) && (
             <MoreTweetButton
               tweetId={data.id}
               onEdit={() => {

@@ -193,7 +193,7 @@ export async function handleSendOtp(userEmail: string) {
 
     const forwardedFor = (await headers()).get('x-forwarded-for');
     const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : '127.0.0.1';
-    
+
     const ipRateCheck = await checkRateLimit(`otp_ip:${ip}`, 5, 60);
     if (!ipRateCheck.success) {
       return {

@@ -21,12 +21,17 @@ const tabClassName =
 const panelClassName =
   'col-start-1 row-start-1 flex w-full items-center justify-center  p-4 text-center text-sm text-neutral-950 outline-none  dark:text-white [&[hidden]]:hidden';
 
-export default async function UserProfilePage({ params }: { params: { username: string } }) {
+export default async function UserProfilePage({
+  params,
+}: {
+  params: Promise<{ username: string }>;
+}) {
   const { username } = await params;
   const user = await getUser({ userName: username });
 
   const session = await auth();
   const currentUserId = session?.user?.id;
+  const currentUserName = session?.user?.userName;
 
   if (user?.id === currentUserId) {
     redirect('/profile');
@@ -183,6 +188,7 @@ export default async function UserProfilePage({ params }: { params: { username: 
                   tweets={safeTweets}
                   error={tweetsError}
                   currentUserId={currentUserId}
+                  currentUserName={currentUserName}
                 />
               ) : (
                 <p>No Tweets :/</p>
@@ -195,6 +201,7 @@ export default async function UserProfilePage({ params }: { params: { username: 
                   tweets={safeReplies}
                   error={repliesError}
                   currentUserId={currentUserId}
+                  currentUserName={currentUserName}
                 />
               ) : (
                 <p>No Replies :/</p>

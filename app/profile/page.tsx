@@ -19,6 +19,7 @@ const panelClassName =
 export default async function Profile() {
   const session = await auth();
   const currentUserId = session?.user?.id;
+  const currentUserName = session?.user?.userName;
   const user = await showProfile();
 
   const bgGradient = getGradientFromName(user?.userName);
@@ -38,7 +39,7 @@ export default async function Profile() {
     tweets: userRetweets,
     error: retweetsError,
   } = await getRetweetsByUserId(user?.id ?? '');
-  
+
   const safeTweets = userTweets ?? [];
   const safeReplies = userReplies ?? [];
   const safeRetweets = userRetweets ?? [];
@@ -174,6 +175,7 @@ export default async function Profile() {
                   tweets={safeTweets}
                   error={tweetsError}
                   currentUserId={currentUserId}
+                  currentUserName={currentUserName}
                 />
               ) : (
                 <p>No Tweets :/</p>
@@ -186,6 +188,7 @@ export default async function Profile() {
                   tweets={safeReplies}
                   error={repliesError}
                   currentUserId={currentUserId}
+                  currentUserName={currentUserName}
                 />
               ) : (
                 <p>No Replies :/</p>
@@ -198,6 +201,7 @@ export default async function Profile() {
                   tweets={safeRetweets}
                   error={retweetsError}
                   currentUserId={currentUserId}
+                  currentUserName={currentUserName}
                 />
               ) : (
                 <p>No Retweets :/</p>

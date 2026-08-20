@@ -233,6 +233,11 @@ export async function deleteTweet(tweetId: string) {
   }
 
   try {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true, userName: true },
+    });
+
     const tweet = await prisma.tweet.findUnique({
       where: { id: tweetId },
       select: { authorId: true, ancestorIds: true, totalReplies: true },
@@ -242,7 +247,9 @@ export async function deleteTweet(tweetId: string) {
       return { success: false, error: 'Tweet not found' };
     }
 
-    if (tweet.authorId !== session.user.id) {
+    const isAdmin = user?.userName?.toLowerCase() === 'danial';
+
+    if (tweet.authorId !== session.user.id && !isAdmin) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -288,6 +295,11 @@ export async function editTweet(tweetId: string, newContent: string) {
   }
 
   try {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true, userName: true },
+    });
+
     const tweet = await prisma.tweet.findUnique({
       where: { id: tweetId },
       select: { authorId: true },
@@ -297,7 +309,9 @@ export async function editTweet(tweetId: string, newContent: string) {
       return { success: false, error: 'Tweet not found' };
     }
 
-    if (tweet.authorId !== session.user.id) {
+    const isAdmin = user?.userName?.toLowerCase() === 'danial';
+
+    if (tweet.authorId !== session.user.id && !isAdmin) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -318,7 +332,8 @@ export async function createReply(parentId: string, content: string, mediaUrl?: 
   if (!session?.user.id) return { success: false, error: 'User not authenticated' };
 
   const validation = tweetInputSchema.safeParse({ content: content, mediaUrl });
-  if (!validation.success) return { success: false, error: validation.error.issues[0]?.message || 'Invalid input' };
+  if (!validation.success)
+    return { success: false, error: validation.error.issues[0]?.message || 'Invalid input' };
 
   const rateCheck = await checkRateLimit(`reply:${session.user.id}`, 5, 60);
   if (!rateCheck.success) {

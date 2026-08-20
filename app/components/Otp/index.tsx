@@ -8,9 +8,7 @@ import { RotateCcw, Loader2 } from 'lucide-react';
 interface OtpProps {
   email?: string;
   length?: number;
-  onVerifySuccess?: (
-    code: string,
-  ) => Promise<{ success: boolean; error?: string } | void> | void;
+  onVerifySuccess?: (code: string) => Promise<{ success: boolean; error?: string } | void> | void;
   onResendCode?: () => void;
   onChangeEmail?: () => void;
 }
