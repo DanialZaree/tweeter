@@ -5,6 +5,7 @@ import TweetList from '../components/TweetList';
 import NewTweet from '../components/ui/NewTweet';
 import { allTweets } from '../lib/actions/tweet';
 import { Suspense } from 'react';
+import TweetSkeleton from '../components/Tweet/TweetSkeleton';
 
 export default async function Explore() {
   const session = await auth();
@@ -19,7 +20,11 @@ export default async function Explore() {
         <main>
           <Suspense
             fallback={
-              <div className="p-4 text-center text-muted-foreground">Loading tweets...</div>
+              <div className="mx-auto w-full max-w-xl">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <TweetSkeleton key={i} />
+                ))}
+              </div>
             }
           >
             <TweetList
