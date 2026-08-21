@@ -10,6 +10,8 @@ import { Tabs } from '@base-ui/react/tabs';
 import NewTweet from '@/app/components/ui/NewTweet';
 import { auth } from '../auth';
 
+import CoverImage from '../components/ui/CoverImage';
+
 const tabClassName =
   'flex h-[calc(2rem+1px)] items-center justify-center bg-transparent px-2 py-0 font-inherit text-sm font-normal leading-5 break-keep cursor-pointer whitespace-nowrap text-neutral-600 outline-none select-none hover:text-neutral-950 data-active:text-neutral-950 dark:text-neutral-300 dark:hover:text-white dark:data-active:text-white';
 
@@ -78,13 +80,9 @@ export default async function Profile() {
           }`}
         >
           {user?.coverImage && (
-            <Image
+            <CoverImage
               src={user.coverImage}
               alt="Cover Image"
-              fill
-              className="object-cover"
-              crossOrigin="anonymous"
-              priority
             />
           )}
           {/* Avatar wrapper */}
@@ -93,7 +91,7 @@ export default async function Profile() {
             <div className="absolute -inset-1 bg-black rounded-full z-0" />
 
             <div className="relative z-10 rounded-full outline-4 outline-surface-2 outline-offset-4 w-20 sm:w-24 h-20 sm:h-24 overflow-hidden">
-              <Avatar name={user?.name} image={user?.avatar} size={96} className="" />
+              <Avatar name={user?.name} image={user?.avatar} size={96} expandable className="" />
             </div>
           </div>
         </div>

@@ -195,7 +195,7 @@ export default function NewTweetForm({
         </div>
         {errors.tweet && <p className="text-red-800 text-sm">{errors.tweet.message}</p>}
       </div>
-      <div className="">
+      <div className="pb-4 sm:pb-2 w-full">
         <Button
           type={'submit'}
           disabled={isSubmitting || isUploading}

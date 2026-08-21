@@ -13,6 +13,7 @@ import { Calendar } from 'lucide-react';
 import { Tabs } from '@base-ui/react/tabs';
 import Follow from '@/app/components/Follow';
 import NewTweet from '@/app/components/ui/NewTweet';
+import CoverImage from '../components/ui/CoverImage';
 import { redirect } from 'next/navigation';
 
 const tabClassName =
@@ -97,13 +98,9 @@ export default async function UserProfilePage({
           }`}
         >
           {user?.coverImage && (
-            <Image
+            <CoverImage
               src={user.coverImage}
               alt="Cover Image"
-              fill
-              className="object-cover"
-              crossOrigin="anonymous"
-              priority
             />
           )}
 
@@ -111,7 +108,7 @@ export default async function UserProfilePage({
           <div className="z-10 -bottom-10 sm:-bottom-12 left-4 sm:left-4 absolute">
             <div className="absolute -inset-1 bg-black rounded-full z-0" />
             <div className="relative z-10 rounded-full outline-4 outline-surface-2 outline-offset-4 w-20 sm:w-24 h-20 sm:h-24 overflow-hidden">
-              <Avatar name={user?.name} image={user?.avatar} size={96} className="" />
+              <Avatar name={user?.name} image={user?.avatar} size={96} expandable className="" />
             </div>
           </div>
         </div>

@@ -12,6 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCharLimitStore } from '@/app/store/useCharLimitStore';
 import { useDrawerStore } from '@/app/store/useDrawerStore';
+import { useImageModalStore } from '@/app/store/useImageModalStore';
 import CharLimit from '../CharLimit';
 import MoreTweetButton from '../ui/MoreTweetButton';
 import { getGradientFromName } from '@/app/lib/avatar';
@@ -109,6 +110,7 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
 
   const { likedTweets, likeCounts, optimisticToggleLike, revertToggleLike } = useLikeStore();
   const { openDrawer } = useDrawerStore();
+  const { open } = useImageModalStore();
 
   const isLikedByCurrentUser = currentUserId
     ? data.likes?.some((like) => like.userId === currentUserId)
@@ -138,6 +140,7 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
   }, [createdAt]);
 
   const [isEditing, setIsEditing] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
   const { updateChar } = useCharLimitStore();
 
   const {
@@ -217,23 +220,42 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
   async function handleShareScreenshot(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
-    if (!tweetRef.current) return;
+    if (!tweetRef.current || isSharing) return;
+
+    let shareIcon: HTMLElement | null = null;
+    let shareSpinner: HTMLElement | null = null;
 
     try {
+      setIsSharing(true);
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      shareIcon = tweetRef.current.querySelector('[data-share-icon]') as HTMLElement | null;
+      shareSpinner = tweetRef.current.querySelector('[data-share-spinner]') as HTMLElement | null;
+
+      if (shareIcon && shareSpinner) {
+        shareSpinner.style.display = 'none';
+        shareIcon.style.display = 'block';
+      }
+
       const restore = await inlineImages(tweetRef.current);
       const blob = await domToBlob(tweetRef.current, { scale: 2, backgroundColor: '#0b0f14' });
       restore();
 
+      if (shareIcon) shareIcon.style.display = '';
+      if (shareSpinner) shareSpinner.style.display = '';
+
       if (!blob) return;
 
       const file = new File([blob], `tweet-${tweetId}.png`, { type: 'image/png' });
+
+      const tweetUrl = `${window.location.origin}/tweet/${tweetId}`;
 
       if (navigator.canShare?.({ files: [file] })) {
         try {
           await navigator.share({
             files: [file],
             title: `Tweet by ${author?.name || 'User'}`,
-            text: content,
+            url: tweetUrl,
           });
           return;
         } catch (err) {
@@ -248,6 +270,10 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
       URL.revokeObjectURL(link.href);
     } catch (error) {
       console.error('Failed to capture tweet screenshot:', error);
+    } finally {
+      if (shareIcon) shareIcon.style.display = '';
+      if (shareSpinner) shareSpinner.style.display = '';
+      setIsSharing(false);
     }
   }
 
@@ -337,11 +363,17 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
         >
           {content}
           {data.mediaUrl && (
-            <div className="block mt-3 border border-border hover:border-white/30 rounded-xl transition duration-200">
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                open(data.mediaUrl!);
+              }}
+              className="block mt-3 border border-border hover:border-white/30 rounded-xl transition duration-200 cursor-pointer overflow-hidden group"
+            >
               <Image
                 src={data.mediaUrl}
                 alt="Tweet media"
-                className="w-full max-h-112.5 h-auto rounded-xl object-cover"
+                className="w-full max-h-112.5 h-auto rounded-xl object-cover group-hover:scale-[1.01] transition-transform duration-200"
                 width={500}
                 height={300}
                 loading="eager"
@@ -387,11 +419,18 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
                   {data.retweetOf.content}
                 </p>
                 {data.retweetOf.mediaUrl && (
-                  <div className="block mt-3 border border-border hover:border-white/30 rounded-xl transition duration-200">
+                  <div
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      open(data.retweetOf!.mediaUrl!);
+                    }}
+                    className="block mt-3 border border-border hover:border-white/30 rounded-xl transition duration-200 cursor-pointer overflow-hidden group"
+                  >
                     <Image
                       src={data.retweetOf.mediaUrl}
                       alt="Retweet media"
-                      className="w-full max-h-112.5 h-auto rounded-xl object-cover"
+                      className="w-full max-h-112.5 h-auto rounded-xl object-cover group-hover:scale-[1.01] transition-transform duration-200"
                       width={500}
                       height={300}
                       loading="eager"
@@ -457,10 +496,20 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
           <button
             onClick={handleShareScreenshot}
             type="button"
-            aria-label="Views"
-            className="bg-transparent hover:bg-blue-500/10 p-1.5 border-0 rounded-full cursor-pointer"
+            disabled={isSharing}
+            aria-label="Share tweet"
+            className="bg-transparent hover:bg-blue-500/10 p-1.5 border-0 rounded-full cursor-pointer disabled:opacity-50"
           >
-            <Share2 className="w-4 sm:w-5 h-4 sm:h-5 text-text-muted group-hover:text-blue-500 duration-150" />
+            <Share2
+              data-share-icon
+              className={`w-4 sm:w-5 h-4 sm:h-5 text-text-muted group-hover:text-blue-500 duration-150 ${isSharing ? 'hidden' : 'block'}`}
+            />
+            {isSharing && (
+              <Loader2
+                data-share-spinner
+                className="w-4 sm:w-5 h-4 sm:h-5 text-blue-500 animate-spin block"
+              />
+            )}
           </button>
         </div>
       </div>

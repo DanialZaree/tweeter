@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { JellyTabs } from '@/components/ui/jelly-tabs';
+import ImageModal from '@/app/components/ui/ImageModal';
 
 const myFont = localFont({
   src: '../public/fonts/font.ttf',
@@ -31,6 +32,7 @@ export default function RootLayout({
         <Analytics />
         <SpeedInsights />
         <JellyTabs />
+        <ImageModal />
       </body>
     </html>
   );

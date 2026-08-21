@@ -1,12 +1,12 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
   --color-background: #0b0f14;
-  --color-surface: #2a2a2a; 
+  --color-surface: #2a2a2a;
   --color-surface-2: #4f4f4f;
   --color-surface-hover: #1b222c;
 
