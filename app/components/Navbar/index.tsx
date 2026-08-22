@@ -19,7 +19,11 @@ export default function Navbar() {
         />
         Boblo
       </Link>
-      <button className="hover:bg-white/10 p-2 rounded-full transition-colors text-white">
+      <button
+        type="button"
+        aria-label="Search"
+        className="hover:bg-white/10 p-2 rounded-full transition-colors text-white"
+      >
         <Search className="w-5 h-5" />
       </button>
     </div>

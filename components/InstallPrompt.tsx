@@ -71,7 +71,7 @@ export default function InstallPrompt() {
     <>
       <button
         onClick={handleInstallClick}
-        className="inline-flex items-center gap-2 bg-sky-500 hover:bg-sky-600 shadow-md px-5 py-2.5 rounded-full font-semibold text-white text-sm hover:scale-105 active:scale-95 transition-all cursor-pointer"
+        className="inline-flex items-center gap-2 bg-sky-600 hover:bg-sky-700 shadow-md px-5 py-2.5 rounded-full font-semibold text-white text-sm hover:scale-105 active:scale-95 transition-all cursor-pointer"
       >
         <Download size={16} />
         Install App
