@@ -18,7 +18,7 @@ import MoreTweetButton from '../ui/MoreTweetButton';
 import { getGradientFromName } from '@/app/lib/avatar';
 import Avatar from '../ui/Avatar';
 import { domToBlob } from 'modern-screenshot';
-import { Repeat2, Heart, Share2, MessageCircle, Bird, Loader2 } from 'lucide-react';
+import { Repeat2, Heart, Share2, MessageCircle, Loader2 } from 'lucide-react';
 
 const schema = z.object({
   tweet: z.string().trim().min(1, 'Tweet is required').max(500, 'Max character is 500'),
@@ -514,8 +514,8 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
         </div>
       </div>
       <div className="flex flex-row justify-between items-end mt-2 pt-2 border-surface border-t text-text-muted text-xs sm:text-sm">
-        <div className="flex items-center gap-1">
-          <Bird className="w-4 h-4" />
+        <div className="flex items-center gap-1.5">
+          <Image src="/icons/logo.svg" alt="Boblo" width={16} height={16} className="w-4 h-4 object-contain" />
           <span>Boblo</span>
           {data.parentId && <span className="text-text-muted">|  Replied</span>}
           {data.retweetOf && <span className="text-text-muted">|  Reposted</span>}
