@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
 import { cn } from '@/lib/utils';
@@ -12,9 +12,48 @@ const myFont = localFont({
   display: 'swap',
 });
 
+export const viewport: Viewport = {
+  themeColor: '#000000',
+  colorScheme: 'dark',
+};
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://boblo.ir';
+
 export const metadata: Metadata = {
-  title: 'Boblo',
-  description: 'Boblo - Share your thoughts with the world',
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: 'Boblo - Share your thoughts with the world',
+    template: '%s | Boblo',
+  },
+  description: 'Boblo is a modern platform to share your thoughts, follow creators, and discover conversations.',
+  applicationName: 'Boblo',
+  authors: [{ name: 'Boblo' }],
+  keywords: ['Boblo', 'social media', 'microblogging', 'posts', 'community', 'discussions'],
+  creator: 'Boblo',
+  publisher: 'Boblo',
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: siteUrl,
+    siteName: 'Boblo',
+    title: 'Boblo - Share your thoughts with the world',
+    description: 'Boblo is a modern platform to share your thoughts, follow creators, and discover conversations.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Boblo - Share your thoughts with the world',
+    description: 'Boblo is a modern platform to share your thoughts, follow creators, and discover conversations.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({

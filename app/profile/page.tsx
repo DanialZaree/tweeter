@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { showProfile } from '../lib/actions/actionProfile';
 import { getTweetByUserId, getRepliesByUserId, getRetweetsByUserId } from '../lib/actions/tweet';
 import TweetList from '../components/TweetList';
@@ -7,10 +8,18 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Calendar } from 'lucide-react';
 import { Tabs } from '@base-ui/react/tabs';
-import NewTweet from '@/app/components/ui/NewTweet';
 import { auth } from '../auth';
 
 import CoverImage from '../components/ui/CoverImage';
+
+export const metadata: Metadata = {
+  title: 'Profile',
+  description: 'View and manage your profile on Boblo.',
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 const tabClassName =
   'flex h-[calc(2rem+1px)] items-center justify-center bg-transparent px-2 py-0 font-inherit text-sm font-normal leading-5 break-keep cursor-pointer whitespace-nowrap text-neutral-600 outline-none select-none hover:text-neutral-950 data-active:text-neutral-950 dark:text-neutral-300 dark:hover:text-white dark:data-active:text-white';
@@ -86,11 +95,11 @@ export default async function Profile() {
             />
           )}
           {/* Avatar wrapper */}
-          <div className="z-10 -bottom-10 sm:-bottom-12 left-4 sm:left-4 absolute">
+          <div className="-bottom-10 sm:-bottom-12 left-4 sm:left-4 z-10 absolute">
             {/* Black background for the outline offset gap */}
-            <div className="absolute -inset-1 bg-black rounded-full z-0" />
+            <div className="z-0 absolute -inset-1 bg-black rounded-full" />
 
-            <div className="relative z-10 rounded-full outline-4 outline-surface-2 outline-offset-4 w-20 sm:w-24 h-20 sm:h-24 overflow-hidden">
+            <div className="z-10 relative rounded-full outline-4 outline-surface-2 outline-offset-4 w-20 sm:w-24 h-20 sm:h-24 overflow-hidden">
               <Avatar name={user?.name} image={user?.avatar} size={96} expandable className="" />
             </div>
           </div>
@@ -100,7 +109,7 @@ export default async function Profile() {
         <div className="flex justify-end items-center gap-2 px-3 sm:px-4 pt-3 pb-0">
           <Link
             href="/profile/edit"
-            className="hover:bg-white/10 px-3.5 sm:px-4 py-1.5 border border-white/20 rounded-full font-bold sm:text-[14px] text-xs transition-colors"
+            className="bg-white hover:bg-white/75 px-3.5 sm:px-4 py-1.5 border border-white/20 rounded-full font-bold text-black sm:text-[14px] text-xs transition-colors"
           >
             Edit profile
           </Link>
@@ -208,7 +217,6 @@ export default async function Profile() {
           </div>
         </Tabs.Root>
       </div>
-      {session?.user && <NewTweet />}
     </div>
   );
 }

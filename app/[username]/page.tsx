@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import prisma from '../lib/prisma';
 import { auth } from '../auth';
@@ -12,9 +13,52 @@ import Link from 'next/link';
 import { Calendar } from 'lucide-react';
 import { Tabs } from '@base-ui/react/tabs';
 import Follow from '@/app/components/Follow';
-import NewTweet from '@/app/components/ui/NewTweet';
 import CoverImage from '../components/ui/CoverImage';
 import { redirect } from 'next/navigation';
+
+type UserProfileProps = {
+  params: Promise<{ username: string }>;
+};
+
+export async function generateMetadata({ params }: UserProfileProps): Promise<Metadata> {
+  const { username } = await params;
+  const user = await getUser({ userName: username });
+
+  if (!user) {
+    return {
+      title: 'User Not Found',
+      description: 'The requested user profile does not exist on Boblo.',
+    };
+  }
+
+  const displayName = user.name || user.userName || 'User';
+  const handle = user.userName || username;
+  const title = `${displayName} (@${handle})`;
+  const description = user.bio
+    ? `${user.bio}`
+    : `Check out @${handle}'s profile and posts on Boblo.`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/${handle}`,
+    },
+    openGraph: {
+      type: 'profile',
+      title: `${title} on Boblo`,
+      description,
+      url: `/${handle}`,
+      images: user.avatar ? [{ url: user.avatar, alt: `${displayName}'s avatar` }] : [],
+    },
+    twitter: {
+      card: 'summary',
+      title: `${title} on Boblo`,
+      description,
+      images: user.avatar ? [user.avatar] : [],
+    },
+  };
+}
 
 const tabClassName =
   'flex h-[calc(2rem+1px)] items-center justify-center bg-transparent px-2 py-0 font-inherit text-sm font-normal leading-5 break-keep cursor-pointer whitespace-nowrap text-neutral-600 outline-none select-none hover:text-neutral-950 data-active:text-neutral-950 dark:text-neutral-300 dark:hover:text-white dark:data-active:text-white';
@@ -24,9 +68,7 @@ const panelClassName =
 
 export default async function UserProfilePage({
   params,
-}: {
-  params: Promise<{ username: string }>;
-}) {
+}: UserProfileProps) {
   const { username } = await params;
   const user = await getUser({ userName: username });
 
@@ -105,9 +147,9 @@ export default async function UserProfilePage({
           )}
 
           {/* Avatar wrapper */}
-          <div className="z-10 -bottom-10 sm:-bottom-12 left-4 sm:left-4 absolute">
-            <div className="absolute -inset-1 bg-black rounded-full z-0" />
-            <div className="relative z-10 rounded-full outline-4 outline-surface-2 outline-offset-4 w-20 sm:w-24 h-20 sm:h-24 overflow-hidden">
+          <div className="-bottom-10 sm:-bottom-12 left-4 sm:left-4 z-10 absolute">
+            <div className="z-0 absolute -inset-1 bg-black rounded-full" />
+            <div className="z-10 relative rounded-full outline-4 outline-surface-2 outline-offset-4 w-20 sm:w-24 h-20 sm:h-24 overflow-hidden">
               <Avatar name={user?.name} image={user?.avatar} size={96} expandable className="" />
             </div>
           </div>
@@ -210,7 +252,6 @@ export default async function UserProfilePage({
           </div>
         </Tabs.Root>
       </div>
-      {session?.user && <NewTweet />}
     </div>
   );
 }

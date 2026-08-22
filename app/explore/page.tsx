@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { auth } from '../auth';
 import Navbar from '../components/Navbar';
 import Frame from '../components/Frame';
@@ -6,6 +7,19 @@ import NewTweet from '../components/ui/NewTweet';
 import { allTweets } from '../lib/actions/tweet';
 import { Suspense } from 'react';
 import TweetSkeleton from '../components/Tweet/TweetSkeleton';
+
+export const metadata: Metadata = {
+  title: 'Explore',
+  description: 'Explore trending posts, popular discussions, and recent thoughts on Boblo.',
+  alternates: {
+    canonical: '/explore',
+  },
+  openGraph: {
+    title: 'Explore | Boblo',
+    description: 'Explore trending posts, popular discussions, and recent thoughts on Boblo.',
+    url: '/explore',
+  },
+};
 
 export default async function Explore() {
   const session = await auth();

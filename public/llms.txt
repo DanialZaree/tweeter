@@ -4,10 +4,10 @@
 
 ## Routes & Resources
 
-- [Home Feed](https://www.boblo.ir/): Main timeline displaying community posts and user activity.
-- [Authentication](https://www.boblo.ir/auth): Sign in or create a new user account.
-- [User Profile Management](https://www.boblo.ir/profile): View user profiles and posted content.
-- [Sitemap](https://www.boblo.ir/sitemap.xml): Full XML index of public profiles and posts.
+- [Home Feed](https://boblo.ir/): Main timeline displaying community posts and user activity.
+- [Authentication](https://boblo.ir/auth): Sign in or create a new user account.
+- [User Profile Management](https://boblo.ir/profile): View user profiles and posted content.
+- [Sitemap](https://boblo.ir/sitemap.xml): Full XML index of public profiles and posts.
 
 ## Features
 
@@ -18,5 +18,5 @@
 
 ## Optional
 
-- [Robots Directive](https://www.boblo.ir/robots.txt): Crawler rules and sitemap indexing directives.
+- [Robots Directive](https://boblo.ir/robots.txt): Crawler rules and sitemap indexing directives.
 

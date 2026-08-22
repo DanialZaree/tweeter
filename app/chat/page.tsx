@@ -1,8 +1,18 @@
+import type { Metadata } from 'next';
 import Frame from '../components/Frame';
 import Navbar from '../components/Navbar';
 import { MessageCircle, Lock } from 'lucide-react';
 import { auth } from '../auth';
 import SignInBtn from '../components/SignInBtn';
+
+export const metadata: Metadata = {
+  title: 'Messages',
+  description: 'Private messages and chat on Boblo.',
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function Chat() {
   const session = await auth();

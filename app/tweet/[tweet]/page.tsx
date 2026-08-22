@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTweetById } from '@/app/lib/actions/tweet';
@@ -8,7 +9,58 @@ import NewTweetForm from '@/app/components/NewTweetForm';
 import NewTweet from '@/app/components/ui/NewTweet';
 import { auth } from '@/app/auth';
 
-export default async function TweetPage({ params }: { params: Promise<{ tweet: string }> }) {
+type TweetPageProps = {
+  params: Promise<{ tweet: string }>;
+};
+
+export async function generateMetadata({ params }: TweetPageProps): Promise<Metadata> {
+  const { tweet: tweetParam } = await params;
+  const { tweet } = await getTweetById(tweetParam);
+
+  if (!tweet) {
+    return {
+      title: 'Post Not Found',
+      description: 'The requested post does not exist or has been removed on Boblo.',
+    };
+  }
+
+  const authorName = tweet.author?.name || tweet.author?.userName || 'User';
+  const authorHandle = tweet.author?.userName || 'user';
+  const rawText = tweet.content || '';
+  const snippet = rawText.length > 60 ? `${rawText.slice(0, 57)}...` : rawText;
+  const title = snippet ? `${authorName}: "${snippet}"` : `Post by ${authorName}`;
+  const description = rawText
+    ? `${authorName} (@${authorHandle}): ${rawText}`
+    : `View post by ${authorName} on Boblo.`;
+  const canonicalUrl = `/tweet/${tweet.tweetId || tweet.id}`;
+
+  const image = tweet.mediaUrl || tweet.author?.avatar;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      type: 'article',
+      title: `${title} | Boblo`,
+      description,
+      url: canonicalUrl,
+      publishedTime: tweet.createdAt ? new Date(tweet.createdAt).toISOString() : undefined,
+      authors: [authorName],
+      images: image ? [{ url: image, alt: snippet || `${authorName}'s post` }] : [],
+    },
+    twitter: {
+      card: tweet.mediaUrl ? 'summary_large_image' : 'summary',
+      title: `${title} | Boblo`,
+      description,
+      images: image ? [image] : [],
+    },
+  };
+}
+
+export default async function TweetPage({ params }: TweetPageProps) {
   const resolvedParams = await params;
   const tweetid = resolvedParams.tweet;
 

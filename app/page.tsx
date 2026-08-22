@@ -1,8 +1,22 @@
+import type { Metadata } from 'next';
 import { auth } from './auth';
 import Navbar from './components/Navbar';
 import Frame from './components/Frame';
 import { Home as HomeIcon, Lock } from 'lucide-react';
 import SignInBtn from './components/SignInBtn';
+
+export const metadata: Metadata = {
+  title: 'Home',
+  description: 'Connect and share your thoughts in real time on Boblo.',
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'Home | Boblo',
+    description: 'Connect and share your thoughts in real time on Boblo.',
+    url: '/',
+  },
+};
 
 export default async function Home() {
   const session = await auth();

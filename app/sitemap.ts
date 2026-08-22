@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import prisma from '@/app/lib/prisma';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://www.boblo.ir';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://boblo.ir';
 
   const staticRoutes: MetadataRoute.Sitemap = [
     {
@@ -10,6 +10,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'always',
       priority: 1.0,
+    },
+    {
+      url: `${baseUrl}/explore`,
+      lastModified: new Date(),
+      changeFrequency: 'hourly',
+      priority: 0.9,
     },
     {
       url: `${baseUrl}/auth`,

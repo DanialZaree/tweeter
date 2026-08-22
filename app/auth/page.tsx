@@ -1,6 +1,20 @@
+import type { Metadata } from 'next';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SignIn from '../components/SignIn';
 import SignUp from '../components/SignUp';
+
+export const metadata: Metadata = {
+  title: 'Sign In / Sign Up',
+  description: 'Sign in to your Boblo account or create a new account to join conversations.',
+  alternates: {
+    canonical: '/auth',
+  },
+  openGraph: {
+    title: 'Sign In / Sign Up | Boblo',
+    description: 'Sign in to your Boblo account or create a new account to join conversations.',
+    url: '/auth',
+  },
+};
 
 export default function authPage() {
   return (
