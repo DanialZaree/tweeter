@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Frame from './components/Frame';
 import { Home as HomeIcon, Lock } from 'lucide-react';
 import SignInBtn from './components/SignInBtn';
+import InstallPrompt from '@/components/InstallPrompt';
 
 export const metadata: Metadata = {
   title: 'Home',
@@ -45,6 +46,9 @@ export default async function Home() {
               <h1 className="text-2xl font-bold tracking-tight">Coming Soon</h1>
             </>
           )}
+          <div className="mt-2">
+            <InstallPrompt />
+          </div>
         </main>
       </Frame>
     </>

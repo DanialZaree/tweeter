@@ -15,6 +15,9 @@ const myFont = localFont({
 export const viewport: Viewport = {
   themeColor: '#000000',
   colorScheme: 'dark',
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://boblo.ir';
@@ -26,6 +29,11 @@ export const metadata: Metadata = {
     template: '%s | Boblo',
   },
   description: 'Boblo is a modern platform to share your thoughts, follow creators, and discover conversations.',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Boblo",
+  },
   applicationName: 'Boblo',
   authors: [{ name: 'Boblo' }],
   keywords: ['Boblo', 'social media', 'microblogging', 'posts', 'community', 'discussions'],
@@ -52,7 +60,9 @@ export const metadata: Metadata = {
     follow: true,
   },
   icons: {
-    icon: '/favicon.ico',
+    icon: '/icons/icon-192x192.png',
+    shortcut: '/icons/icon-192x192.png',
+    apple: '/icons/icon-192x192.png',
   },
 };
 
