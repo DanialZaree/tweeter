@@ -48,7 +48,7 @@ export async function sendOtpEmail(email: string, otp: string) {
               <table border="0" cellspacing="0" cellpadding="0">
                 <tr>
                   <td style="padding-right: 8px; vertical-align: middle;">
-                    <img src="https://abs.twimg.com/emoji/v2/72x72/1f680.png" width="20" height="20" alt="" style="display: block; width: 20px; height: 20px;" />
+                    <img src="https://boblo.ir/logo.svg" width="20" height="20" alt="" style="display: block; width: 20px; height: 20px;" />
                   </td>
                   <td style="font-size: 17px; font-weight: 700; color: #e7e9ea; vertical-align: middle;">
                     Boblo

@@ -34,6 +34,7 @@ export interface TweetType {
     content: string;
     isEdited?: boolean;
     mediaUrl?: string | null;
+    originalTweetDeleted?: boolean;
     createdAt: Date | string;
     parentId?: string | null;
     author: {
@@ -382,7 +383,7 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
               />
             </div>
           )}
-          {data.retweetOf && (
+          {data.retweetOf ? (
             <div dir="ltr">
               <Link
                 href={`/tweet/${data.retweetOf.tweetId || data.retweetOf.id}`}
@@ -412,12 +413,14 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
                     </div>
                   </div>
                 </div>
-                <p
-                  dir="auto"
-                  className="mt-3 sm:mt-4 sm:text-[16px] text-sm text-start wrap-break-word leading-relaxed tracking-wide whitespace-pre-line"
-                >
-                  {data.retweetOf.content}
-                </p>
+                {data.retweetOf.content && (
+                  <p
+                    dir="auto"
+                    className="mt-3 sm:mt-4 sm:text-[16px] text-sm text-start wrap-break-word leading-relaxed tracking-wide whitespace-pre-line"
+                  >
+                    {data.retweetOf.content}
+                  </p>
+                )}
                 {data.retweetOf.mediaUrl && (
                   <div
                     onClick={(e) => {
@@ -441,7 +444,11 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
                 )}
               </Link>
             </div>
-          )}
+          ) : data.originalTweetDeleted ? (
+            <div className="mt-3 p-3.5 border border-border/50 bg-white/5 rounded-xl text-text-muted text-sm italic flex items-center gap-2">
+              <span>This post is unavailable because it was deleted.</span>
+            </div>
+          ) : null}
         </div>
       )}
       <div className="flex flex-row justify-between items-center mt-3 sm:mt-4 text-xs sm:text-sm">
@@ -517,8 +524,8 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
         <div className="flex items-center gap-1.5">
           <Image src="/icons/logo.svg" alt="Boblo" width={16} height={16} className="w-4 h-4 object-contain" />
           <span>Boblo</span>
-          {data.parentId && <span className="text-text-muted">|  Replied</span>}
-          {data.retweetOf && <span className="text-text-muted">|  Reposted</span>}
+          {data.parentId && <span className="text-text-muted">|  Replied</span>}
+          {(data.retweetOf || data.originalTweetDeleted) && <span className="text-text-muted">|  Reposted</span>}
         </div>
         <div className="flex items-center gap-1 text-text-muted">
           {isEdited && <span className="italic">(edited)</span>}

@@ -1,7 +1,6 @@
 'use client';
 
 import { RefObject } from 'react';
-import { CldUploadWidget } from 'next-cloudinary';
 import Avatar from '@/app/components/ui/Avatar';
 import { Camera, X, Loader2 } from 'lucide-react';
 
@@ -10,7 +9,6 @@ interface ProfileImageSectionProps {
   avatar: string;
   coverImage: string;
   bgGradient: string;
-  uploadPreset?: string;
   isUploadingAvatar: boolean;
   isUploadingCover: boolean;
   setIsUploadingAvatar: (val: boolean) => void;
@@ -33,7 +31,6 @@ export default function ProfileImageSection({
   avatar,
   coverImage,
   bgGradient,
-  uploadPreset,
   isUploadingAvatar,
   isUploadingCover,
   setIsUploadingAvatar,
@@ -62,21 +59,10 @@ export default function ProfileImageSection({
             onChange={(e) => handleFileUpload(e, setCoverImage, false)}
             className="hidden"
           />
-          <CldUploadWidget
-            uploadPreset={uploadPreset || 'my_avatar_preset'}
-            onSuccess={(result: any) => {
-              if (result?.info?.secure_url) {
-                setCoverImage(result.info.secure_url);
-              }
-              setIsUploadingCover(false);
-            }}
-            onError={() => setIsUploadingCover(false)}
-          >
-            {({ open }) => (
               <button
                 type="button"
                 disabled={isUploadingCover}
-                onClick={() => triggerCoverUpload(open)}
+                onClick={() => triggerCoverUpload()}
                 className="flex items-center gap-2 bg-black/60 hover:bg-black/80 disabled:opacity-75 px-3.5 py-2 rounded-full font-medium text-white text-xs sm:text-sm transition-colors cursor-pointer"
               >
                 {isUploadingCover ? (
@@ -92,8 +78,6 @@ export default function ProfileImageSection({
                       : 'Upload Cover'}
                 </span>
               </button>
-            )}
-          </CldUploadWidget>
           {coverImage && !isUploadingCover && (
             <button
               type="button"
@@ -125,28 +109,15 @@ export default function ProfileImageSection({
                 </div>
               ) : (
                 <>
-                  <CldUploadWidget
-                    uploadPreset={uploadPreset || 'my_avatar_preset'}
-                    onSuccess={(result: any) => {
-                      if (result?.info?.secure_url) {
-                        setAvatar(result.info.secure_url);
-                      }
-                      setIsUploadingAvatar(false);
-                    }}
-                    onError={() => setIsUploadingAvatar(false)}
+                  <button
+                    type="button"
+                    disabled={isUploadingAvatar}
+                    onClick={() => triggerAvatarUpload()}
+                    className="hover:bg-white/30 p-2.5 rounded-full text-white transition-colors cursor-pointer"
+                    title="Upload Avatar Image"
                   >
-                    {({ open }) => (
-                      <button
-                        type="button"
-                        disabled={isUploadingAvatar}
-                        onClick={() => triggerAvatarUpload(open)}
-                        className="hover:bg-white/30 p-2.5 rounded-full text-white transition-colors cursor-pointer"
-                        title="Upload Avatar Image"
-                      >
-                        <Camera className="w-5 h-5" />
-                      </button>
-                    )}
-                  </CldUploadWidget>
+                    <Camera className="w-5 h-5" />
+                  </button>
                   {avatar && (
                     <button
                       type="button"

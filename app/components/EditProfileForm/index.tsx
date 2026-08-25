@@ -7,6 +7,7 @@ import { getGradientFromName } from '@/app/lib/avatar';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { getCloudinarySignature } from '@/app/lib/actions/upload';
 
 const schema = z.object({
   name: z
@@ -87,12 +88,9 @@ export default function EditProfileForm({ initialUser }: { initialUser: UserProf
   const coverInputRef = useRef<HTMLInputElement>(null);
 
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
   const isCloudinaryConfigured =
     Boolean(cloudName) &&
-    cloudName !== 'your_cloud_name' &&
-    Boolean(uploadPreset) &&
-    uploadPreset !== 'my_avatar_preset';
+    cloudName !== 'your_cloud_name';
 
   const triggerAvatarUpload = (openCloudinary?: () => void) => {
     if (isCloudinaryConfigured && openCloudinary) {
@@ -124,13 +122,17 @@ export default function EditProfileForm({ initialUser }: { initialUser: UserProf
     if (!cloudName || cloudName === 'your_cloud_name') {
       throw new Error('Please set NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME in your .env file.');
     }
-    if (!uploadPreset) {
-      throw new Error('Please set NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET in your .env file.');
+
+    const sigResponse = await getCloudinarySignature();
+    if (!sigResponse.success) {
+      throw new Error(sigResponse.error || 'Failed to get upload signature');
     }
 
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('upload_preset', uploadPreset);
+    formData.append('api_key', sigResponse.apiKey as string);
+    formData.append('timestamp', sigResponse.timestamp!.toString());
+    formData.append('signature', sigResponse.signature as string);
 
     const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
       method: 'POST',
@@ -239,7 +241,6 @@ export default function EditProfileForm({ initialUser }: { initialUser: UserProf
             avatar={avatar}
             coverImage={coverImage}
             bgGradient={bgGradient}
-            uploadPreset={uploadPreset}
             isUploadingAvatar={isUploadingAvatar}
             isUploadingCover={isUploadingCover}
             setIsUploadingAvatar={setIsUploadingAvatar}

@@ -1,13 +1,21 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 
-// Fallback in-memory store for local dev or when Upstash Redis URL is not set
 type MemoryRecord = { count: number; resetTime: number };
 const memoryStore = new Map<string, MemoryRecord>();
 
 function memoryLimit(key: string, limit: number, windowSeconds: number) {
   const now = Date.now();
   const windowMs = windowSeconds * 1000;
+
+  if (memoryStore.size > 200) {
+    for (const [storedKey, storedRecord] of memoryStore.entries()) {
+      if (now > storedRecord.resetTime) {
+        memoryStore.delete(storedKey);
+      }
+    }
+  }
+
   const record = memoryStore.get(key);
 
   if (!record || now > record.resetTime) {
@@ -28,7 +36,6 @@ function memoryLimit(key: string, limit: number, windowSeconds: number) {
   return { success: true, remaining: limit - record.count };
 }
 
-// Initialize Upstash Redis instance if environment variables exist
 const hasUpstash =
   Boolean(process.env.UPSTASH_REDIS_REST_URL) && Boolean(process.env.UPSTASH_REDIS_REST_TOKEN);
 
@@ -39,7 +46,6 @@ const redis = hasUpstash
     })
   : null;
 
-// Cache ratelimit instances by window config
 const upstashLimiters = new Map<string, Ratelimit>();
 
 function getUpstashLimiter(limit: number, windowSeconds: number) {
@@ -57,12 +63,6 @@ function getUpstashLimiter(limit: number, windowSeconds: number) {
   return upstashLimiters.get(configKey);
 }
 
-/**
- * Check rate limit for an action
- * @param key Identifier e.g. "tweet:user_123" or "reply:user_123"
- * @param limit Max allowed requests (default 5)
- * @param windowSeconds Window duration in seconds (default 60s)
- */
 export async function checkRateLimit(
   key: string,
   limit: number = 5,
@@ -87,7 +87,5 @@ export async function checkRateLimit(
       console.warn('Upstash rate limit failed, falling back to memory:', e);
     }
   }
-
-  // Fallback to in-memory check if Upstash is not fully configured or throws
   return memoryLimit(key, limit, windowSeconds);
 }

@@ -28,6 +28,25 @@ const safeAuthorSelect = {
   job: true,
   createdAt: true,
 };
+async function getNextTweetId(): Promise<string> {
+  const tweets = await prisma.tweet.findMany({
+    where: { tweetId: { not: null } },
+    select: { tweetId: true },
+  });
+
+  let maxId = 0;
+  for (const t of tweets) {
+    if (t.tweetId && /^\d+$/.test(t.tweetId)) {
+      const num = parseInt(t.tweetId, 10);
+      if (num > maxId) {
+        maxId = num;
+      }
+    }
+  }
+
+  return (maxId + 1).toString();
+}
+
 export async function createTweet(formData: FormData) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -62,16 +81,16 @@ export async function createTweet(formData: FormData) {
     return { success: false, error: rateCheck.error || 'Rate limit exceeded. Please wait a bit.' };
   }
 
-  try {
-    const latestTweet = await prisma.tweet.findFirst({
-      where: { tweetId: { not: null } },
-      orderBy: { createdAt: 'desc' },
-    });
+  const dailyRateCheck = await checkRateLimit(`tweet_daily:${authorId}`, 15, 86400);
+  if (!dailyRateCheck.success) {
+    return {
+      success: false,
+      error: 'Daily tweet limit reached (15 tweets per day). Please try again tomorrow.',
+    };
+  }
 
-    const newTweetId =
-      latestTweet?.tweetId && !isNaN(parseInt(latestTweet.tweetId, 10))
-        ? (parseInt(latestTweet.tweetId, 10) + 1).toString()
-        : '1';
+  try {
+    const newTweetId = await getNextTweetId();
 
     const tweet = await prisma.tweet.create({
       data: {
@@ -253,6 +272,14 @@ export async function deleteTweet(tweetId: string) {
       return { success: false, error: 'Unauthorized' };
     }
 
+    await prisma.tweet.updateMany({
+      where: { retweetOfId: tweetId },
+      data: {
+        originalTweetDeleted: true,
+        retweetOfId: null,
+      },
+    });
+
     if (tweet.ancestorIds && tweet.ancestorIds.length > 0) {
       await prisma.tweet.updateMany({
         where: { id: { in: tweet.ancestorIds } },
@@ -340,16 +367,16 @@ export async function createReply(parentId: string, content: string, mediaUrl?: 
     return { success: false, error: rateCheck.error || 'Rate limit exceeded. Please wait a bit.' };
   }
 
-  try {
-    const latestTweet = await prisma.tweet.findFirst({
-      where: { tweetId: { not: null } },
-      orderBy: { createdAt: 'desc' },
-    });
+  const dailyRateCheck = await checkRateLimit(`reply_daily:${session.user.id}`, 30, 86400);
+  if (!dailyRateCheck.success) {
+    return {
+      success: false,
+      error: 'Daily reply limit reached (30 replies per day). Please try again tomorrow.',
+    };
+  }
 
-    const newTweetId =
-      latestTweet?.tweetId && !isNaN(parseInt(latestTweet.tweetId, 10))
-        ? (parseInt(latestTweet.tweetId, 10) + 1).toString()
-        : '1';
+  try {
+    const newTweetId = await getNextTweetId();
 
     const parentTweet = await prisma.tweet.findUnique({
       where: { id: parentId },
@@ -389,7 +416,7 @@ export async function getRetweetsByUserId(userId: string) {
     const tweets = await prisma.tweet.findMany({
       where: {
         authorId: userId,
-        retweetOfId: { not: null },
+        OR: [{ retweetOfId: { not: null } }, { originalTweetDeleted: true }],
       },
       orderBy: {
         createdAt: 'desc',

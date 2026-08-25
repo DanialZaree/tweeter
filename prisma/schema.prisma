@@ -24,13 +24,14 @@ model Tweet {
   ancestorIds  String[]  @db.ObjectId
   totalReplies Int       @default(0)
 
-  retweetOfId String? 
-  retweetOf   Tweet?  @relation("TweetRetweets", fields: [retweetOfId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  retweets    Tweet[] @relation("TweetRetweets")
+  retweetOfId          String?   @db.ObjectId
+  retweetOf            Tweet?    @relation("TweetRetweets", fields: [retweetOfId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  retweets             Tweet[]   @relation("TweetRetweets")
+  originalTweetDeleted Boolean   @default(false)
 
-
-  author    User      @relation(fields: [authorId], references: [id])
-  likes     Like[]
+  notifications Notification[]
+  author        User      @relation(fields: [authorId], references: [id])
+  likes         Like[]
 }
 
 
@@ -55,6 +56,9 @@ model User {
 
   followers  Follower[] @relation("UserFollowers")
   following  Follower[] @relation("UserFollowing")
+
+  notificationsReceived Notification[] @relation("RecipientNotifications")
+  notificationsSent     Notification[] @relation("SenderNotifications")
 }
 
 model Account {
@@ -105,7 +109,7 @@ model Like {
   tweetId   String    @db.ObjectId
 
   user      User      @relation(fields: [userId], references: [id])
-  tweet     Tweet     @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+  tweet     Tweet     @relation(fields: [tweetId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([userId, tweetId])
 }
@@ -128,4 +132,29 @@ model Verification {
   expires     DateTime
 
   @@unique([identifier, token])
+}
+
+
+enum NotificationType {
+  LIKE
+  REPLY
+  RETWEET
+  FOLLOW
+}
+
+model Notification {
+  id          String           @id @default(auto()) @map("_id") @db.ObjectId
+  recipientId String           @db.ObjectId
+  senderId    String           @db.ObjectId 
+  type        NotificationType
+  tweetId     String?          @db.ObjectId 
+  isRead      Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+
+  recipient   User             @relation("RecipientNotifications", fields: [recipientId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  sender      User             @relation("SenderNotifications", fields: [senderId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tweet       Tweet?           @relation(fields: [tweetId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([recipientId, isRead])
+  @@index([recipientId, createdAt])
 }
