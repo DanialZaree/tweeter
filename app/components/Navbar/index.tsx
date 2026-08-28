@@ -1,8 +1,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search, Bell } from 'lucide-react';
+import { unreadCount } from '@/app/lib/actions/actionNotif';
 
-export default function Navbar() {
+export default async function Navbar() {
+  const unread = await unreadCount();
+
   return (
     <div className="top-0 z-10 sticky flex items-center justify-between bg-black/80 backdrop-blur-md py-3 px-4 sm:px-6 mb-4 border-white/10 border-b w-full">
       <Link
@@ -20,13 +23,18 @@ export default function Navbar() {
         Boblo
       </Link>
       <div className="flex items-center gap-1 sm:gap-2">
-        <button
-          type="button"
+        <Link
+          href="/notifications"
           aria-label="Notifications"
-          className="hover:bg-white/10 p-2 rounded-full transition-colors text-white cursor-pointer"
+          className="relative hover:bg-white/10 p-2 rounded-full transition-colors text-white cursor-pointer"
         >
           <Bell className="w-5 h-5" />
-        </button>
+          {unread.count > 0 && (
+            <span className="top-1.5 right-1.5 absolute flex justify-center items-center bg-blue-600 rounded-full min-w-[16px] h-4 font-bold text-[10px] text-white px-1">
+              {unread.count > 99 ? '99+' : unread.count}
+            </span>
+          )}
+        </Link>
         <button
           type="button"
           aria-label="Search"

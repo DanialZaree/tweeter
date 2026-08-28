@@ -88,9 +88,7 @@ export default function EditProfileForm({ initialUser }: { initialUser: UserProf
   const coverInputRef = useRef<HTMLInputElement>(null);
 
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const isCloudinaryConfigured =
-    Boolean(cloudName) &&
-    cloudName !== 'your_cloud_name';
+  const isCloudinaryConfigured = Boolean(cloudName) && cloudName !== 'your_cloud_name';
 
   const triggerAvatarUpload = (openCloudinary?: () => void) => {
     if (isCloudinaryConfigured && openCloudinary) {

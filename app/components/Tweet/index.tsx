@@ -522,10 +522,18 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
       </div>
       <div className="flex flex-row justify-between items-end mt-2 pt-2 border-surface border-t text-text-muted text-xs sm:text-sm">
         <div className="flex items-center gap-1.5">
-          <Image src="/icons/logo.svg" alt="Boblo" width={16} height={16} className="w-4 h-4 object-contain" />
+          <Image
+            src="/icons/logo.svg"
+            alt="Boblo"
+            width={16}
+            height={16}
+            className="w-4 h-4 object-contain"
+          />
           <span>Boblo</span>
-          {data.parentId && <span className="text-text-muted">|  Replied</span>}
-          {(data.retweetOf || data.originalTweetDeleted) && <span className="text-text-muted">|  Reposted</span>}
+          {data.parentId && <span className="text-text-muted">| Replied</span>}
+          {(data.retweetOf || data.originalTweetDeleted) && (
+            <span className="text-text-muted">| Reposted</span>
+          )}
         </div>
         <div className="flex items-center gap-1 text-text-muted">
           {isEdited && <span className="italic">(edited)</span>}

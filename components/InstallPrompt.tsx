@@ -61,7 +61,8 @@ export default function InstallPrompt() {
       <div className="flex items-center gap-2 bg-surface/60 shadow-sm mx-auto p-3.5 border border-white/10 rounded-xl max-w-sm text-text-muted text-xs text-left">
         <Share size={16} className="text-sky-400 shrink-0" />
         <span>
-          To install: Tap the <strong>Share</strong> button and select <strong>Add to Home Screen</strong>.
+          To install: Tap the <strong>Share</strong> button and select{' '}
+          <strong>Add to Home Screen</strong>.
         </span>
       </div>
     );
@@ -105,11 +106,15 @@ export default function InstallPrompt() {
                   Click the <strong>Install</strong> icon in the address bar (right side of URL), or
                 </li>
                 <li>
-                  Open the Chrome menu (<strong>⋮</strong>) &rarr; select <strong>Save and share</strong> &rarr; <strong>Install Boblo</strong>.
+                  Open the Chrome menu (<strong>⋮</strong>) &rarr; select{' '}
+                  <strong>Save and share</strong> &rarr; <strong>Install Boblo</strong>.
                 </li>
               </ol>
               <p className="text-[11px] text-white/40">
-                Note: In development mode (<code className="text-sky-300">next dev</code>), the Service Worker is disabled. Run <code className="text-sky-300">npm run build && npm start</code> to test the native prompt.
+                Note: In development mode (<code className="text-sky-300">next dev</code>), the
+                Service Worker is disabled. Run{' '}
+                <code className="text-sky-300">npm run build && npm start</code> to test the native
+                prompt.
               </p>
             </div>
 

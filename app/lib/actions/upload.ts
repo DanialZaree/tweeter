@@ -19,14 +19,14 @@ export async function getCloudinarySignature() {
     const timestamp = Math.round(new Date().getTime() / 1000);
     const signature = cloudinary.utils.api_sign_request(
       { timestamp },
-      cloudinary.config().api_secret as string
+      cloudinary.config().api_secret as string,
     );
 
-    return { 
-      success: true, 
-      timestamp, 
-      signature, 
-      apiKey: cloudinary.config().api_key 
+    return {
+      success: true,
+      timestamp,
+      signature,
+      apiKey: cloudinary.config().api_key,
     };
   } catch (error) {
     console.error('Error generating signature:', error);

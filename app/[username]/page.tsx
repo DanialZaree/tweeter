@@ -66,9 +66,7 @@ const tabClassName =
 const panelClassName =
   'col-start-1 row-start-1 flex w-full items-center justify-center  p-4 text-center text-sm text-neutral-950 outline-none  dark:text-white [&[hidden]]:hidden';
 
-export default async function UserProfilePage({
-  params,
-}: UserProfileProps) {
+export default async function UserProfilePage({ params }: UserProfileProps) {
   const { username } = await params;
   const user = await getUser({ userName: username });
 
@@ -139,12 +137,7 @@ export default async function UserProfilePage({
             !user?.coverImage ? `bg-linear-to-br ${bgGradient}` : ''
           }`}
         >
-          {user?.coverImage && (
-            <CoverImage
-              src={user.coverImage}
-              alt="Cover Image"
-            />
-          )}
+          {user?.coverImage && <CoverImage src={user.coverImage} alt="Cover Image" />}
 
           {/* Avatar wrapper */}
           <div className="-bottom-10 sm:-bottom-12 left-4 sm:left-4 z-10 absolute">

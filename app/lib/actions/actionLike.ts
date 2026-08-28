@@ -22,6 +22,15 @@ export async function toggleTweetLike(tweetId: string) {
       };
     }
 
+    const tweet = await prisma.tweet.findUnique({
+      where: { id: tweetId },
+      select: { authorId: true },
+    });
+
+    if (!tweet) {
+      return { success: false, error: 'Tweet not found' };
+    }
+
     const existingLike = await prisma.like.findUnique({
       where: {
         userId_tweetId: {
@@ -40,6 +49,14 @@ export async function toggleTweetLike(tweetId: string) {
           },
         },
       });
+
+      await prisma.notification.deleteMany({
+        where: {
+          type: 'LIKE',
+          senderId: userId,
+          tweetId: tweetId,
+        },
+      });
     } else {
       await prisma.like.create({
         data: {
@@ -47,6 +64,17 @@ export async function toggleTweetLike(tweetId: string) {
           tweetId: tweetId,
         },
       });
+
+      if (tweet.authorId !== userId) {
+        await prisma.notification.create({
+          data: {
+            type: 'LIKE',
+            senderId: userId,
+            recipientId: tweet.authorId,
+            tweetId: tweetId,
+          },
+        });
+      }
     }
     revalidatePath('/', 'layout');
     return { success: true };

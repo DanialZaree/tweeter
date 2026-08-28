@@ -44,11 +44,27 @@ export async function followUser(targetUserId: string) {
           },
         },
       });
+
+      await prisma.notification.deleteMany({
+        where: {
+          recipientId: targetUserId,
+          senderId: currentUserId,
+          type: 'FOLLOW',
+        },
+      });
     } else {
       await prisma.follower.create({
         data: {
           userId: targetUserId,
           followerId: currentUserId,
+        },
+      });
+
+      await prisma.notification.create({
+        data: {
+          recipientId: targetUserId,
+          senderId: currentUserId,
+          type: 'FOLLOW',
         },
       });
     }

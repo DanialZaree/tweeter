@@ -16,14 +16,7 @@ export default function CoverImage({ src, alt = 'Cover Image' }: CoverImageProps
       onClick={() => open(src)}
       className="absolute inset-0 cursor-pointer hover:opacity-95 transition-opacity"
     >
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        className="object-cover"
-        crossOrigin="anonymous"
-        priority
-      />
+      <Image src={src} alt={alt} fill className="object-cover" crossOrigin="anonymous" priority />
     </div>
   );
 }

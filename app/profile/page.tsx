@@ -88,12 +88,7 @@ export default async function Profile() {
             !user?.coverImage ? `bg-linear-to-br ${bgGradient}` : ''
           }`}
         >
-          {user?.coverImage && (
-            <CoverImage
-              src={user.coverImage}
-              alt="Cover Image"
-            />
-          )}
+          {user?.coverImage && <CoverImage src={user.coverImage} alt="Cover Image" />}
           {/* Avatar wrapper */}
           <div className="-bottom-10 sm:-bottom-12 left-4 sm:left-4 z-10 absolute">
             {/* Black background for the outline offset gap */}

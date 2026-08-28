@@ -3,7 +3,7 @@
 import prisma from '../prisma';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/app/auth';
-import { success, z } from 'zod';
+import { z } from 'zod';
 import { checkRateLimit } from '@/app/lib/ratelimit';
 
 const tweetInputSchema = z.object({
@@ -104,6 +104,24 @@ export async function createTweet(formData: FormData) {
         createdAt: new Date(),
       },
     });
+
+    if (retweetOfId) {
+      const originalTweet = await prisma.tweet.findUnique({
+        where: { id: retweetOfId },
+        select: { authorId: true },
+      });
+
+      if (originalTweet && originalTweet.authorId !== authorId) {
+        await prisma.notification.create({
+          data: {
+            recipientId: originalTweet.authorId,
+            senderId: authorId,
+            type: 'RETWEET',
+            tweetId: tweet.id,
+          },
+        });
+      }
+    }
 
     revalidatePath('/', 'layout');
     return { success: true, tweet };
@@ -380,7 +398,7 @@ export async function createReply(parentId: string, content: string, mediaUrl?: 
 
     const parentTweet = await prisma.tweet.findUnique({
       where: { id: parentId },
-      select: { ancestorIds: true },
+      select: { ancestorIds: true, authorId: true },
     });
     const ancestorIds = parentTweet ? [...(parentTweet.ancestorIds || []), parentId] : [parentId];
 
@@ -400,6 +418,17 @@ export async function createReply(parentId: string, content: string, mediaUrl?: 
       await prisma.tweet.updateMany({
         where: { id: { in: ancestorIds } },
         data: { totalReplies: { increment: 1 } },
+      });
+    }
+
+    if (parentTweet && parentTweet.authorId !== session.user.id) {
+      await prisma.notification.create({
+        data: {
+          recipientId: parentTweet.authorId,
+          senderId: session.user.id,
+          type: 'REPLY',
+          tweetId: reply.id,
+        },
       });
     }
 
