@@ -12,6 +12,16 @@ const safeSenderSelect = {
   image: true,
 };
 
+function isDynamicServerError(err: any): boolean {
+  return (
+    typeof err === 'object' &&
+    err !== null &&
+    (err.digest === 'DYNAMIC_SERVER_USAGE' ||
+      err.message?.includes('Dynamic server usage') ||
+      err.name === 'DynamicServerError')
+  );
+}
+
 export async function getNotif() {
   try {
     const session = await auth();
@@ -42,7 +52,8 @@ export async function getNotif() {
 
     return { success: true, notifications };
   } catch (error) {
-    console.error('Error in geting notifications: ', error);
+    if (isDynamicServerError(error)) throw error;
+    console.error('Error in getting notifications: ', error);
     return { success: false, error: 'Failed to fetch notifications', notifications: [] };
   }
 }
@@ -68,6 +79,7 @@ export async function markAsRead() {
 
     return { success: true };
   } catch (error) {
+    if (isDynamicServerError(error)) throw error;
     console.error('Error marking as read: ', error);
     return { success: false };
   }
@@ -91,6 +103,7 @@ export async function unreadCount() {
 
     return { success: true, count };
   } catch (error) {
+    if (isDynamicServerError(error)) throw error;
     console.error('Error in getting unread count: ', error);
     return { success: false, count: 0, error: 'Failed to fetch unread count' };
   }
