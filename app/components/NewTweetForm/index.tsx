@@ -13,7 +13,7 @@ import { useCharLimitStore } from '@/app/store/useCharLimitStore';
 import { Loader2, Image as ImageIcon, X } from 'lucide-react';
 import CharLimit from '../CharLimit';
 import { useFileUpload } from '@/hooks/use-file-upload';
-import { getCloudinarySignature } from '@/app/lib/actions/upload';
+import { uploadImage } from '@/app/lib/actions/upload';
 
 import { useRouter } from 'next/navigation';
 
@@ -54,36 +54,16 @@ export default function NewTweetForm({
     maxSize: 8 * 1024 * 1024,
   });
 
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-
   const uploadToCloudinary = async (file: File): Promise<string> => {
-    if (!cloudName || cloudName === 'your_cloud_name') {
-      throw new Error('Please set NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME in your .env file.');
-    }
-
-    const sigResponse = await getCloudinarySignature();
-    if (!sigResponse.success) {
-      throw new Error(sigResponse.error || 'Failed to get upload signature');
-    }
-
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('api_key', sigResponse.apiKey as string);
-    formData.append('timestamp', sigResponse.timestamp!.toString());
-    formData.append('signature', sigResponse.signature as string);
 
-    const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    const data = await response.json();
-
-    if (!response.ok || data.error) {
-      throw new Error(data.error?.message || 'Failed to upload image to Cloudinary.');
+    const uploadRes = await uploadImage(formData, 'tweets');
+    if (!uploadRes.success || !uploadRes.url) {
+      throw new Error(uploadRes.error || 'Failed to upload image');
     }
 
-    return data.secure_url;
+    return uploadRes.url;
   };
 
   async function onSubmit(data: FormData) {

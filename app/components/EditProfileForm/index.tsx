@@ -7,7 +7,7 @@ import { getGradientFromName } from '@/app/lib/avatar';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { getCloudinarySignature } from '@/app/lib/actions/upload';
+import { uploadImage } from '@/app/lib/actions/upload';
 
 const schema = z.object({
   name: z
@@ -87,64 +87,15 @@ export default function EditProfileForm({ initialUser }: { initialUser: UserProf
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const isCloudinaryConfigured = Boolean(cloudName) && cloudName !== 'your_cloud_name';
-
-  const triggerAvatarUpload = (openCloudinary?: () => void) => {
-    if (isCloudinaryConfigured && openCloudinary) {
-      try {
-        openCloudinary();
-        return;
-      } catch (e) {
-        console.warn('Cloudinary upload failed, falling back to local file picker:', e);
-      }
-    }
+  const triggerAvatarUpload = () => {
     avatarInputRef.current?.click();
   };
 
-  const triggerCoverUpload = (openCloudinary?: () => void) => {
-    if (isCloudinaryConfigured && openCloudinary) {
-      try {
-        openCloudinary();
-        return;
-      } catch (e) {
-        console.warn('Cloudinary upload failed, falling back to local file picker:', e);
-      }
-    }
+  const triggerCoverUpload = () => {
     coverInputRef.current?.click();
   };
 
   const bgGradient = getGradientFromName(userName || initialUser.userName);
-
-  const uploadToCloudinary = async (file: File): Promise<string> => {
-    if (!cloudName || cloudName === 'your_cloud_name') {
-      throw new Error('Please set NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME in your .env file.');
-    }
-
-    const sigResponse = await getCloudinarySignature();
-    if (!sigResponse.success) {
-      throw new Error(sigResponse.error || 'Failed to get upload signature');
-    }
-
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('api_key', sigResponse.apiKey as string);
-    formData.append('timestamp', sigResponse.timestamp!.toString());
-    formData.append('signature', sigResponse.signature as string);
-
-    const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    const data = await response.json();
-
-    if (!response.ok || data.error) {
-      throw new Error(data.error?.message || 'Failed to upload image to Cloudinary.');
-    }
-
-    return data.secure_url;
-  };
 
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -160,9 +111,9 @@ export default function EditProfileForm({ initialUser }: { initialUser: UserProf
       return;
     }
 
-    const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
+    const MAX_SIZE_BYTES = 8 * 1024 * 1024; // 8MB
     if (file.size > MAX_SIZE_BYTES) {
-      setError('File size must be under 10MB');
+      setError('File size must be under 8MB');
       return;
     }
 
@@ -172,11 +123,16 @@ export default function EditProfileForm({ initialUser }: { initialUser: UserProf
       } else {
         setIsUploadingCover(true);
       }
-      const cloudinaryUrl = await uploadToCloudinary(file);
-      setter(cloudinaryUrl);
+      const formData = new FormData();
+      formData.append('file', file);
+      const uploadRes = await uploadImage(formData, isAvatar ? 'avatars' : 'covers');
+      if (!uploadRes.success || !uploadRes.url) {
+        throw new Error(uploadRes.error || 'Failed to upload image');
+      }
+      setter(uploadRes.url);
     } catch (err: any) {
-      console.error('Error uploading file to Cloudinary:', err);
-      setError(err.message || 'Failed to upload image to Cloudinary');
+      console.error('Error uploading file:', err);
+      setError(err.message || 'Failed to upload image');
     } finally {
       if (isAvatar) {
         setIsUploadingAvatar(false);
