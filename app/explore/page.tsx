@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import { auth } from '../auth';
 import Navbar from '../components/Navbar';
 import Frame from '../components/Frame';
-import TweetList from '../components/TweetList';
+import ExploreTabs from '../components/ExploreTabs';
 import NewTweet from '../components/ui/NewTweet';
-import { allTweets } from '../lib/actions/tweet';
+import { allTweets, followingTweets } from '../lib/actions/tweet';
 import { Suspense } from 'react';
 import TweetSkeleton from '../components/Tweet/TweetSkeleton';
 
@@ -26,7 +26,13 @@ export default async function Explore() {
   const currentUserId = session?.user?.id;
   const currentUserName = session?.user?.userName;
 
-  const { success, tweets, error } = await allTweets();
+  const allTweetsData = await allTweets();
+
+  let followingTweetsData = null;
+  if (currentUserId) {
+    followingTweetsData = await followingTweets(currentUserId);
+  }
+
   return (
     <>
       <Navbar />
@@ -34,19 +40,19 @@ export default async function Explore() {
         <main>
           <Suspense
             fallback={
-              <div className="mx-auto w-full max-w-xl">
+              <div className="mx-auto w-full max-w-xl mt-4">
                 {Array.from({ length: 4 }).map((_, i) => (
                   <TweetSkeleton key={i} />
                 ))}
               </div>
             }
           >
-            <TweetList
-              success={success}
-              tweets={tweets ?? []}
-              error={error}
+            <ExploreTabs
+              allTweetsData={allTweetsData}
+              followingTweetsData={followingTweetsData}
               currentUserId={currentUserId}
               currentUserName={currentUserName}
+              isLoggedIn={!!currentUserId}
             />
           </Suspense>
         </main>

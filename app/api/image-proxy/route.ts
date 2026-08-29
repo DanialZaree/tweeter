@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const ALLOWED = ['res.cloudinary.com'];
+const ALLOWED_HOSTS = [
+  'res.cloudinary.com',
+  'avatars.githubusercontent.com',
+  'lh3.googleusercontent.com',
+];
 const err = (msg: string, status: number) => NextResponse.json({ error: msg }, { status });
 
 export async function GET(req: NextRequest) {
@@ -14,9 +18,19 @@ export async function GET(req: NextRequest) {
     return err('Invalid url', 400);
   }
 
-  if (!ALLOWED.some((h) => url.hostname.endsWith(h))) return err('Blocked', 403);
+  if (url.protocol !== 'https:') {
+    return err('Invalid protocol', 400);
+  }
 
-  const res = await fetch(url.href, { signal: AbortSignal.timeout(5000) }).catch(() => null);
+  if (!ALLOWED_HOSTS.includes(url.hostname)) {
+    return err('Blocked', 403);
+  }
+
+  const targetUrl = new URL(url.pathname + url.search, `https://${url.hostname}`);
+
+  const res = await fetch(targetUrl.toString(), { signal: AbortSignal.timeout(5000) }).catch(
+    () => null,
+  );
   if (!res?.ok) return err('Upstream error', 502);
 
   const type = res.headers.get('content-type') || '';

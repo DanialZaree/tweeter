@@ -240,7 +240,7 @@ export default async function UserProfilePage({ params }: UserProfileProps) {
               )}
             </Tabs.Panel>
             <Tabs.Panel className={panelClassName} value="account">
-              <p>Profile and preferences.</p>
+              <p>No Retweets (:</p>
             </Tabs.Panel>
           </div>
         </Tabs.Root>

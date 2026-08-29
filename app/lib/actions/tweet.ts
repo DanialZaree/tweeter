@@ -473,3 +473,48 @@ export async function getRetweetsByUserId(userId: string) {
     return { success: false, error: 'Failed to fetch retweets' };
   }
 }
+
+export async function followingTweets(userId: string) {
+  try {
+    const following = await prisma.follower.findMany({
+      where: { followerId: userId },
+      select: { userId: true },
+    });
+
+    const followingIds = following.map((f) => f.userId);
+
+    const tweets = await prisma.tweet.findMany({
+      where: {
+        authorId: { in: followingIds },
+        OR: [{ parentId: null }, { parentId: { isSet: false } }],
+      },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        author: { select: safeAuthorSelect },
+        likes: true,
+        retweetOf: {
+          include: {
+            author: { select: safeAuthorSelect },
+            likes: true,
+            retweets: { select: { authorId: true } },
+            _count: { select: { replies: true, retweets: true } },
+          },
+        },
+        retweets: { select: { authorId: true } },
+        _count: { select: { replies: true, retweets: true } },
+        replies: {
+          orderBy: { createdAt: 'asc' },
+          include: {
+            author: { select: safeAuthorSelect },
+            likes: true,
+            _count: { select: { replies: true } },
+          },
+        },
+      },
+    });
+    return { success: true, tweets };
+  } catch (e) {
+    console.error('Error in followingTweets:', e);
+    return { success: false, error: 'Failed to fetch following tweets' };
+  }
+}
