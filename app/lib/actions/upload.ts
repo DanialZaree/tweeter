@@ -4,13 +4,36 @@ import { auth } from '@/app/auth';
 import { checkRateLimit } from '@/app/lib/ratelimit';
 import { v2 as cloudinary } from 'cloudinary';
 
-// Configure Cloudinary on the server
-cloudinary.config({
-  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-  secure: true,
-});
+// Configure Cloudinary on the server (supporting CLOUDINARY_URL and individual env vars)
+function initCloudinary() {
+  const cloudinaryUrl = process.env.CLOUDINARY_URL;
+  if (cloudinaryUrl) {
+    try {
+      const parsed = new URL(cloudinaryUrl);
+      cloudinary.config({
+        cloud_name:
+          parsed.hostname ||
+          process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
+          process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: parsed.username || process.env.CLOUDINARY_API_KEY,
+        api_secret: parsed.password || process.env.CLOUDINARY_API_SECRET,
+        secure: true,
+      });
+      return;
+    } catch {
+      // fallback
+    }
+  }
+
+  cloudinary.config({
+    cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+    secure: true,
+  });
+}
+
+initCloudinary();
 
 const ALLOWED_MIME_TYPES = new Set([
   'image/jpeg',
@@ -109,6 +132,7 @@ export async function uploadImage(
   }
 
   try {
+    initCloudinary();
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
