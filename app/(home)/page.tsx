@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import { auth } from './auth';
-import Navbar from './components/Navbar';
-import Frame from './components/Frame';
+import { auth } from '../auth';
+import Navbar from '../components/Navbar';
+import Frame from '../components/Frame';
 import InstallPrompt from '@/components/InstallPrompt';
 import Link from 'next/link';
 import {
