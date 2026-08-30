@@ -49,7 +49,7 @@ const nextConfig: NextConfig = {
           {
             key: 'Content-Security-Policy',
             value:
-              "default-src 'self'; img-src 'self' data: blob: https://res.cloudinary.com https://avatars.githubusercontent.com https://lh3.googleusercontent.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://upload-widget.cloudinary.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.vercel-insights.com https://api.cloudinary.com; frame-src 'self' https://upload-widget.cloudinary.com;",
+              "default-src 'self'; img-src 'self' data: blob: https://res.cloudinary.com https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://cdn.jsdelivr.net; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://upload-widget.cloudinary.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.vercel-insights.com https://api.cloudinary.com; frame-src 'self' https://upload-widget.cloudinary.com;",
           },
         ],
       },

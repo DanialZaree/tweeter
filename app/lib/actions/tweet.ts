@@ -5,7 +5,12 @@ import { revalidatePath } from 'next/cache';
 import { auth } from '@/app/auth';
 import { z } from 'zod';
 import { checkRateLimit } from '@/app/lib/ratelimit';
-import { extractMentions } from '@/app/lib/renderTweetContent';
+
+function extractMentions(text: string): string[] {
+  const matches = text.match(/@(\w+)/g);
+  if (!matches) return [];
+  return [...new Set(matches.map((m) => m.slice(1).toLowerCase()))];
+}
 
 /**
  * Notifies users who were @mentioned in content.

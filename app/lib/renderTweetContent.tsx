@@ -1,23 +1,37 @@
 import Link from 'next/link';
+import twemoji from 'twemoji';
+import emojiRegex from 'emoji-regex';
 
-const CONTENT_REGEX = /(@\w+|https?:\/\/[^\s]+)/g;
+const EMOJI_REGEX_STR = emojiRegex().source;
+const CONTENT_REGEX = new RegExp(
+  `(@\\w+|https?:\\/\\/[^\\s]+|(?:[a-z0-9-]+\\.)+[a-z]{2,}(?:\\/[^\\s]*)?|${EMOJI_REGEX_STR})`,
+  'gi'
+);
 
-/**
- * Parses raw tweet text and returns React nodes with:
- * - @username → clickable link to profile
- * - https://... → clickable external link
- * - Everything else → plain text
- */
 export function renderTweetContent(text: string): React.ReactNode[] {
-  const parts = text.split(CONTENT_REGEX);
+  return text.split(CONTENT_REGEX).map((part, i) => {
+    if (!part) return null;
 
-  return parts.map((part, i) => {
+    if (i % 2 === 0) return part;
+
+    if (emojiRegex().test(part)) {
+      const hex = twemoji.convert.toCodePoint(part);
+      return (
+        <img
+          key={i}
+          src={`https://cdn.jsdelivr.net/npm/emoji-datasource-apple/img/apple/64/${hex}.png`}
+          alt={part}
+          className="inline-block w-5 h-5 mx-px"
+          draggable={false}
+        />
+      );
+    }
+
     if (part.startsWith('@')) {
-      const username = part.slice(1);
       return (
         <Link
           key={i}
-          href={`/${username}`}
+          href={`/${part.slice(1)}`}
           onClick={(e) => e.stopPropagation()}
           className="text-blue-400 hover:text-blue-300 hover:underline transition-colors"
         >
@@ -26,32 +40,20 @@ export function renderTweetContent(text: string): React.ReactNode[] {
       );
     }
 
-    if (/^https?:\/\//.test(part)) {
-      const display = part.length > 35 ? part.slice(0, 35) + '…' : part;
-      return (
-        <a
-          key={i}
-          href={part}
-          target="_blank"
-          rel="ugc noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          className="text-blue-400 hover:text-blue-300 hover:underline transition-colors"
-        >
-          {display}
-        </a>
-      );
-    }
+    const href = part.startsWith('http') ? part : `https://${part}`;
+    const display = part.length > 35 ? part.slice(0, 35) + '…' : part;
 
-    return part;
+    return (
+      <a
+        key={i}
+        href={href}
+        target="_blank"
+        rel="ugc noopener noreferrer"
+        onClick={(e) => e.stopPropagation()}
+        className="text-blue-400 hover:text-blue-300 hover:underline transition-colors"
+      >
+        {display}
+      </a>
+    );
   });
-}
-
-/**
- * Extracts @usernames from content (without the @ prefix).
- * Used server-side to find mentioned users.
- */
-export function extractMentions(text: string): string[] {
-  const matches = text.match(/@(\w+)/g);
-  if (!matches) return [];
-  return [...new Set(matches.map((m) => m.slice(1).toLowerCase()))];
 }
