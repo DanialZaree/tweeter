@@ -5,6 +5,41 @@ import { revalidatePath } from 'next/cache';
 import { auth } from '@/app/auth';
 import { z } from 'zod';
 import { checkRateLimit } from '@/app/lib/ratelimit';
+import { extractMentions } from '@/app/lib/renderTweetContent';
+
+/**
+ * Notifies users who were @mentioned in content.
+ * Skips the author (no self-notification) and any already-notified user IDs.
+ */
+async function notifyMentions(
+  content: string,
+  senderId: string,
+  tweetId: string,
+  alreadyNotifiedIds: string[] = [],
+) {
+  const usernames = extractMentions(content);
+  if (usernames.length === 0) return;
+
+  const mentionedUsers = await prisma.user.findMany({
+    where: { userName: { in: usernames } },
+    select: { id: true },
+  });
+
+  const skip = new Set([senderId, ...alreadyNotifiedIds]);
+
+  const notifications = mentionedUsers
+    .filter((u) => !skip.has(u.id))
+    .map((u) => ({
+      recipientId: u.id,
+      senderId,
+      type: 'MENTION' as const,
+      tweetId,
+    }));
+
+  if (notifications.length > 0) {
+    await prisma.notification.createMany({ data: notifications });
+  }
+}
 
 const tweetInputSchema = z.object({
   content: z
@@ -122,6 +157,8 @@ export async function createTweet(formData: FormData) {
         });
       }
     }
+
+    await notifyMentions(content, authorId, tweet.id);
 
     revalidatePath('/', 'layout');
     return { success: true, tweet };
@@ -436,6 +473,10 @@ export async function createReply(parentId: string, content: string, mediaUrl?: 
         },
       });
     }
+
+    // Notify mentioned users, but skip the parent tweet author (already notified with REPLY)
+    const alreadyNotified = parentTweet?.authorId ? [parentTweet.authorId] : [];
+    await notifyMentions(validation.data.content, session.user.id, reply.id, alreadyNotified);
 
     revalidatePath('/', 'layout');
     return { success: true, reply };

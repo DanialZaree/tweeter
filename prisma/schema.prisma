@@ -140,6 +140,7 @@ enum NotificationType {
   REPLY
   RETWEET
   FOLLOW
+  MENTION
 }
 
 model Notification {

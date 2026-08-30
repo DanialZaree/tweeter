@@ -6,7 +6,6 @@ import { Home, Compass, MessageCircle, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Glass } from '@samasante/liquid-glass';
 
 const TABS = [
   { id: 'home', label: 'Home', icon: Home, href: '/' },
@@ -31,15 +30,6 @@ export function JellyTabs() {
 
   return (
     <div className="bottom-3 left-1/2 z-50 fixed -translate-x-1/2">
-    <Glass
-            optics={{
-              frost: 1.8,
-              brightness: 0.05,
-              strength: 0.3,
-              depth: 0.2,
-            }}
-            behind="rgba(0,0,0,0.1)"
-          >
       <div className="relative flex items-center gap-2 bg-surface/60 shadow-sm backdrop-blur-md p-1 rounded-full">
         <motion.div
           className="absolute inset-y-1 bg-white shadow-sm rounded-full w-20"
@@ -75,7 +65,6 @@ export function JellyTabs() {
           );
         })}
       </div>
-    </Glass>
     </div>
   );
 }

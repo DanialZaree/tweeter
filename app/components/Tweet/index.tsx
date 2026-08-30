@@ -19,6 +19,7 @@ import { getGradientFromName } from '@/app/lib/avatar';
 import Avatar from '../ui/Avatar';
 import { domToBlob } from 'modern-screenshot';
 import { Repeat2, Heart, Share2, MessageCircle, Loader2 } from 'lucide-react';
+import { renderTweetContent } from '@/app/lib/renderTweetContent';
 
 const schema = z.object({
   tweet: z.string().trim().min(1, 'Tweet is required').max(500, 'Max character is 500'),
@@ -363,7 +364,7 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
           dir="auto"
           className="mt-3 sm:mt-4 sm:text-[16px] text-sm text-start wrap-break-word leading-relaxed tracking-wide whitespace-pre-line"
         >
-          {content}
+          {renderTweetContent(content)}
           {data.mediaUrl && (
             <div
               onClick={(e) => {
@@ -419,7 +420,7 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
                     dir="auto"
                     className="mt-3 sm:mt-4 sm:text-[16px] text-sm text-start wrap-break-word leading-relaxed tracking-wide whitespace-pre-line"
                   >
-                    {data.retweetOf.content}
+                    {renderTweetContent(data.retweetOf.content)}
                   </p>
                 )}
                 {data.retweetOf.mediaUrl && (

@@ -5,13 +5,13 @@ import { useEffect, useTransition } from 'react';
 import Avatar from '../ui/Avatar';
 import { markAsRead } from '@/app/lib/actions/actionNotif';
 import { useRouter } from 'next/navigation';
-import { Heart, MessageCircle, Repeat2, UserPlus, BellOff } from 'lucide-react';
+import { Heart, MessageCircle, Repeat2, UserPlus, BellOff, AtSign } from 'lucide-react';
 
 export interface NotifItem {
   id: string;
   recipientId: string;
   senderId: string;
-  type: 'LIKE' | 'REPLY' | 'RETWEET' | 'FOLLOW';
+  type: 'LIKE' | 'REPLY' | 'RETWEET' | 'FOLLOW' | 'MENTION';
   tweetId?: string | null;
   isRead: boolean;
   createdAt: Date | string;
@@ -89,6 +89,12 @@ export default function NotifList({ initialNotifications }: NotifListProps) {
             <UserPlus className="w-4 h-4" />
           </div>
         );
+      case 'MENTION':
+        return (
+          <div className="bg-amber-500/20 p-2 rounded-full text-amber-400">
+            <AtSign className="w-4 h-4" />
+          </div>
+        );
     }
   };
 
@@ -146,6 +152,14 @@ export default function NotifList({ initialNotifications }: NotifListProps) {
         return (
           <div className="flex flex-col min-w-0">
             <span>{UserLink} started following you</span>
+          </div>
+        );
+      case 'MENTION':
+        return (
+          <div className="flex flex-col min-w-0">
+            <span>
+              {UserLink} mentioned you in a{TargetLink(' tweet')}
+            </span>
           </div>
         );
     }
