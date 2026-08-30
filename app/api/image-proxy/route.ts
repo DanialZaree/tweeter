@@ -4,6 +4,7 @@ const ALLOWED_HOSTS = [
   'res.cloudinary.com',
   'avatars.githubusercontent.com',
   'lh3.googleusercontent.com',
+  'cdn.jsdelivr.net',
 ];
 const err = (msg: string, status: number) => NextResponse.json({ error: msg }, { status });
 

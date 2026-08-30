@@ -27,7 +27,7 @@ export default function SignIn() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     setError,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -86,9 +86,14 @@ export default function SignIn() {
 
       <button
         type="submit"
-        className="flex justify-center items-center bg-foreground hover:bg-foreground/80 hover:data-disabled:bg-gray-50 active:bg-foreground/60 active:data-disabled:bg-gray-50 active:data-disabled:shadow-none active:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] m-0 px-3 border border-gray-200 rounded-md outline-0 focus-visible:outline-2 focus-visible:outline-blue-800 h-8 sm:h-9 font-medium text-gray-900 text-xs sm:text-sm cursor-pointer select-none transition-colors"
+        disabled={isSubmitting}
+        className="flex justify-center items-center bg-foreground hover:bg-foreground/80 hover:data-disabled:bg-gray-50 active:bg-foreground/60 active:data-disabled:bg-gray-50 active:data-disabled:shadow-none active:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] m-0 px-3 border border-gray-200 rounded-md outline-0 focus-visible:outline-2 focus-visible:outline-blue-800 h-8 sm:h-9 font-medium text-gray-900 text-xs sm:text-sm cursor-pointer select-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Sign in
+        {isSubmitting ? (
+          <div className="w-5 h-5 border-2 border-background border-t-transparent rounded-full animate-spin"></div>
+        ) : (
+          'Sign in'
+        )}
       </button>
     </form>
   );
