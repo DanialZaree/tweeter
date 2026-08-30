@@ -28,6 +28,7 @@ function memoryLimit(key: string, limit: number, windowSeconds: number) {
     return {
       success: false,
       remaining: 0,
+      retryAfter: secondsLeft,
       error: `Too many requests. Please wait ${secondsLeft} seconds before trying again.`,
     };
   }
@@ -67,7 +68,7 @@ export async function checkRateLimit(
   key: string,
   limit: number = 5,
   windowSeconds: number = 60,
-): Promise<{ success: boolean; error?: string; remaining?: number }> {
+): Promise<{ success: boolean; error?: string; remaining?: number; retryAfter?: number }> {
   if (hasUpstash && redis) {
     try {
       const ratelimit = getUpstashLimiter(limit, windowSeconds);
@@ -75,10 +76,12 @@ export async function checkRateLimit(
         const res = await ratelimit.limit(key);
         if (!res.success) {
           const resetSeconds = Math.ceil((res.reset - Date.now()) / 1000);
+          const waitSeconds = resetSeconds > 0 ? resetSeconds : 60;
           return {
             success: false,
             remaining: 0,
-            error: `Too many requests. Please wait ${resetSeconds > 0 ? resetSeconds : 60} seconds before trying again.`,
+            retryAfter: waitSeconds,
+            error: `Too many requests. Please wait ${waitSeconds} seconds before trying again.`,
           };
         }
         return { success: true, remaining: res.remaining };

@@ -67,6 +67,16 @@ export async function registerUser(
     };
   }
 
+  const forwardedFor = (await headers()).get('x-forwarded-for');
+  const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : '127.0.0.1';
+  const ipRateCheck = await checkRateLimit(`register_ip:${ip}`, 10, 900);
+  if (!ipRateCheck.success) {
+    return {
+      success: false,
+      error: 'Too many registration attempts from this IP. Please try again later.',
+    };
+  }
+
   const record = await prisma.verificationToken.findFirst({
     where: { identifier: validation.data.email, token: otp },
   });
@@ -162,6 +172,16 @@ export async function login(
     return {
       success: false,
       error: rateCheck.error || 'Too many login attempts. Please try again later.',
+    };
+  }
+
+  const forwardedFor = (await headers()).get('x-forwarded-for');
+  const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : '127.0.0.1';
+  const ipRateCheck = await checkRateLimit(`login_ip:${ip}`, 15, 900);
+  if (!ipRateCheck.success) {
+    return {
+      success: false,
+      error: 'Too many login attempts from this IP. Please try again later.',
     };
   }
   try {

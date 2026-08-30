@@ -269,6 +269,11 @@ export async function deleteTweet(tweetId: string) {
     return { success: false, error: 'User not authenticated' };
   }
 
+  const rateCheck = await checkRateLimit(`delete:${session.user.id}`, 20, 60);
+  if (!rateCheck.success) {
+    return { success: false, error: rateCheck.error || 'Rate limit exceeded.' };
+  }
+
   try {
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },

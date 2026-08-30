@@ -197,6 +197,7 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
     await Promise.all(
       Array.from(images).map(async (img) => {
         if (!img.src || img.src.startsWith('data:')) return;
+        if (img.src.startsWith(window.location.origin)) return;
         try {
           originals.set(img, img.src);
           const res = await fetch(`/api/image-proxy?url=${encodeURIComponent(img.src)}`);

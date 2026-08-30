@@ -3,6 +3,7 @@
 import prisma from '../prisma';
 import { auth } from '@/app/auth';
 import { revalidatePath } from 'next/cache';
+import { checkRateLimit } from '@/app/lib/ratelimit';
 
 const safeSenderSelect = {
   id: true,
@@ -29,6 +30,11 @@ export async function getNotif() {
 
     if (!userId) {
       return { success: false, error: 'Unauthorized', notifications: [] };
+    }
+
+    const rateCheck = await checkRateLimit(`get_notif:${userId}`, 30, 60);
+    if (!rateCheck.success) {
+      return { success: false, error: rateCheck.error, notifications: [] };
     }
 
     const notifications = await prisma.notification.findMany({
@@ -64,6 +70,11 @@ export async function markAsRead() {
     const userId = session?.user?.id;
 
     if (!userId) return { success: false, error: 'Unauthorized' };
+
+    const rateCheck = await checkRateLimit(`mark_read:${userId}`, 10, 60);
+    if (!rateCheck.success) {
+      return { success: false, error: rateCheck.error };
+    }
 
     await prisma.notification.updateMany({
       where: {
