@@ -1,3 +1,6 @@
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', () => self.clients.claim());
+
 self.addEventListener('push', (event) => {
   const data = event.data?.json() ?? {
     title: 'New Notification',
@@ -9,7 +12,7 @@ self.addEventListener('push', (event) => {
     self.registration.showNotification(data.title, {
       body: data.body,
       icon: data.icon || '/icon.png',
-      badge: data.badge || '/logo.svg',
+      badge: data.badge || '/icon.png',
       vibrate: [200, 100, 200],
       data: data.url,
     })
