@@ -12,7 +12,7 @@ self.addEventListener('push', (event) => {
     self.registration.showNotification(data.title, {
       body: data.body,
       icon: data.icon || '/icon.png',
-      badge: data.badge || '/icon.png',
+      badge: data.badge || '/logo.svg',
       vibrate: [200, 100, 200],
       data: data.url,
     })

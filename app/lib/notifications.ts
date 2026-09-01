@@ -72,6 +72,6 @@ export async function sendAppNotification({
     body,
     url,
     icon: senderAvatar,
-    badge: '/icon.png',
+    badge: '/logo.svg',
   });
 }
