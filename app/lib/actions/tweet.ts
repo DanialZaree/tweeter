@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { auth } from '@/app/auth';
 import { z } from 'zod';
 import { checkRateLimit } from '@/app/lib/ratelimit';
+import { sendAppNotification } from '@/app/lib/notifications';
 
 function extractMentions(text: string): string[] {
   const matches = text.match(/@(\w+)/g);
@@ -32,17 +33,22 @@ async function notifyMentions(
 
   const skip = new Set([senderId, ...alreadyNotifiedIds]);
 
-  const notifications = mentionedUsers
-    .filter((u) => !skip.has(u.id))
-    .map((u) => ({
-      recipientId: u.id,
-      senderId,
-      type: 'MENTION' as const,
-      tweetId,
-    }));
+  const usersToNotify = mentionedUsers.filter((u) => !skip.has(u.id));
 
-  if (notifications.length > 0) {
-    await prisma.notification.createMany({ data: notifications });
+  if (usersToNotify.length > 0) {
+    const session = await auth();
+    const senderName = session?.user?.name || 'Someone';
+    await Promise.all(
+      usersToNotify.map((u) =>
+        sendAppNotification({
+          type: 'MENTION',
+          senderId,
+          senderName,
+          recipientId: u.id,
+          tweetId,
+        })
+      )
+    );
   }
 }
 
@@ -152,13 +158,12 @@ export async function createTweet(formData: FormData) {
       });
 
       if (originalTweet && originalTweet.authorId !== authorId) {
-        await prisma.notification.create({
-          data: {
-            recipientId: originalTweet.authorId,
-            senderId: authorId,
-            type: 'RETWEET',
-            tweetId: tweet.id,
-          },
+        await sendAppNotification({
+          type: 'RETWEET',
+          senderId: authorId,
+          senderName: session.user?.name || 'Someone',
+          recipientId: originalTweet.authorId,
+          tweetId: tweet.id,
         });
       }
     }
@@ -469,13 +474,12 @@ export async function createReply(parentId: string, content: string, mediaUrl?: 
     }
 
     if (parentTweet && parentTweet.authorId !== session.user.id) {
-      await prisma.notification.create({
-        data: {
-          recipientId: parentTweet.authorId,
-          senderId: session.user.id,
-          type: 'REPLY',
-          tweetId: reply.id,
-        },
+      await sendAppNotification({
+        type: 'REPLY',
+        senderId: session.user.id,
+        senderName: session.user?.name || 'Someone',
+        recipientId: parentTweet.authorId,
+        tweetId: reply.id,
       });
     }
 

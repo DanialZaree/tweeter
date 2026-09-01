@@ -3,6 +3,7 @@ import { auth } from '../auth';
 import Navbar from '../components/Navbar';
 import Frame from '../components/Frame';
 import InstallPrompt from '@/components/InstallPrompt';
+import { PushNotificationManager } from '@/app/components/PushNotificationManager';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -35,7 +36,7 @@ export default async function Home() {
         <main className="flex flex-col gap-12 pb-16">
           {/* Hero Section */}
           <section className="flex flex-col items-center text-center mt-8 gap-6 px-4">
-            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight bg-linear-to-br from-white to-neutral-400 bg-clip-text text-transparent">
               Welcome to Boblo
             </h1>
             <p className="text-lg text-text-muted max-w-md">
@@ -75,6 +76,11 @@ export default async function Home() {
                 </>
               )}
             </div>
+            {session && (
+              <div className="mt-4 flex justify-center w-full">
+                <PushNotificationManager />
+              </div>
+            )}
           </section>
 
           {/* Site News / Announcements */}
@@ -115,14 +121,14 @@ export default async function Home() {
             </h2>
             <div className="border-l-2 border-surface-2 ml-3 flex flex-col gap-6 pt-2 pb-2">
               <div className="relative pl-6">
-                <div className="absolute left-[-5px] top-1.5 w-2 h-2 rounded-full bg-blue-500"></div>
+                <div className="absolute -left-1.25 top-1.5 w-2 h-2 rounded-full bg-blue-500"></div>
                 <div className="text-xs font-semibold text-blue-400 mb-1">v0.1.25 • Aug 2026</div>
                 <div className="text-sm text-text-muted">
                   Added Terms of Service and Privacy Policy pages.
                 </div>
               </div>
               <div className="relative pl-6">
-                <div className="absolute left-[-5px] top-1.5 w-2 h-2 rounded-full bg-surface-2"></div>
+                <div className="absolute -left-1.25 top-1.5 w-2 h-2 rounded-full bg-surface-2"></div>
                 <div className="text-xs font-semibold text-text-subtle mb-1">
                   v0.1.24 • Aug 2026
                 </div>
@@ -131,7 +137,7 @@ export default async function Home() {
                 </div>
               </div>
               <div className="relative pl-6">
-                <div className="absolute left-[-5px] top-1.5 w-2 h-2 rounded-full bg-surface-2"></div>
+                <div className="absolute -left-1.25 top-1.5 w-2 h-2 rounded-full bg-surface-2"></div>
                 <div className="text-xs font-semibold text-text-subtle mb-1">
                   v0.1.23 • Aug 2026
                 </div>
@@ -188,7 +194,7 @@ export default async function Home() {
                 </div>
 
                 <div className="flex flex-col items-center sm:items-end gap-3 shrink-0 md:w-1/3 w-full border-t md:border-t-0 md:border-l border-white/10 pt-6 md:pt-0 md:pl-8">
-                  <div className="w-full flex justify-center sm:justify-end">
+                  <div className="w-full flex flex-col items-center sm:items-end gap-3 justify-center sm:justify-end">
                     <InstallPrompt />
                   </div>
 

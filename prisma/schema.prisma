@@ -59,6 +59,8 @@ model User {
 
   notificationsReceived Notification[] @relation("RecipientNotifications")
   notificationsSent     Notification[] @relation("SenderNotifications")
+
+  pushSubscriptions PushSubscription[]
 }
 
 model Account {
@@ -146,9 +148,9 @@ enum NotificationType {
 model Notification {
   id          String           @id @default(auto()) @map("_id") @db.ObjectId
   recipientId String           @db.ObjectId
-  senderId    String           @db.ObjectId 
+  senderId    String           @db.ObjectId
   type        NotificationType
-  tweetId     String?          @db.ObjectId 
+  tweetId     String?          @db.ObjectId
   isRead      Boolean          @default(false)
   createdAt   DateTime         @default(now())
 
@@ -158,4 +160,16 @@ model Notification {
 
   @@index([recipientId, isRead])
   @@index([recipientId, createdAt])
+}
+
+
+model PushSubscription {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

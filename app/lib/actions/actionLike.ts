@@ -4,6 +4,7 @@ import prisma from '../prisma';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/app/auth';
 import { checkRateLimit } from '@/app/lib/ratelimit';
+import { sendAppNotification } from '@/app/lib/notifications';
 
 export async function toggleTweetLike(tweetId: string) {
   try {
@@ -66,13 +67,12 @@ export async function toggleTweetLike(tweetId: string) {
       });
 
       if (tweet.authorId !== userId) {
-        await prisma.notification.create({
-          data: {
-            type: 'LIKE',
-            senderId: userId,
-            recipientId: tweet.authorId,
-            tweetId: tweetId,
-          },
+        await sendAppNotification({
+          type: 'LIKE',
+          senderId: userId,
+          senderName: session.user?.name || 'Someone',
+          recipientId: tweet.authorId,
+          tweetId: tweetId,
         });
       }
     }

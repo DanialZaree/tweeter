@@ -455,11 +455,6 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
       )}
       <div className="flex flex-row justify-between items-center mt-3 sm:mt-4 text-xs sm:text-sm">
         <div className="group flex items-center gap-1 text-text-muted">
-          <span
-            className={`duration-150 ${isRetweetedByCurrentUser ? 'text-green-500' : 'group-hover:text-green-500'}`}
-          >
-            {retweetCount > 0 ? retweetCount : ''}
-          </span>
           <button
             type="button"
             aria-label="Retweet"
@@ -472,9 +467,13 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
               className={`w-4 sm:w-5 h-4 sm:h-5 duration-150 ${isRetweetedByCurrentUser ? 'text-green-500' : 'text-text-muted group-hover:text-green-500'}`}
             />
           </button>
+          <span
+            className={`duration-150 ${isRetweetedByCurrentUser ? 'text-green-500' : 'group-hover:text-green-500'}`}
+          >
+            {retweetCount > 0 ? retweetCount : ''}
+          </span>
         </div>
         <div className="group flex items-center gap-1 text-text-muted">
-          <div className="group-hover:text-blue-500 duration-150">{replyCount}</div>
           <Link
             href={`/tweet/${tweetId}`}
             aria-label="Reply to tweet"
@@ -482,13 +481,9 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
           >
             <MessageCircle className="w-4 sm:w-5 h-4 sm:h-5 text-text-muted group-hover:text-blue-500 duration-150" />
           </Link>
+          <div className="group-hover:text-blue-500 duration-150">{replyCount}</div>
         </div>
         <div className="group flex items-center gap-1 text-text-muted">
-          <div
-            className={`group-hover:text-red-500 duration-150 ${isLiked ? 'text-red-500' : 'text-text-muted'}`}
-          >
-            {currentLikes}
-          </div>
           <button
             type="button"
             onClick={handleLike}
@@ -500,6 +495,11 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
               className={`w-4 h-4 sm:w-5 sm:h-5 ${isLiked ? 'text-red-500' : 'text-text-muted group-hover:text-red-500'}`}
             />
           </button>
+          <div
+            className={`group-hover:text-red-500 duration-150 ${isLiked ? 'text-red-500' : 'text-text-muted'}`}
+          >
+            {currentLikes}
+          </div>
         </div>
         <div className="group flex items-center gap-1 text-text-muted">
           <button

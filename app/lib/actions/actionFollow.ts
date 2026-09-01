@@ -4,6 +4,7 @@ import { auth } from '@/app/auth';
 import prisma from '../prisma';
 import { revalidatePath } from 'next/cache';
 import { checkRateLimit } from '@/app/lib/ratelimit';
+import { sendAppNotification } from '@/app/lib/notifications';
 
 export async function followUser(targetUserId: string) {
   const session = await auth();
@@ -60,12 +61,12 @@ export async function followUser(targetUserId: string) {
         },
       });
 
-      await prisma.notification.create({
-        data: {
-          recipientId: targetUserId,
-          senderId: currentUserId,
-          type: 'FOLLOW',
-        },
+      await sendAppNotification({
+        type: 'FOLLOW',
+        senderId: currentUserId,
+        senderName: session.user?.name || 'Someone',
+        recipientId: targetUserId,
+        urlOverride: `/${session.user?.userName || 'profile'}`,
       });
     }
 
