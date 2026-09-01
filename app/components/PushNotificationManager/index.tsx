@@ -25,6 +25,13 @@ export function PushNotificationManager() {
       navigator.serviceWorker.ready.then((registration) => {
         registration.pushManager.getSubscription().then((sub) => {
           setIsSubscribed(!!sub);
+          
+          // Auto-prompt if not subscribed and permission hasn't been denied
+          if (!sub && 'Notification' in window && Notification.permission === 'default') {
+            setTimeout(() => {
+              subscribeToPush();
+            }, 3000);
+          }
         });
       });
     }
@@ -43,8 +50,12 @@ export function PushNotificationManager() {
 
       let registration = await navigator.serviceWorker.getRegistration();
       if (!registration) {
-        registration = await navigator.serviceWorker.register('/sw.js');
+        await navigator.serviceWorker.register('/sw.js');
       }
+
+      // Ensure the service worker is fully active and ready before subscribing
+      registration = await navigator.serviceWorker.ready;
+
       if (!registration) {
         setError('Service worker not registered.');
         setIsLoading(false);
