@@ -61,5 +61,17 @@ export async function sendAppNotification({
       break;
   }
 
-  await sendPushNotification(recipientId, { title, body, url });
+  const sender = await prisma.user.findUnique({
+    where: { id: senderId },
+    select: { avatar: true },
+  });
+  const senderAvatar = sender?.avatar || '/icon.png';
+
+  await sendPushNotification(recipientId, {
+    title,
+    body,
+    url,
+    icon: senderAvatar,
+    badge: '/logo.svg',
+  });
 }

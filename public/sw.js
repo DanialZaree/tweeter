@@ -8,8 +8,8 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: '/icon-192x192.png',
-      badge: '/logo.svg',
+      icon: data.icon || '/icon.png',
+      badge: data.badge || '/logo.svg',
       vibrate: [200, 100, 200],
       data: data.url,
     })
@@ -19,7 +19,7 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
-  const urlToOpen = event.notification.data || '/';
+  const urlToOpen = new URL(event.notification.data || '/', self.location.origin).href;
 
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {

@@ -11,7 +11,7 @@ if (vapidPublicKey && vapidPrivateKey) {
 
 export async function sendPushNotification(
   userId: string,
-  payload: { title: string; body: string; url?: string }
+  payload: { title: string; body: string; url?: string; icon?: string; badge?: string }
 ) {
   if (!vapidPublicKey || !vapidPrivateKey) {
     console.warn('VAPID keys are not set, skipping push notification');
