@@ -44,11 +44,11 @@ next-env.d.ts
 
 
 # PWA files
-public/sw.js
-public/sw.js.map
-public/workbox-*.js
-public/workbox-*.js.map
-public/worker-*.js
-public/worker-*.js.map
-public/swe-worker-*.js
-public/swe-worker-*.js.map
+# public/sw.js
+# public/sw.js.map
+# public/workbox-*.js
+# public/workbox-*.js.map
+# public/worker-*.js
+# public/worker-*.js.map
+# public/swe-worker-*.js
+# public/swe-worker-*.js.map
