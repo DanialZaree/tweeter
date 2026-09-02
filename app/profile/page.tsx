@@ -58,7 +58,7 @@ export default async function Profile() {
     <div className="bg-black w-full min-h-screen text-white">
       <div className="mx-auto border-white/10 sm:border-x w-full max-w-2xl min-h-screen">
         {/* Top nav */}
-        <div className="top-0 z-10 sticky flex items-center gap-4 sm:gap-6 bg-black/80 backdrop-blur-md px-3 sm:px-4 py-3 border-white/10 border-b">
+        <div className="top-0 z-20 sticky flex items-center gap-4 sm:gap-6 bg-black/80 backdrop-blur-md px-3 sm:px-4 py-3 border-white/10 border-b">
           <Link
             href="/"
             aria-label="Back to home"

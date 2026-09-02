@@ -46,8 +46,8 @@ async function notifyMentions(
           senderName,
           recipientId: u.id,
           tweetId,
-        })
-      )
+        }),
+      ),
     );
   }
 }
@@ -329,7 +329,7 @@ export async function deleteTweet(tweetId: string) {
 
     const tweet = await prisma.tweet.findUnique({
       where: { id: tweetId },
-      select: { authorId: true, ancestorIds: true, totalReplies: true },
+      select: { authorId: true, ancestorIds: true, totalReplies: true, mediaUrl: true },
     });
 
     if (!tweet) {
@@ -366,6 +366,11 @@ export async function deleteTweet(tweetId: string) {
     await prisma.tweet.delete({
       where: { id: tweetId },
     });
+
+    if (tweet.mediaUrl) {
+      const { deleteImage } = await import('./upload');
+      await deleteImage(tweet.mediaUrl);
+    }
 
     revalidatePath('/', 'layout');
     return { success: true };
@@ -458,7 +463,7 @@ export async function createReply(parentId: string, content: string, mediaUrl?: 
       data: {
         authorId: session.user.id,
         tweetId: newTweetId,
-        content: validation.data.content,
+        content: validation.data.content || '',
         mediaUrl: validation.data.mediaUrl,
         parentId: parentId,
         ancestorIds: ancestorIds,

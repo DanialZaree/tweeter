@@ -13,7 +13,7 @@ import { useCharLimitStore } from '@/app/store/useCharLimitStore';
 import { Loader2, Image as ImageIcon, X } from 'lucide-react';
 import CharLimit from '../CharLimit';
 import { useFileUpload } from '@/hooks/use-file-upload';
-import { uploadImage } from '@/app/lib/actions/upload';
+import { uploadImage, deleteImage } from '@/app/lib/actions/upload';
 
 import { useRouter } from 'next/navigation';
 
@@ -70,8 +70,8 @@ export default function NewTweetForm({
     let result;
     setUploadError(null);
 
+    let mediaUrl: string | null = null;
     try {
-      let mediaUrl = null;
       if (fileState.files.length > 0 && fileState.files[0].file instanceof File) {
         setIsUploading(true);
         try {
@@ -110,11 +110,18 @@ export default function NewTweetForm({
       } else {
         console.error(result.error);
         setUploadError(result.error || 'Failed to create tweet');
+        if (mediaUrl) {
+          await deleteImage(mediaUrl);
+        }
       }
     } catch (e) {
       console.error('there is a error', e);
       setUploadError('An unexpected error occurred');
       setIsUploading(false);
+
+      if (mediaUrl) {
+        await deleteImage(mediaUrl).catch(console.error);
+      }
     }
   }
 

@@ -5,7 +5,7 @@ self.addEventListener('push', (event) => {
   const data = event.data?.json() ?? {
     title: 'New Notification',
     body: 'You have a new notification.',
-    url: '/'
+    url: '/',
   };
 
   event.waitUntil(
@@ -15,7 +15,7 @@ self.addEventListener('push', (event) => {
       badge: data.badge || '/logo.svg',
       vibrate: [200, 100, 200],
       data: data.url,
-    })
+    }),
   );
 });
 
@@ -37,6 +37,6 @@ self.addEventListener('notificationclick', (event) => {
       if (self.clients.openWindow) {
         return self.clients.openWindow(urlToOpen);
       }
-    })
+    }),
   );
 });

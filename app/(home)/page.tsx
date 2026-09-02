@@ -198,7 +198,7 @@ export default async function Home() {
                     <InstallPrompt />
                   </div>
 
-                  <div className="text-center sm:text-right mt-2 text-xs text-neutral-500 max-w-[200px]">
+                  <div className="text-center sm:text-right mt-2 text-xs text-neutral-500 max-w-50">
                     <span className="block font-semibold text-neutral-400 mb-1">iOS Users:</span>
                     Tap the <strong>Share</strong> button in Safari, then select{' '}
                     <strong>Add to Home Screen</strong>.

@@ -11,7 +11,7 @@ if (vapidPublicKey && vapidPrivateKey) {
 
 export async function sendPushNotification(
   userId: string,
-  payload: { title: string; body: string; url?: string; icon?: string; badge?: string }
+  payload: { title: string; body: string; url?: string; icon?: string; badge?: string },
 ) {
   if (!vapidPublicKey || !vapidPrivateKey) {
     console.warn('VAPID keys are not set, skipping push notification');
@@ -40,7 +40,7 @@ export async function sendPushNotification(
                 p256dh: sub.p256dh,
               },
             },
-            payloadString
+            payloadString,
           );
         } catch (error: any) {
           if (error.statusCode === 404 || error.statusCode === 410) {
@@ -52,7 +52,7 @@ export async function sendPushNotification(
             console.error('Error sending push notification:', error);
           }
         }
-      })
+      }),
     );
   } catch (error) {
     console.error('Failed to send push notifications:', error);

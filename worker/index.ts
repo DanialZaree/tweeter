@@ -7,19 +7,19 @@ self.addEventListener('push', (event) => {
   const data = event.data?.json() ?? {
     title: 'New Notification',
     body: 'You have a new notification.',
-    url: '/'
+    url: '/',
   };
 
   event.waitUntil(
-      self.registration.showNotification(data.title, {
-        body: data.body,
-        icon: '/icon-192x192.png',
-        badge: '/logo.svg',
-        // @ts-ignore
-        vibrate: [200, 100, 200],
-        data: data.url,
-      })
-    );
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: '/icon-192x192.png',
+      badge: '/logo.svg',
+      // @ts-ignore
+      vibrate: [200, 100, 200],
+      data: data.url,
+    }),
+  );
 });
 
 self.addEventListener('notificationclick', (event) => {
@@ -40,6 +40,6 @@ self.addEventListener('notificationclick', (event) => {
       if (self.clients.openWindow) {
         return self.clients.openWindow(urlToOpen);
       }
-    })
+    }),
   );
 });

@@ -51,7 +51,7 @@ export default function HomeLoading() {
             <div className="h-[280px] border border-white/10 rounded-3xl bg-neutral-900/30"></div>
           </section>
         </main>
-        
+
         {/* Footer Skeleton */}
         <footer className="border-t border-white/10 py-8 px-4 flex flex-col sm:flex-row justify-between items-center gap-4 opacity-50">
           <div className="w-48 h-4 bg-surface rounded"></div>

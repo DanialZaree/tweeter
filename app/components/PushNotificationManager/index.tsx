@@ -25,7 +25,7 @@ export function PushNotificationManager() {
       navigator.serviceWorker.ready.then((registration) => {
         registration.pushManager.getSubscription().then((sub) => {
           setIsSubscribed(!!sub);
-          
+
           // Auto-prompt if not subscribed and permission hasn't been denied
           if (!sub && 'Notification' in window && Notification.permission === 'default') {
             setTimeout(() => {
@@ -99,8 +99,8 @@ export function PushNotificationManager() {
 
   return (
     <div className="flex flex-col gap-2 items-center w-fit">
-      <button 
-        onClick={subscribeToPush} 
+      <button
+        onClick={subscribeToPush}
         disabled={isLoading}
         className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed w-fit"
       >

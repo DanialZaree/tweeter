@@ -4,7 +4,6 @@ import { auth } from '@/app/auth';
 import { checkRateLimit } from '@/app/lib/ratelimit';
 import { v2 as cloudinary } from 'cloudinary';
 
-// Configure Cloudinary on the server (supporting CLOUDINARY_URL and individual env vars)
 function initCloudinary() {
   const cloudinaryUrl = process.env.CLOUDINARY_URL;
   if (cloudinaryUrl) {
@@ -59,12 +58,7 @@ function isValidImageMagicBytes(buffer: Buffer): boolean {
   }
 
   // GIF: 47 49 46 38 ("GIF8")
-  if (
-    buffer[0] === 0x47 &&
-    buffer[1] === 0x49 &&
-    buffer[2] === 0x46 &&
-    buffer[3] === 0x38
-  ) {
+  if (buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x38) {
     return true;
   }
 
@@ -166,5 +160,25 @@ export async function uploadImage(
   } catch (error: any) {
     console.error('Error uploading image to Cloudinary:', error);
     return { success: false, error: error.message || 'Failed to upload image' };
+  }
+}
+
+export async function deleteImage(imageUrl: string): Promise<boolean> {
+  try {
+    initCloudinary();
+
+    const matches = imageUrl.match(/\/v\d+\/(.+)\.\w+$/);
+    if (!matches || !matches[1]) {
+      console.error('Could not extract public_id from URL:', imageUrl);
+      return false;
+    }
+
+    const publicId = matches[1];
+
+    const result = await cloudinary.uploader.destroy(publicId);
+    return result.result === 'ok';
+  } catch (error) {
+    console.error('Error deleting image from Cloudinary:', error);
+    return false;
   }
 }

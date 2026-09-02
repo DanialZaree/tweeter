@@ -27,7 +27,9 @@ export async function GET(req: NextRequest) {
     return err('Blocked', 403);
   }
 
-  const targetUrl = new URL(url.pathname + url.search, `https://${url.hostname}`);
+  const targetUrl = new URL(`https://${url.hostname}`);
+  targetUrl.pathname = url.pathname;
+  targetUrl.search = url.search;
 
   const res = await fetch(targetUrl.toString(), { signal: AbortSignal.timeout(5000) }).catch(
     () => null,
