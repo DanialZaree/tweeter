@@ -539,7 +539,7 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
         </div>
         <div className="flex items-center gap-1 text-text-muted">
           {isEdited && <span className="italic">(edited)</span>}
-          <span>
+          <span suppressHydrationWarning>
             {formattedTime} &middot; {formattedDate}
           </span>
         </div>

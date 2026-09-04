@@ -131,7 +131,7 @@ export default async function Profile() {
           </p>
 
           <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-white/50 sm:text-[13px] text-xs">
-            <span className="flex items-center gap-1">
+            <span suppressHydrationWarning className="flex items-center gap-1">
               <Calendar className="w-3.5 h-3.5" />
               Joined{' '}
               {new Date(user?.createdAt ?? new Date()).toLocaleDateString('en-US', {
