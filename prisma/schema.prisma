@@ -30,10 +30,10 @@ model Tweet {
   originalTweetDeleted Boolean   @default(false)
 
   notifications Notification[]
-  author        User      @relation(fields: [authorId], references: [id])
+
+  author        User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   likes         Like[]
 }
-
 
 model User {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
@@ -110,7 +110,8 @@ model Like {
   userId    String    @db.ObjectId
   tweetId   String    @db.ObjectId
 
-  user      User      @relation(fields: [userId], references: [id])
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   tweet     Tweet     @relation(fields: [tweetId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([userId, tweetId])
@@ -121,8 +122,9 @@ model Follower {
   userId      String   @db.ObjectId
   followerId  String   @db.ObjectId
 
-  user        User     @relation("UserFollowing", fields: [userId], references: [id])
-  follower    User     @relation("UserFollowers", fields: [followerId], references: [id])
+
+  user        User     @relation("UserFollowing", fields: [userId], references: [id], onDelete: Cascade)
+  follower    User     @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
 
   @@unique([userId, followerId])
 }
@@ -135,7 +137,6 @@ model Verification {
 
   @@unique([identifier, token])
 }
-
 
 enum NotificationType {
   LIKE
@@ -161,7 +162,6 @@ model Notification {
   @@index([recipientId, isRead])
   @@index([recipientId, createdAt])
 }
-
 
 model PushSubscription {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId

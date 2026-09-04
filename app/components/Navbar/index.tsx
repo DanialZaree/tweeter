@@ -33,7 +33,7 @@ export default async function Navbar() {
         >
           <Bell className="w-5 h-5" />
           {unread.count > 0 && (
-            <span className="top-1.5 right-1.5 absolute flex justify-center items-center bg-blue-600 rounded-full min-w-[16px] h-4 font-bold text-[10px] text-white px-1">
+            <span className="top-1.5 right-1.5 absolute flex justify-center items-center bg-blue-600 rounded-full min-w-4 h-4 font-bold text-[10px] text-white px-1">
               {unread.count > 99 ? '99+' : unread.count}
             </span>
           )}

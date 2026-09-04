@@ -88,7 +88,7 @@ export default function NavbarSearch({ isLoggedIn = false }: NavbarSearchProps) 
       </button>
 
       {isOpen && (
-        <div className="top-12 right-0 absolute bg-black/95 backdrop-blur-xl shadow-2xl border border-white/10 rounded-2xl w-[310px] sm:w-[360px] overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="top-12 right-0 absolute bg-black/95 backdrop-blur-xl shadow-2xl border border-white/10 rounded-2xl w-77.5 sm:w-90 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
           {!isLoggedIn ? (
             <div className="p-6 text-center flex flex-col items-center gap-3">
               <div className="p-3 bg-white/5 rounded-full text-blue-400">
