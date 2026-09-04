@@ -1,9 +1,12 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, Bell } from 'lucide-react';
+import { Bell } from 'lucide-react';
+import { auth } from '@/app/auth';
 import { unreadCount } from '@/app/lib/actions/actionNotif';
+import NavbarSearch from './NavbarSearch';
 
 export default async function Navbar() {
+  const session = await auth();
   const unread = await unreadCount();
 
   return (
@@ -35,13 +38,7 @@ export default async function Navbar() {
             </span>
           )}
         </Link>
-        <button
-          type="button"
-          aria-label="Search"
-          className="hover:bg-white/10 p-2 rounded-full transition-colors text-white cursor-pointer"
-        >
-          <Search className="w-5 h-5" />
-        </button>
+        <NavbarSearch isLoggedIn={!!session?.user} />
       </div>
     </div>
   );
