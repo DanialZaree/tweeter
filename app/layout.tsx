@@ -78,10 +78,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn('h-full', 'antialiased', 'dark', 'font-sans', myFont.className)}>
+    <html lang="en" className={cn('h-full', 'antialiased', 'dark', 'font-sans', myFont.className)} suppressHydrationWarning>
       <body
         className={`${myFont.className} flex flex-col min-h-full dark root pb-18`}
-        cz-shortcut-listen="false"
+        suppressHydrationWarning
       >
         {children}
         <Analytics />
