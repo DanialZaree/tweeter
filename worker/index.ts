@@ -13,8 +13,10 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: '/icon-192x192.png',
-      badge: '/logo.svg',
+      icon: data.icon || '/icons/icon-192x192.png',
+      badge: data.badge || '/logo.svg',
+      // @ts-ignore
+      image: data.image,
       // @ts-ignore
       vibrate: [200, 100, 200],
       data: data.url,

@@ -65,13 +65,16 @@ export async function sendAppNotification({
     where: { id: senderId },
     select: { avatar: true },
   });
-  const senderAvatar = sender?.avatar || '/icon.png';
+  let senderAvatar = sender?.avatar || '/icons/icon-192x192.png';
+  if (senderAvatar.includes('res.cloudinary.com') && senderAvatar.includes('/upload/')) {
+    senderAvatar = senderAvatar.replace('/upload/', '/upload/w_192,h_192,c_fill,r_max/');
+  }
 
   await sendPushNotification(recipientId, {
     title,
     body,
     url,
     icon: senderAvatar,
-    badge: '/logo.svg',
+    badge: '/icons/logo.svg',
   });
 }

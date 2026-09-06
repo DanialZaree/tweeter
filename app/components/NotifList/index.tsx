@@ -208,28 +208,26 @@ export default function NotifList({ initialNotifications }: NotifListProps) {
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 shrink-0">
                     <Link href={`/${notif.sender.userName}`} onClick={(e) => e.stopPropagation()}>
-                      <Avatar name={notif.sender.name} image={notif.sender.avatar} size={40} className="rounded-full shadow-sm" />
+                      <Avatar
+                        name={notif.sender.name}
+                        image={notif.sender.avatar}
+                        size={40}
+                        className="rounded-full shadow-sm"
+                      />
                     </Link>
                   </div>
-                  
+
                   <div className="flex-1 text-neutral-200 text-sm min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      {renderTypeIcon(notif.type)}
-                      <span className="text-[11px] text-neutral-500 font-medium whitespace-nowrap">
-                        {timeAgo(notif.createdAt)}
-                      </span>
-                    </div>
                     {renderDescription(notif)}
                   </div>
-                  
-                  <div className="flex items-center justify-center shrink-0 w-8 h-8 rounded-full bg-white/5">
-                    <Image
-                      src="/icons/logo.svg"
-                      alt="Boblo"
-                      width={20}
-                      height={20}
-                      className="w-5 h-5 object-contain opacity-70 hover:opacity-100 transition-opacity"
-                    />
+
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] text-neutral-500 whitespace-nowrap font-medium">
+                        {timeAgo(notif.createdAt)}
+                      </span>
+                      <div className="shrink-0">{renderTypeIcon(notif.type)}</div>
+                    </div>
                   </div>
                 </div>
               </div>

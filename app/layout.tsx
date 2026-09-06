@@ -6,6 +6,7 @@ import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { JellyTabs } from '@/components/ui/jelly-tabs';
 import ImageModal from '@/app/components/ui/ImageModal';
+import Providers from './Providers';
 
 const myFont = localFont({
   src: '../public/fonts/font.ttf',
@@ -78,12 +79,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn('h-full', 'antialiased', 'dark', 'font-sans', myFont.className)} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={cn('h-full', 'antialiased', 'dark', 'font-sans', myFont.className)}
+      suppressHydrationWarning
+    >
       <body
         className={`${myFont.className} flex flex-col min-h-full dark root pb-18`}
         suppressHydrationWarning
       >
-        {children}
+        <Providers>{children}</Providers>
         <Analytics />
         <SpeedInsights />
         <JellyTabs />

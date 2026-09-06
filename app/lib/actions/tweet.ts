@@ -13,10 +13,6 @@ function extractMentions(text: string): string[] {
   return [...new Set(matches.map((m) => m.slice(1).toLowerCase()))];
 }
 
-/**
- * Notifies users who were @mentioned in content.
- * Skips the author (no self-notification) and any already-notified user IDs.
- */
 async function notifyMentions(
   content: string,
   senderId: string,
@@ -487,8 +483,6 @@ export async function createReply(parentId: string, content: string, mediaUrl?: 
         tweetId: reply.id,
       });
     }
-
-    // Notify mentioned users, but skip the parent tweet author (already notified with REPLY)
     const alreadyNotified = parentTweet?.authorId ? [parentTweet.authorId] : [];
     await notifyMentions(validation.data.content, session.user.id, reply.id, alreadyNotified);
 
@@ -576,5 +570,65 @@ export async function followingTweets(userId: string) {
   } catch (e) {
     console.error('Error in followingTweets:', e);
     return { success: false, error: 'Failed to fetch following tweets' };
+  }
+}
+
+export async function getInfiniteTweets({
+  cursor,
+  limit = 10,
+}: { cursor?: string | null; limit?: number } = {}) {
+  try {
+    const tweets = await prisma.tweet.findMany({
+      take: limit + 1,
+      cursor: cursor ? { id: cursor } : undefined,
+      skip: cursor ? 1 : 0,
+      where: {
+        OR: [{ parentId: null }, { parentId: { isSet: false } }],
+      },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      include: {
+        author: { select: safeAuthorSelect },
+        likes: true,
+        retweetOf: {
+          include: {
+            author: { select: safeAuthorSelect },
+            likes: true,
+            retweets: { select: { authorId: true } },
+            _count: { select: { replies: true, retweets: true } },
+          },
+        },
+        retweets: { select: { authorId: true } },
+        _count: { select: { replies: true, retweets: true } },
+        replies: {
+          orderBy: { createdAt: 'asc' },
+          include: {
+            author: { select: safeAuthorSelect },
+            likes: true,
+            _count: { select: { replies: true } },
+          },
+        },
+      },
+    });
+
+    let nextCursor: string | null = null
+
+    if (tweets.length > limit) {
+      tweets.pop()
+      nextCursor = tweets[tweets.length - 1].id
+    }
+
+    return {
+      success: true,
+      tweets,
+      nextCursor,
+    };
+  } catch (error) {
+    console.error('error in getInfiniteTweets', error);
+    return {
+      success: false,
+      tweets: [],
+      nextCursor: null,
+      error: 'Failed to fetch tweets',
+    };
   }
 }

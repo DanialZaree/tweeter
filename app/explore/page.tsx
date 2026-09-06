@@ -8,6 +8,7 @@ import { allTweets, followingTweets } from '../lib/actions/tweet';
 import { Suspense } from 'react';
 import TweetSkeleton from '../components/Tweet/TweetSkeleton';
 
+
 export const metadata: Metadata = {
   title: 'Explore',
   description: 'Explore trending posts, popular discussions, and recent thoughts on Boblo.',

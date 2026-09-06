@@ -3,6 +3,7 @@
 import { Tabs } from '@base-ui/react/tabs';
 import TweetList from '../TweetList';
 import { TweetType } from '../Tweet';
+import InfiniteTweetList from '../../components/InfiniteTweetList';
 
 const tabClassName =
   'flex h-[calc(2rem+1px)] items-center justify-center bg-transparent px-2 py-0 font-inherit text-sm font-normal leading-5 break-keep cursor-pointer whitespace-nowrap text-neutral-600 outline-none select-none hover:text-neutral-950 data-active:text-neutral-950 dark:text-neutral-300 dark:hover:text-white dark:data-active:text-white';
@@ -26,10 +27,7 @@ export default function ExploreTabs({
   if (!isLoggedIn) {
     return (
       <div className="w-full min-h-32">
-        <TweetList
-          success={allTweetsData.success}
-          tweets={allTweetsData.tweets ?? []}
-          error={allTweetsData.error}
+        <InfiniteTweetList
           currentUserId={currentUserId}
           currentUserName={currentUserName}
         />
@@ -74,10 +72,7 @@ export default function ExploreTabs({
           )}
         </Tabs.Panel>
         <Tabs.Panel className={panelClassName} value="everyone">
-          <TweetList
-            success={allTweetsData.success}
-            tweets={allTweetsData.tweets ?? []}
-            error={allTweetsData.error}
+          <InfiniteTweetList
             currentUserId={currentUserId}
             currentUserName={currentUserName}
           />

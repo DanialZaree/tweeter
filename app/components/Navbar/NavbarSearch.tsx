@@ -161,9 +161,7 @@ export default function NavbarSearch({ isLoggedIn = false }: NavbarSearchProps) 
                         <span className="font-semibold text-white text-sm truncate">
                           {user.name || user.userName}
                         </span>
-                        <span className="text-neutral-400 text-xs truncate">
-                          @{user.userName}
-                        </span>
+                        <span className="text-neutral-400 text-xs truncate">@{user.userName}</span>
                       </div>
                     </Link>
                   ))
