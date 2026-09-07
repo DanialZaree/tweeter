@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { PenSquareIcon, MoreHorizontalIcon, Trash2Icon, Loader2 } from 'lucide-react';
 import { deleteTweet } from '@/app/lib/actions/tweet';
-
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import {
@@ -22,6 +22,7 @@ interface MoreTweetButtonProps {
 
 export default function MoreTweetButton({ tweetId, onEdit }: MoreTweetButtonProps) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const queryClint = useQueryClient()
 
   async function handleDelete() {
     if (isDeleting) return;
@@ -30,6 +31,8 @@ export default function MoreTweetButton({ tweetId, onEdit }: MoreTweetButtonProp
     if (!result?.success) {
       console.error(result?.error || 'Failed to delete tweet');
       setIsDeleting(false);
+    } else {
+      queryClint.invalidateQueries({ queryKey: ['tweets', 'infinite'] })
     }
   }
 

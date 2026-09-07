@@ -4,6 +4,7 @@ import { Bell, Search } from 'lucide-react';
 import { auth } from '@/app/auth';
 import { unreadCount } from '@/app/lib/actions/actionNotif';
 import NavbarSearch from './NavbarSearch';
+import NavbarBell from './NavbarBell';
 
 export default async function Navbar() {
   const session = await auth();
@@ -26,18 +27,10 @@ export default async function Navbar() {
         Boblo
       </Link>
       <div className="flex items-center gap-1 sm:gap-2">
-        <Link
-          href="/notifications"
-          aria-label="Notifications"
-          className="relative hover:bg-white/10 p-2 rounded-full transition-colors text-white cursor-pointer"
-        >
-          <Bell className="w-5 h-5" />
-          {unread.count > 0 && (
-            <span className="top-1.5 right-1.5 absolute flex justify-center items-center bg-blue-600 rounded-full min-w-4 h-4 font-bold text-[10px] text-white px-1">
-              {unread.count > 99 ? '99+' : unread.count}
-            </span>
-          )}
-        </Link>
+        <NavbarBell
+          initialCount={unread.count}
+          isLoggedIn={!!session?.user}
+        />
         <NavbarSearch isLoggedIn={!!session?.user} />
       </div>
     </div>
@@ -80,5 +73,3 @@ export function NavbarSkeleton() {
     </div>
   );
 }
-
-

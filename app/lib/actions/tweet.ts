@@ -684,4 +684,3 @@ export async function getInfiniteTweets({
     };
   }
 }
-

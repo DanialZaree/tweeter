@@ -209,7 +209,6 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
             reader.readAsDataURL(blob);
           });
         } catch {
-          /* keep original */
         }
       }),
     );
