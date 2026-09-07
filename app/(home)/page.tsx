@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { auth } from '../auth';
-import Navbar from '../components/Navbar';
+import { Suspense } from 'react';
+import Navbar, { NavbarSkeleton } from '../components/Navbar';
 import Frame from '../components/Frame';
 import InstallPrompt from '@/components/InstallPrompt';
-import { PushNotificationManager } from '@/app/components/PushNotificationManager';
+import HomeAuthActions, { HomeAuthActionsSkeleton } from '@/app/components/HomeAuthActions';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -14,6 +14,8 @@ import {
   Megaphone,
   CheckCircle2,
 } from 'lucide-react';
+
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'Home',
@@ -26,12 +28,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function Home() {
-  const session = await auth();
-
+export default function Home() {
   return (
     <>
-      <Navbar />
+      <Suspense fallback={<NavbarSkeleton />}>
+        <Navbar />
+      </Suspense>
       <Frame>
         <main className="flex flex-col gap-12 pb-16">
           {/* Hero Section */}
@@ -43,44 +45,9 @@ export default async function Home() {
               A modern platform to share your thoughts, follow creators, and discover meaningful
               conversations.
             </p>
-            <div className="flex flex-row gap-4 mt-2">
-              {!session ? (
-                <>
-                  <Link
-                    href="/auth"
-                    className="px-6 py-3 text-sm font-semibold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-colors shadow-sm hover:shadow-md"
-                  >
-                    Get Started
-                  </Link>
-                  <Link
-                    href="/explore"
-                    className="px-6 py-3 text-sm font-semibold text-white bg-surface rounded-full hover:bg-surface-2 transition-colors border border-white/10"
-                  >
-                    Explore Posts
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/explore"
-                    className="px-6 py-3 text-sm font-semibold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-colors shadow-sm hover:shadow-md"
-                  >
-                    Explore Posts
-                  </Link>
-                  <Link
-                    href={`/${session.user.userName || 'profile'}`}
-                    className="px-6 py-3 text-sm font-semibold text-white bg-surface rounded-full hover:bg-surface-2 transition-colors border border-white/10"
-                  >
-                    My Profile
-                  </Link>
-                </>
-              )}
-            </div>
-            {session && (
-              <div className="mt-4 flex justify-center w-full">
-                <PushNotificationManager />
-              </div>
-            )}
+            <Suspense fallback={<HomeAuthActionsSkeleton />}>
+              <HomeAuthActions />
+            </Suspense>
           </section>
 
           {/* Site News / Announcements */}
@@ -92,22 +59,22 @@ export default async function Home() {
             <div className="flex flex-col gap-3">
               <div className="bg-card border border-white/10 rounded-2xl p-4 sm:p-5 flex flex-col gap-2">
                 <div className="flex justify-between items-start">
-                  <h3 className="font-semibold text-white">Following Feed is Live!</h3>
+                  <h3 className="font-semibold text-white">Infinite Scroll with TanStack Query</h3>
                   <span className="text-xs text-text-subtle">Just now</span>
                 </div>
                 <p className="text-sm text-text-subtle">
-                  You can now see posts exclusively from people you follow in the Explore tab. Stay
-                  up to date with your favorite creators.
+                  Enjoy seamless, continuous scrolling across Explore (Everyone & Following feeds)
+                  and Profile (Posts, Replies, & Retweets) with instant in-memory caching.
                 </p>
               </div>
               <div className="bg-card border border-white/10 rounded-2xl p-4 sm:p-5 flex flex-col gap-2">
                 <div className="flex justify-between items-start">
-                  <h3 className="font-semibold text-white">Share Posts as Screenshots</h3>
-                  <span className="text-xs text-text-subtle">Aug 2026</span>
+                  <h3 className="font-semibold text-white">Real-Time Feed Invalidation</h3>
+                  <span className="text-xs text-text-subtle">Sep 2026</span>
                 </div>
                 <p className="text-sm text-text-subtle">
-                  Use the share button on any post to generate and save a beautiful image of it,
-                  perfect for cross-posting to other platforms.
+                  Whenever you post a new tweet, all your feeds update immediately at the top without
+                  requiring any full page reloads.
                 </p>
               </div>
             </div>
@@ -122,27 +89,27 @@ export default async function Home() {
             <div className="border-l-2 border-surface-2 ml-3 flex flex-col gap-6 pt-2 pb-2">
               <div className="relative pl-6">
                 <div className="absolute -left-1.25 top-1.5 w-2 h-2 rounded-full bg-blue-500"></div>
-                <div className="text-xs font-semibold text-blue-400 mb-1">v0.1.25 • Aug 2026</div>
+                <div className="text-xs font-semibold text-blue-400 mb-1">v0.2.0 • Sep 2026</div>
+                <div className="text-sm text-text-muted">
+                  Added unified TanStack Query infinite scroll for Explore and Profile tabs (Posts, Replies, Retweets).
+                </div>
+              </div>
+              <div className="relative pl-6">
+                <div className="absolute -left-1.25 top-1.5 w-2 h-2 rounded-full bg-surface-2"></div>
+                <div className="text-xs font-semibold text-text-subtle mb-1">
+                  v0.1.26 • Sep 2026
+                </div>
+                <div className="text-sm text-text-muted">
+                  Added web push notifications with custom avatar icons and badge branding.
+                </div>
+              </div>
+              <div className="relative pl-6">
+                <div className="absolute -left-1.25 top-1.5 w-2 h-2 rounded-full bg-surface-2"></div>
+                <div className="text-xs font-semibold text-text-subtle mb-1">
+                  v0.1.25 • Aug 2026
+                </div>
                 <div className="text-sm text-text-muted">
                   Added Terms of Service and Privacy Policy pages.
-                </div>
-              </div>
-              <div className="relative pl-6">
-                <div className="absolute -left-1.25 top-1.5 w-2 h-2 rounded-full bg-surface-2"></div>
-                <div className="text-xs font-semibold text-text-subtle mb-1">
-                  v0.1.24 • Aug 2026
-                </div>
-                <div className="text-sm text-text-muted">
-                  Redesigned the Home page as a Content Hub.
-                </div>
-              </div>
-              <div className="relative pl-6">
-                <div className="absolute -left-1.25 top-1.5 w-2 h-2 rounded-full bg-surface-2"></div>
-                <div className="text-xs font-semibold text-text-subtle mb-1">
-                  v0.1.23 • Aug 2026
-                </div>
-                <div className="text-sm text-text-muted">
-                  Introduced the Following tab in Explore and fixed SSRF vulnerabilities.
                 </div>
               </div>
             </div>
