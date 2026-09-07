@@ -66,9 +66,15 @@ export async function sendAppNotification({
     select: { avatar: true },
   });
   let senderAvatar = sender?.avatar || '/icons/icon-192x192.png';
-  if (senderAvatar.includes('res.cloudinary.com') && senderAvatar.includes('/upload/')) {
-    senderAvatar = senderAvatar.replace('/upload/', '/upload/w_192,h_192,c_fill,r_max/');
+  try {
+    const avatarUrl = new URL(senderAvatar);
+    if (avatarUrl.hostname === 'res.cloudinary.com' && avatarUrl.pathname.includes('/upload/')) {
+      senderAvatar = senderAvatar.replace('/upload/', '/upload/w_192,h_192,c_fill,r_max/');
+    }
+  } catch {
+
   }
+
 
   await sendPushNotification(recipientId, {
     title,
