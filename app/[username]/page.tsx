@@ -2,10 +2,9 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import prisma from '../lib/prisma';
 import { auth } from '../auth';
-import { getTweetByUserId } from '../lib/actions/tweet';
-import { getRepliesByUserId } from '../lib/actions/tweet';
+import { getInfiniteTweets } from '../lib/actions/tweet';
 import { getUser } from '@/app/lib/actions/actionUser';
-import TweetList from '../components/TweetList';
+import InfiniteTweetList from '../components/InfiniteTweetList';
 import Avatar from '../components/ui/Avatar';
 import { getGradientFromName } from '../lib/avatar';
 import Image from 'next/image';
@@ -82,18 +81,23 @@ export default async function UserProfilePage({ params }: UserProfileProps) {
 
   const bgGradient = getGradientFromName(user?.userName);
 
-  const {
-    success: tweetsSuccess,
-    tweets: userTweets,
-    error: tweetsError,
-  } = await getTweetByUserId(user?.id ?? '');
-  const {
-    success: repliesSuccess,
-    tweets: userReplies,
-    error: repliesError,
-  } = await getRepliesByUserId(user?.id ?? '');
-  const safeTweets = userTweets ?? [];
-  const safeReplies = userReplies ?? [];
+  const targetUserId = user.id;
+
+  const initialTweetsData = await getInfiniteTweets({
+    limit: 10,
+    feedType: 'user',
+    targetUserId,
+  });
+  const initialRepliesData = await getInfiniteTweets({
+    limit: 10,
+    feedType: 'replies',
+    targetUserId,
+  });
+  const initialRetweetsData = await getInfiniteTweets({
+    limit: 10,
+    feedType: 'retweets',
+    targetUserId,
+  });
 
   const existingFollow = await prisma.follower.findFirst({
     where: {
@@ -127,7 +131,7 @@ export default async function UserProfilePage({ params }: UserProfileProps) {
             <p className="font-bold sm:text-[17px] text-base truncate leading-tight">
               {user?.name ?? 'Profile'}
             </p>
-            <p className="text-white/50 sm:text-[13px] text-xs">{safeTweets.length} posts</p>
+            <p className="text-white/50 sm:text-[13px] text-xs">{user?._count?.tweets ?? 0} posts</p>
           </div>
         </div>
 
@@ -207,40 +211,44 @@ export default async function UserProfilePage({ params }: UserProfileProps) {
             <Tabs.Tab className={`${tabClassName} flex-1`} value="replies">
               Replies
             </Tabs.Tab>
-            <Tabs.Tab className={`${tabClassName} flex-1`} value="account">
+            <Tabs.Tab className={`${tabClassName} flex-1`} value="retweets">
               Retweets
             </Tabs.Tab>
             <Tabs.Indicator className="absolute top-1 bottom-1 left-0 -z-1 bg-surface/60 border-2 border-border rounded-2xl w-(--active-tab-width) translate-x-(--active-tab-left) transition-[translate,width] duration-150 ease-in-out" />
           </Tabs.List>
           <div className="grid grid-cols-1 w-full min-h-32">
             <Tabs.Panel className={panelClassName} value="tweets">
-              {safeTweets?.length > 0 ? (
-                <TweetList
-                  success={tweetsSuccess}
-                  tweets={safeTweets}
-                  error={tweetsError}
-                  currentUserId={currentUserId}
-                  currentUserName={currentUserName}
-                />
-              ) : (
-                <p>No Tweets :/</p>
-              )}
+              <InfiniteTweetList
+                currentUserId={currentUserId}
+                currentUserName={currentUserName}
+                feedType="user"
+                targetUserId={targetUserId}
+                initialTweets={initialTweetsData.tweets}
+                initialCursor={initialTweetsData.nextCursor}
+                emptyMessage={<p>No Tweets :/</p>}
+              />
             </Tabs.Panel>
             <Tabs.Panel className={panelClassName} value="replies">
-              {safeReplies?.length > 0 ? (
-                <TweetList
-                  success={repliesSuccess}
-                  tweets={safeReplies}
-                  error={repliesError}
-                  currentUserId={currentUserId}
-                  currentUserName={currentUserName}
-                />
-              ) : (
-                <p>No Replies :/</p>
-              )}
+              <InfiniteTweetList
+                currentUserId={currentUserId}
+                currentUserName={currentUserName}
+                feedType="replies"
+                targetUserId={targetUserId}
+                initialTweets={initialRepliesData.tweets}
+                initialCursor={initialRepliesData.nextCursor}
+                emptyMessage={<p>No Replies :/</p>}
+              />
             </Tabs.Panel>
-            <Tabs.Panel className={panelClassName} value="account">
-              <p>No Retweets (:</p>
+            <Tabs.Panel className={panelClassName} value="retweets">
+              <InfiniteTweetList
+                currentUserId={currentUserId}
+                currentUserName={currentUserName}
+                feedType="retweets"
+                targetUserId={targetUserId}
+                initialTweets={initialRetweetsData.tweets}
+                initialCursor={initialRetweetsData.nextCursor}
+                emptyMessage={<p>No Retweets (:</p>}
+              />
             </Tabs.Panel>
           </div>
         </Tabs.Root>

@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 import Frame from '../components/Frame';
 import ExploreTabs from '../components/ExploreTabs';
 import NewTweet from '../components/ui/NewTweet';
-import { allTweets, followingTweets } from '../lib/actions/tweet';
+import { getInfiniteTweets } from '../lib/actions/tweet';
 import { Suspense } from 'react';
 import TweetSkeleton from '../components/Tweet/TweetSkeleton';
 
@@ -27,11 +27,15 @@ export default async function Explore() {
   const currentUserId = session?.user?.id;
   const currentUserName = session?.user?.userName;
 
-  const allTweetsData = await allTweets();
+  const initialTweetsData = await getInfiniteTweets({ limit: 10, feedType: 'everyone' });
 
   let followingTweetsData = null;
   if (currentUserId) {
-    followingTweetsData = await followingTweets(currentUserId);
+    followingTweetsData = await getInfiniteTweets({
+      limit: 10,
+      feedType: 'following',
+      targetUserId: currentUserId,
+    });
   }
 
   return (
@@ -49,7 +53,7 @@ export default async function Explore() {
             }
           >
             <ExploreTabs
-              allTweetsData={allTweetsData}
+              allTweetsData={initialTweetsData}
               followingTweetsData={followingTweetsData}
               currentUserId={currentUserId}
               currentUserName={currentUserName}

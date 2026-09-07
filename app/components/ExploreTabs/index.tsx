@@ -1,7 +1,6 @@
 'use client';
 
 import { Tabs } from '@base-ui/react/tabs';
-import TweetList from '../TweetList';
 import { TweetType } from '../Tweet';
 import InfiniteTweetList from '../../components/InfiniteTweetList';
 
@@ -18,8 +17,8 @@ export default function ExploreTabs({
   currentUserName,
   isLoggedIn,
 }: {
-  allTweetsData: { success: boolean; tweets?: TweetType['data'][]; error?: string };
-  followingTweetsData: { success: boolean; tweets?: TweetType['data'][]; error?: string } | null;
+  allTweetsData: { success: boolean; tweets?: TweetType['data'][]; error?: string; nextCursor?: string | null };
+  followingTweetsData: { success: boolean; tweets?: TweetType['data'][]; error?: string; nextCursor?: string | null } | null;
   currentUserId?: string;
   currentUserName?: string;
   isLoggedIn: boolean;
@@ -30,6 +29,9 @@ export default function ExploreTabs({
         <InfiniteTweetList
           currentUserId={currentUserId}
           currentUserName={currentUserName}
+          feedType="everyone"
+          initialTweets={allTweetsData.tweets}
+          initialCursor={allTweetsData.nextCursor}
         />
       </div>
     );
@@ -48,36 +50,38 @@ export default function ExploreTabs({
       </Tabs.List>
       <div className="grid grid-cols-1 w-full min-h-32">
         <Tabs.Panel className={panelClassName} value="following">
-          {followingTweetsData &&
-          followingTweetsData.tweets &&
-          followingTweetsData.tweets.length > 0 ? (
-            <TweetList
-              success={followingTweetsData.success}
-              tweets={followingTweetsData.tweets}
-              error={followingTweetsData.error}
-              currentUserId={currentUserId}
-              currentUserName={currentUserName}
-            />
-          ) : (
-            <div className="py-12 flex flex-col items-center justify-center text-text-muted">
-              <p className="text-lg font-medium text-white">Welcome to your feed!</p>
-              <p className="mt-2 text-sm text-center max-w-sm">
-                Follow people to see their posts here.
-              </p>
-              <div className="mt-4 text-sm">
-                Check out the <span className="font-semibold text-white">Everyone</span> tab to find
-                people to follow.
+          <InfiniteTweetList
+            currentUserId={currentUserId}
+            currentUserName={currentUserName}
+            feedType="following"
+            targetUserId={currentUserId}
+            initialTweets={followingTweetsData?.tweets}
+            initialCursor={followingTweetsData?.nextCursor}
+            emptyMessage={
+              <div className="py-12 flex flex-col items-center justify-center text-text-muted">
+                <p className="text-lg font-medium text-white">Welcome to your feed!</p>
+                <p className="mt-2 text-sm text-center max-w-sm">
+                  Follow people to see their posts here.
+                </p>
+                <div className="mt-4 text-sm">
+                  Check out the <span className="font-semibold text-white">Everyone</span> tab to find
+                  people to follow.
+                </div>
               </div>
-            </div>
-          )}
+            }
+          />
         </Tabs.Panel>
         <Tabs.Panel className={panelClassName} value="everyone">
           <InfiniteTweetList
             currentUserId={currentUserId}
             currentUserName={currentUserName}
+            feedType="everyone"
+            initialTweets={allTweetsData.tweets}
+            initialCursor={allTweetsData.nextCursor}
           />
         </Tabs.Panel>
       </div>
     </Tabs.Root>
   );
 }
+

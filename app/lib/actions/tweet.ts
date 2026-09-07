@@ -573,18 +573,70 @@ export async function followingTweets(userId: string) {
   }
 }
 
+export type InfiniteFeedType = 'everyone' | 'following' | 'user' | 'replies' | 'retweets';
+
 export async function getInfiniteTweets({
   cursor,
   limit = 10,
-}: { cursor?: string | null; limit?: number } = {}) {
+  feedType = 'everyone',
+  targetUserId,
+}: {
+  cursor?: string | null;
+  limit?: number;
+  feedType?: InfiniteFeedType;
+  targetUserId?: string;
+} = {}) {
   try {
+    let whereClause: any = {};
+
+    if (feedType === 'everyone') {
+      whereClause = {
+        OR: [{ parentId: null }, { parentId: { isSet: false } }],
+      };
+    } else if (feedType === 'following') {
+      if (!targetUserId) {
+        return { success: true, tweets: [], nextCursor: null };
+      }
+      const following = await prisma.follower.findMany({
+        where: { followerId: targetUserId },
+        select: { userId: true },
+      });
+      const followingIds = following.map((f) => f.userId);
+      whereClause = {
+        authorId: { in: followingIds },
+        OR: [{ parentId: null }, { parentId: { isSet: false } }],
+      };
+    } else if (feedType === 'user') {
+      if (!targetUserId) {
+        return { success: true, tweets: [], nextCursor: null };
+      }
+      whereClause = {
+        authorId: targetUserId,
+        OR: [{ parentId: null }, { parentId: { isSet: false } }],
+      };
+    } else if (feedType === 'replies') {
+      if (!targetUserId) {
+        return { success: true, tweets: [], nextCursor: null };
+      }
+      whereClause = {
+        authorId: targetUserId,
+        parentId: { not: null },
+      };
+    } else if (feedType === 'retweets') {
+      if (!targetUserId) {
+        return { success: true, tweets: [], nextCursor: null };
+      }
+      whereClause = {
+        authorId: targetUserId,
+        OR: [{ retweetOfId: { not: null } }, { originalTweetDeleted: true }],
+      };
+    }
+
     const tweets = await prisma.tweet.findMany({
       take: limit + 1,
       cursor: cursor ? { id: cursor } : undefined,
       skip: cursor ? 1 : 0,
-      where: {
-        OR: [{ parentId: null }, { parentId: { isSet: false } }],
-      },
+      where: whereClause,
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       include: {
         author: { select: safeAuthorSelect },
@@ -610,11 +662,11 @@ export async function getInfiniteTweets({
       },
     });
 
-    let nextCursor: string | null = null
+    let nextCursor: string | null = null;
 
     if (tweets.length > limit) {
-      tweets.pop()
-      nextCursor = tweets[tweets.length - 1].id
+      tweets.pop();
+      nextCursor = tweets[tweets.length - 1].id;
     }
 
     return {
@@ -632,3 +684,4 @@ export async function getInfiniteTweets({
     };
   }
 }
+

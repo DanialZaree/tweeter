@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-
+import { useQueryClient } from '@tanstack/react-query';
 import { createTweet, createReply } from '@/app/lib/actions/tweet';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -33,6 +33,7 @@ export default function NewTweetForm({
   onSuccess?: () => void;
 }) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -101,6 +102,7 @@ export default function NewTweetForm({
         reset();
         clearFiles();
         updateChar(0);
+        queryClient.invalidateQueries({ queryKey: ['tweets', 'infinite'] });
         router.refresh();
         if (onSuccess) {
           onSuccess();

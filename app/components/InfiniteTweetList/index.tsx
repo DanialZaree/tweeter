@@ -1,12 +1,28 @@
-'use clinet'
+'use client';
 
-import { useEffect, useRef } from "react"
-import { useInfiniteQuery } from "@tanstack/react-query"
-import { getInfiniteTweets } from "@/app/lib/actions/tweet"
-import Tweet from "../Tweet"
-import TweetSkeleton from "../Tweet/TweetSkeleton"
+import { useEffect, useRef } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { getInfiniteTweets, InfiniteFeedType } from '@/app/lib/actions/tweet';
+import Tweet from '../Tweet';
+import TweetSkeleton from '../Tweet/TweetSkeleton';
 
-export default function InfiniteTweetList({ currentUserId, currentUserName, }: { currentUserId?: string; currentUserName?: string; }) {
+export default function InfiniteTweetList({
+  currentUserId,
+  currentUserName,
+  feedType = 'everyone',
+  targetUserId,
+  initialTweets,
+  initialCursor,
+  emptyMessage,
+}: {
+  currentUserId?: string;
+  currentUserName?: string;
+  feedType?: InfiniteFeedType;
+  targetUserId?: string;
+  initialTweets?: any[];
+  initialCursor?: string | null;
+  emptyMessage?: React.ReactNode;
+}) {
   const {
     data,
     fetchNextPage,
@@ -16,77 +32,100 @@ export default function InfiniteTweetList({ currentUserId, currentUserName, }: {
     isError,
     error,
   } = useInfiniteQuery({
-    queryKey: ['tweets', 'infinite'],
+    queryKey: ['tweets', 'infinite', feedType, targetUserId || 'all'],
     queryFn: async ({ pageParam }) => {
-      const res = await getInfiniteTweets({ cursor: pageParam, limit: 10 })
+      const res = await getInfiniteTweets({
+        cursor: pageParam,
+        limit: 10,
+        feedType,
+        targetUserId,
+      });
       if (!res.success) {
         throw new Error(res.error || 'Failed to fetch tweets');
       }
       return res;
     },
     initialPageParam: null as string | null,
-    getNextPageParam:(lastPage) => lastPage.nextCursor ?? undefined,
-  })
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    initialData: initialTweets?.length
+      ? {
+          pages: [
+            {
+              success: true,
+              tweets: initialTweets,
+              nextCursor: initialCursor ?? null,
+            },
+          ],
+          pageParams: [null],
+        }
+      : undefined,
+  });
 
-  const tweets = data?.pages.flatMap((page) => page.tweets) ?? []
+  const tweets = data?.pages.flatMap((page) => page.tweets) ?? [];
 
-  const loadMoreRef = useRef<HTMLDivElement | null>(null)
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const sentinel = loadMoreRef.current
-    if (!sentinel) return
+    const sentinel = loadMoreRef.current;
+    if (!sentinel) return;
 
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-        fetchNextPage()
-      }
-    },
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
       { threshold: 0.1 }
-    )
+    );
 
-    observer.observe(sentinel)
+    observer.observe(sentinel);
 
-    return ()=> observer.disconnect()
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   if (isLoading) {
-      return (
-        <div className="mx-auto w-full max-w-xl">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <TweetSkeleton key={i} />
-          ))}
-        </div>
-      );
-    }
-    if (isError) {
-      return (
-        <div className="mx-auto w-full max-w-xl text-center py-8 text-red-400">
-          <p>{error?.message || 'Something went wrong loading tweets.'}</p>
-        </div>
-      );
-    }
     return (
       <div className="mx-auto w-full max-w-xl">
-        {tweets.map((tweet: any) => (
-          <Tweet
-            key={tweet.id}
-            data={tweet}
-            currentUserId={currentUserId}
-            currentUserName={currentUserName}
-          />
+        {Array.from({ length: 3 }).map((_, i) => (
+          <TweetSkeleton key={i} />
         ))}
-        <div ref={loadMoreRef} className="w-full py-4 flex flex-col items-center justify-center">
-          {isFetchingNextPage && (
-            <div className="w-full">
-              <TweetSkeleton />
-            </div>
-          )}
-          {!hasNextPage && tweets.length > 0 && (
-            <p className="text-xs text-text-subtle py-4">
-              There is no more :]
-            </p>
-          )}
-        </div>
       </div>
     );
+  }
+
+  if (isError) {
+    return (
+      <div className="mx-auto w-full max-w-xl text-center py-8 text-red-400">
+        <p>{error?.message || 'Something went wrong loading tweets.'}</p>
+      </div>
+    );
+  }
+
+  if (tweets.length === 0 && emptyMessage) {
+    return <>{emptyMessage}</>;
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-xl">
+      {tweets.map((tweet: any) => (
+        <Tweet
+          key={tweet.id}
+          data={tweet}
+          currentUserId={currentUserId}
+          currentUserName={currentUserName}
+        />
+      ))}
+      <div ref={loadMoreRef} className="w-full py-4 flex flex-col items-center justify-center">
+        {isFetchingNextPage && (
+          <div className="w-full">
+            <TweetSkeleton />
+          </div>
+        )}
+        {!hasNextPage && tweets.length > 0 && (
+          <p className="text-xs text-text-subtle py-4">There is no more :]</p>
+        )}
+      </div>
+    </div>
+  );
 }
+
