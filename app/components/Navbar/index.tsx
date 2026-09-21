@@ -30,6 +30,7 @@ export default async function Navbar() {
         <NavbarBell
           initialCount={unread.count}
           isLoggedIn={!!session?.user}
+          userId={session?.user?.id}
         />
         <NavbarSearch isLoggedIn={!!session?.user} />
       </div>

@@ -5,7 +5,6 @@ import Navbar from '../components/Navbar';
 import Frame from '../components/Frame';
 import NotificationList, { NotifItem } from '../components/NotifList';
 import { getNotif } from '../lib/actions/actionNotif';
-import { useQueryClient } from '@tanstack/react-query';
 
 export const metadata: Metadata = {
   title: 'Notifications',
@@ -22,15 +21,12 @@ export const metadata: Metadata = {
 
 export default async function NotificationsPage() {
   const session = await auth();
-  const queryClient = useQueryClient();
-
 
   if (!session?.user?.id) {
     redirect('/auth');
   }
 
   const { notifications } = await getNotif();
-  queryClient.setQueryData(['notifications', 'unreadCount'], 0);
 
   return (
     <>
@@ -40,7 +36,10 @@ export default async function NotificationsPage() {
           <div className="mb-4">
             <h1 className="font-bold text-2xl text-white tracking-tight">Notifications</h1>
           </div>
-          <NotificationList initialNotifications={notifications as unknown as NotifItem[]} />
+          <NotificationList
+            initialNotifications={notifications as unknown as NotifItem[]}
+            userId={session.user.id}
+          />
         </main>
       </Frame>
     </>

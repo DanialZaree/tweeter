@@ -1,30 +1,41 @@
-'use client'
+'use client';
 
-import Link from "next/link"
-import { Bell } from "lucide-react"
-import { useQuery } from "@tanstack/react-query"
-import { unreadCount } from "@/app/lib/actions/actionNotif"
+import Link from 'next/link';
+import { Bell } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { unreadCount } from '@/app/lib/actions/actionNotif';
+import { usePusherChannel } from '@/hooks/use-pusher-channel';
 
-export default function NavbarBell(
-  {
-    initialCount = 0,
-    isLoggedIn = false,
-  }: {
-    initialCount?:number;
-    isLoggedIn?: boolean;
-  }
-) {
+export default function NavbarBell({
+  initialCount = 0,
+  isLoggedIn = false,
+  userId,
+}: {
+  initialCount?: number;
+  isLoggedIn?: boolean;
+  userId?: string;
+}) {
+  const queryClient = useQueryClient();
+
   const { data: count = initialCount } = useQuery({
     queryKey: ['notifications', 'unreadCount'],
     queryFn: async () => {
-      const res = await unreadCount()
+      const res = await unreadCount();
       return res.count ?? 0;
     },
     initialData: initialCount,
     enabled: isLoggedIn,
-    refetchInterval: 30000,
+    refetchInterval: 60000,
     refetchIntervalInBackground: false,
-  })
+  });
+
+  usePusherChannel(isLoggedIn && userId ? `user-${userId}` : null, 'notification:new', () => {
+    queryClient.setQueryData(
+      ['notifications', 'unreadCount'],
+      (prev: number = 0) => (prev ?? 0) + 1,
+    );
+    queryClient.invalidateQueries({ queryKey: ['notifications', 'unreadCount'] });
+  });
 
   return (
     <Link

@@ -61,6 +61,10 @@ model User {
   notificationsSent     Notification[] @relation("SenderNotifications")
 
   pushSubscriptions PushSubscription[]
+
+  conversationIds   String[]           @db.ObjectId
+  conversations     Conversation[]     @relation("UserConversations", fields: [conversationIds], references: [id])
+  sentMessages      Message[]          @relation("SentMessages")
 }
 
 model Account {
@@ -173,3 +177,46 @@ model PushSubscription {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model Conversation {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  participantIds String[]  @db.ObjectId
+  participants   User[]    @relation("UserConversations", fields: [participantIds], references: [id])
+
+  lastMessageAt   DateTime @default(now())
+  lastMessageText String?
+
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([participantIds])
+  @@index([lastMessageAt])
+}
+
+model Message {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId String       @db.ObjectId
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  senderId  String @db.ObjectId
+  sender    User   @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  content   String
+
+  // Telegram-style Quoted Reply
+  replyToId String?   @db.ObjectId
+  replyTo   Message?  @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies   Message[] @relation("MessageReplies")
+
+  // Telegram-style status checks: single check (sent) / double check (read)
+  isRead    Boolean   @default(false)
+  isEdited  Boolean   @default(false)
+  isDeleted Boolean   @default(false)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([conversationId, createdAt])
+}
+

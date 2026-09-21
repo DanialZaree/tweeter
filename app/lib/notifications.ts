@@ -1,5 +1,6 @@
 import prisma from './prisma';
 import { sendPushNotification } from './webpush';
+import { pusherServer } from '@/lib/pusher-server';
 import { NotificationType } from '@prisma/client';
 
 interface AppNotificationProps {
@@ -71,10 +72,23 @@ export async function sendAppNotification({
     if (avatarUrl.hostname === 'res.cloudinary.com' && avatarUrl.pathname.includes('/upload/')) {
       senderAvatar = senderAvatar.replace('/upload/', '/upload/w_192,h_192,c_fill,r_max/');
     }
-  } catch {
+  } catch {}
 
+  try {
+    await pusherServer.trigger(`user-${recipientId}`, 'notification:new', {
+      type,
+      title,
+      body,
+      url,
+      senderId,
+      senderName,
+      senderAvatar,
+      tweetId,
+      createdAt: new Date().toISOString(),
+    });
+  } catch (err) {
+    console.error('Failed to dispatch real-time notification via Pusher:', err);
   }
-
 
   await sendPushNotification(recipientId, {
     title,

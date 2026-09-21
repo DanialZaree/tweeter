@@ -28,6 +28,11 @@ export function JellyTabs() {
   const activeIndex = TABS.findIndex((tab) => tab.id === activeTab);
   const safeIndex = activeIndex >= 0 ? activeIndex : 0;
 
+  // Do not render JellyTabs in dedicated chat rooms (e.g. /chat/[username])
+  if (pathname?.startsWith('/chat/') && pathname !== '/chat') {
+    return null;
+  }
+
   return (
     <div className="bottom-3 left-1/2 z-50 fixed -translate-x-1/2">
       <div className="relative flex items-center gap-2 bg-surface/60 shadow-sm backdrop-blur-md p-1 rounded-full">

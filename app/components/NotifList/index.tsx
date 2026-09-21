@@ -2,10 +2,12 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import Avatar from '../ui/Avatar';
 import { markAsRead } from '@/app/lib/actions/actionNotif';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
+import { usePusherChannel } from '@/hooks/use-pusher-channel';
 import { Heart, MessageCircle, Repeat2, UserPlus, BellOff, AtSign } from 'lucide-react';
 
 export interface NotifItem {
@@ -33,6 +35,7 @@ export interface NotifItem {
 
 interface NotifListProps {
   initialNotifications: NotifItem[];
+  userId?: string;
 }
 
 function timeAgo(date: Date | string): string {
@@ -51,18 +54,28 @@ function timeAgo(date: Date | string): string {
   return past.toLocaleDateString('en-US', { year: '2-digit', month: 'short', day: 'numeric' });
 }
 
-export default function NotifList({ initialNotifications }: NotifListProps) {
+export default function NotifList({ initialNotifications, userId }: NotifListProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [isPending, startTransition] = useTransition();
-  const notifications = initialNotifications;
+  const [notifications, setNotifications] = useState<NotifItem[]>(initialNotifications);
 
   useEffect(() => {
-    const hasUnread = initialNotifications.some((notif) => !notif.isRead);
+    setNotifications(initialNotifications);
+  }, [initialNotifications]);
+
+  useEffect(() => {
+    queryClient.setQueryData(['notifications', 'unreadCount'], 0);
+    const hasUnread = notifications.some((notif) => !notif.isRead);
 
     if (hasUnread) {
       markAsRead();
     }
-  }, [initialNotifications]);
+  }, [notifications, queryClient]);
+
+  usePusherChannel(userId ? `user-${userId}` : null, 'notification:new', () => {
+    router.refresh();
+  });
 
   const renderTypeIcon = (type: NotifItem['type']) => {
     switch (type) {
