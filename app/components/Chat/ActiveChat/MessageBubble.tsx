@@ -19,6 +19,7 @@ import {
   ContextMenuSeparator,
 } from '@/components/ui/context-menu';
 import { ChatMessage, ReplyContext } from '../types';
+import { renderTweetContent } from '@/app/lib/renderTweetContent';
 import { cn } from '@/lib/utils';
 
 interface MessageBubbleProps {
@@ -166,99 +167,84 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
   return (
     <div
       className={cn(
-        'group/msg relative flex items-center my-1 w-full max-w-full',
+        'group/msg relative flex my-1 w-full select-text px-2',
         isSender ? 'justify-end' : 'justify-start',
       )}
     >
-      {/* Container for bubble + desktop reply button */}
+      {/* Bubble & Metadata column */}
       <div
         className={cn(
-          'relative flex items-center gap-1.5 max-w-[85%] sm:max-w-[75%]',
-          isSender ? 'flex-row-reverse' : 'flex-row',
+          'relative flex flex-col min-w-0 max-w-[85%] sm:max-w-[75%]',
+          isSender ? 'items-end' : 'items-start',
         )}
       >
-        {/* Desktop Quick-Reply Button (in-flow, never pushes outside layout) */}
-        {onReply && (
-          <button
-            type="button"
-            onClick={triggerReply}
-            className="opacity-0 group-hover/msg:opacity-100 focus-visible:opacity-100 p-1.5 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 active:bg-white/20 transition-all shrink-0 cursor-pointer shadow-sm"
-            title="Reply"
-            aria-label="Reply to message"
-          >
-            <Reply size={14} className={isSender ? 'scale-x-[-1]' : ''} />
-          </button>
-        )}
-
-        {/* Bubble & Metadata column */}
-        <div className={cn('relative flex flex-col min-w-0', isSender ? 'items-end' : 'items-start')}>
-          {/* Context Menu Wrap around Message Bubble */}
-          <ContextMenu>
-            <ContextMenuTrigger className="cursor-pointer outline-none">
-              <div
-                id={`msg-${message.id}`}
-                dir="auto"
-                onClick={handleBubbleClick}
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-                style={{
-                  transform: swipeOffset !== 0 ? `translateX(${swipeOffset}px)` : undefined,
-                  transition: swipeOffset === 0 ? 'transform 0.2s cubic-bezier(0.2, 0, 0, 1)' : 'none',
-                }}
-                className={cn(
-                  'relative z-10 px-3.5 py-2 shadow-sm break-words select-text touch-pan-y cursor-pointer active:brightness-95 transition-shadow',
-                  isSender
-                    ? status === 'error'
-                      ? 'bg-red-500/10 text-white rounded-2xl rounded-br-xs border border-red-500/30'
-                      : 'bg-white/15 text-white rounded-2xl rounded-br-xs border border-white/15'
-                    : 'bg-white/5 text-white/95 rounded-2xl rounded-bl-xs border border-white/10',
-                )}
-              >
-                {/* Quoted Reply Box */}
-                {replyTo && (
-                  <div
-                    dir="ltr"
+        {/* Context Menu Wrap around Message Bubble */}
+        <ContextMenu>
+          <ContextMenuTrigger className="cursor-pointer outline-none">
+            <div
+              id={`msg-${message.id}`}
+              dir="auto"
+              onClick={handleBubbleClick}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              style={{
+                transform: swipeOffset !== 0 ? `translateX(${swipeOffset}px)` : undefined,
+                transition: swipeOffset === 0 ? 'transform 0.2s cubic-bezier(0.2, 0, 1)' : 'none',
+              }}
+              className={cn(
+                'relative z-10 px-3.5 py-2 shadow-sm break-words select-text touch-pan-y cursor-pointer active:brightness-95 transition-shadow',
+                isSender
+                  ? status === 'error'
+                    ? 'bg-red-500/10 text-white rounded-2xl rounded-br-xs border border-red-500/30'
+                    : 'bg-white/15 text-white rounded-2xl rounded-br-xs border border-white/15'
+                  : 'bg-white/5 text-white/95 rounded-2xl rounded-bl-xs border border-white/10',
+              )}
+            >
+              {/* Quoted Reply Box */}
+              {replyTo && (
+                <div
+                  dir="ltr"
+                  className={cn(
+                    'mb-2 flex items-stretch gap-2.5 py-1 px-2.5 rounded-lg text-left text-xs',
+                    isSender ? 'bg-black/30 text-white' : 'bg-white/5 text-white/90',
+                  )}
+                >
+                  <span
                     className={cn(
-                      'mb-2 flex items-stretch gap-2.5 py-1 px-2.5 rounded-lg text-left text-xs',
-                      isSender ? 'bg-black/30 text-white' : 'bg-white/5 text-white/90',
+                      'w-[2.5px] rounded-full shrink-0 self-stretch my-0.5',
+                      isSender ? 'bg-white' : 'bg-white/80',
                     )}
-                  >
+                  />
+                  <div className="flex flex-col min-w-0 justify-center">
                     <span
+                      dir="auto"
                       className={cn(
-                        'w-[2.5px] rounded-full shrink-0 self-stretch my-0.5',
-                        isSender ? 'bg-white' : 'bg-white/80',
+                        'font-semibold text-[11px] truncate leading-tight text-start',
+                        isSender ? 'text-white' : 'text-white/90',
                       )}
-                    />
-                    <div className="flex flex-col min-w-0 justify-center">
-                      <span
-                        dir="auto"
-                        className={cn(
-                          'font-semibold text-[11px] truncate leading-tight text-start',
-                          isSender ? 'text-white' : 'text-white/90',
-                        )}
-                      >
-                        {replyTo.senderName}
-                      </span>
-                      <span
-                        dir="auto"
-                        className={cn(
-                          'text-[11.5px] truncate max-w-xs leading-normal mt-0.5 text-start',
-                          isSender ? 'text-white/70' : 'text-white/60',
-                        )}
-                      >
-                        {replyTo.content}
-                      </span>
-                    </div>
+                    >
+                      {replyTo.senderName}
+                    </span>
+                    <span
+                      dir="auto"
+                      className={cn(
+                        'text-[11.5px] truncate max-w-xs leading-normal mt-0.5 text-start',
+                        isSender ? 'text-white/70' : 'text-white/60',
+                      )}
+                    >
+                      {renderTweetContent(replyTo.content)}
+                    </span>
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Message Text Body */}
-                <p dir="auto" className="whitespace-pre-wrap select-text leading-relaxed text-start">
-                  {content}
-                </p>
-              </div>
-            </ContextMenuTrigger>
+              {/* Message Text Body with rich links, mentions, and iOS emojis */}
+              <p dir="auto" className="whitespace-pre-wrap select-text leading-relaxed text-start">
+                {renderTweetContent(content)}
+              </p>
+            </div>
+          </ContextMenuTrigger>
 
             {/* Telegram-style Context Menu Content matching Telegram screenshot */}
             <ContextMenuContent className="w-[195px] bg-[#17212b] border border-[#232e3c]/80 rounded-[10px] p-1 shadow-[0_4px_24px_rgba(0,0,0,0.55),0_1px_3px_rgba(0,0,0,0.35)] text-white">
@@ -364,6 +350,5 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
           </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }

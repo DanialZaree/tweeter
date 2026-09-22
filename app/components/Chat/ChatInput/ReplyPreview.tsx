@@ -2,6 +2,7 @@
 
 import { Reply, X } from 'lucide-react';
 import { ReplyContext } from '../types';
+import { renderTweetContent } from '@/app/lib/renderTweetContent';
 
 interface ReplyPreviewProps {
   replyContext: ReplyContext;
@@ -19,7 +20,9 @@ export default function ReplyPreview({ replyContext, onCancel }: ReplyPreviewPro
             <span className="font-semibold text-white truncate">
               Reply to {replyContext.senderName}
             </span>
-            <span className="text-muted-foreground truncate max-w-sm">{replyContext.content}</span>
+            <span className="text-muted-foreground truncate max-w-sm">
+              {renderTweetContent(replyContext.content)}
+            </span>
           </div>
         </div>
       </div>
