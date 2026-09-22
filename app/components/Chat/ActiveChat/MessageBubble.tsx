@@ -1,7 +1,22 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Check, CheckCheck, Reply, Clock, AlertCircle } from 'lucide-react';
+import {
+  Check,
+  CheckCheck,
+  Reply,
+  Clock,
+  AlertCircle,
+  Copy,
+  RotateCcw,
+} from 'lucide-react';
+import {
+  ContextMenu,
+  ContextMenuTrigger,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+} from '@/components/ui/context-menu';
 import { ChatMessage, ReplyContext } from '../types';
 import { cn } from '@/lib/utils';
 
@@ -22,9 +37,10 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
 
   // Swipe-to-reply and touch handling
   const [swipeOffset, setSwipeOffset] = useState(0);
+  const [isCopied, setIsCopied] = useState(false);
   const touchStartPos = useRef<{ x: number; y: number } | null>(null);
   const isHorizontalSwipe = useRef(false);
-  const lastTapRef = useRef<number>(0);
+  const didSwipeRef = useRef(false);
 
   const triggerReply = () => {
     if (!onReply) return;
@@ -35,9 +51,34 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
     });
   };
 
+  const handleCopy = async () => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(content);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = content;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      setIsCopied(true);
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate(10);
+      }
+      setTimeout(() => setIsCopied(false), 1800);
+    } catch (err) {
+      console.error('Failed to copy text:', err);
+    }
+  };
+
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     isHorizontalSwipe.current = false;
+    didSwipeRef.current = false;
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -54,6 +95,7 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
     }
 
     if (isHorizontalSwipe.current) {
+      didSwipeRef.current = true;
       // Swiping direction: drag towards center
       const allowed = isSender
         ? Math.min(0, Math.max(-55, dx))
@@ -74,16 +116,21 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
     isHorizontalSwipe.current = false;
   };
 
-  // Double tap to reply on touch or desktop click
-  const handleBubbleClick = () => {
-    const now = Date.now();
-    if (now - lastTapRef.current < 280) {
-      triggerReply();
-      if (typeof navigator !== 'undefined' && navigator.vibrate) {
-        navigator.vibrate(15);
-      }
+  // Open context menu predictably on click/tap
+  const handleBubbleClick = (e: React.MouseEvent) => {
+    if (didSwipeRef.current) {
+      didSwipeRef.current = false;
+      return;
     }
-    lastTapRef.current = now;
+
+    // Trigger context menu at the tap coordinates
+    const syntheticEvent = new MouseEvent('contextmenu', {
+      bubbles: true,
+      cancelable: true,
+      clientX: e.clientX,
+      clientY: e.clientY,
+    });
+    e.currentTarget.dispatchEvent(syntheticEvent);
   };
 
   return (
@@ -130,69 +177,116 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
             </div>
           )}
 
-          {/* Main Bubble - Only this element transforms on swipe */}
-          <div
-            dir="auto"
-            onClick={handleBubbleClick}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            style={{
-              transform: swipeOffset !== 0 ? `translateX(${swipeOffset}px)` : undefined,
-              transition: swipeOffset === 0 ? 'transform 0.2s cubic-bezier(0.2, 0, 0, 1)' : 'none',
-            }}
-            className={cn(
-              'relative z-10 px-3.5 py-2 shadow-sm break-words select-text touch-pan-y cursor-pointer active:brightness-95',
-              isSender
-                ? status === 'error'
-                  ? 'bg-red-500/10 text-white rounded-2xl rounded-br-xs border border-red-500/30'
-                  : 'bg-white/15 text-white rounded-2xl rounded-br-xs border border-white/15'
-                : 'bg-white/5 text-white/95 rounded-2xl rounded-bl-xs border border-white/10',
-            )}
-          >
-            {/* Quoted Reply Box */}
-            {replyTo && (
+          {/* Context Menu Wrap around Message Bubble */}
+          <ContextMenu>
+            <ContextMenuTrigger className="cursor-pointer outline-none">
               <div
-                dir="ltr"
+                dir="auto"
+                onClick={handleBubbleClick}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+                style={{
+                  transform: swipeOffset !== 0 ? `translateX(${swipeOffset}px)` : undefined,
+                  transition: swipeOffset === 0 ? 'transform 0.2s cubic-bezier(0.2, 0, 0, 1)' : 'none',
+                }}
                 className={cn(
-                  'mb-2 flex items-stretch gap-2.5 py-1 px-2.5 rounded-lg text-left text-xs',
-                  isSender ? 'bg-black/30 text-white' : 'bg-white/5 text-white/90',
+                  'relative z-10 px-3.5 py-2 shadow-sm break-words select-text touch-pan-y cursor-pointer active:brightness-95 transition-shadow',
+                  isSender
+                    ? status === 'error'
+                      ? 'bg-red-500/10 text-white rounded-2xl rounded-br-xs border border-red-500/30'
+                      : 'bg-white/15 text-white rounded-2xl rounded-br-xs border border-white/15'
+                    : 'bg-white/5 text-white/95 rounded-2xl rounded-bl-xs border border-white/10',
                 )}
               >
-                <span
-                  className={cn(
-                    'w-[2.5px] rounded-full shrink-0 self-stretch my-0.5',
-                    isSender ? 'bg-white' : 'bg-white/80',
-                  )}
-                />
-                <div className="flex flex-col min-w-0 justify-center">
-                  <span
-                    dir="auto"
+                {/* Quoted Reply Box */}
+                {replyTo && (
+                  <div
+                    dir="ltr"
                     className={cn(
-                      'font-semibold text-[11px] truncate leading-tight text-start',
-                      isSender ? 'text-white' : 'text-white/90',
+                      'mb-2 flex items-stretch gap-2.5 py-1 px-2.5 rounded-lg text-left text-xs',
+                      isSender ? 'bg-black/30 text-white' : 'bg-white/5 text-white/90',
                     )}
                   >
-                    {replyTo.senderName}
-                  </span>
-                  <span
-                    dir="auto"
-                    className={cn(
-                      'text-[11.5px] truncate max-w-xs leading-normal mt-0.5 text-start',
-                      isSender ? 'text-white/70' : 'text-white/60',
-                    )}
-                  >
-                    {replyTo.content}
-                  </span>
-                </div>
-              </div>
-            )}
+                    <span
+                      className={cn(
+                        'w-[2.5px] rounded-full shrink-0 self-stretch my-0.5',
+                        isSender ? 'bg-white' : 'bg-white/80',
+                      )}
+                    />
+                    <div className="flex flex-col min-w-0 justify-center">
+                      <span
+                        dir="auto"
+                        className={cn(
+                          'font-semibold text-[11px] truncate leading-tight text-start',
+                          isSender ? 'text-white' : 'text-white/90',
+                        )}
+                      >
+                        {replyTo.senderName}
+                      </span>
+                      <span
+                        dir="auto"
+                        className={cn(
+                          'text-[11.5px] truncate max-w-xs leading-normal mt-0.5 text-start',
+                          isSender ? 'text-white/70' : 'text-white/60',
+                        )}
+                      >
+                        {replyTo.content}
+                      </span>
+                    </div>
+                  </div>
+                )}
 
-            {/* Message Text Body */}
-            <p dir="auto" className="whitespace-pre-wrap select-text leading-relaxed text-start">
-              {content}
-            </p>
-          </div>
+                {/* Message Text Body */}
+                <p dir="auto" className="whitespace-pre-wrap select-text leading-relaxed text-start">
+                  {content}
+                </p>
+              </div>
+            </ContextMenuTrigger>
+
+            {/* Telegram-style Context Menu Content */}
+            <ContextMenuContent className="min-w-44 bg-[#18222d]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-1.5 shadow-2xl z-50 text-white animate-in fade-in-0 zoom-in-95">
+              {onReply && (
+                <ContextMenuItem
+                  onClick={triggerReply}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13.5px] font-medium text-white hover:bg-white/10 active:bg-white/15 cursor-pointer transition-colors select-none"
+                >
+                  <Reply size={16} className="text-[#1d9bf0]" />
+                  <span>Reply</span>
+                </ContextMenuItem>
+              )}
+
+              <ContextMenuItem
+                onClick={handleCopy}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13.5px] font-medium text-white hover:bg-white/10 active:bg-white/15 cursor-pointer transition-colors select-none"
+              >
+                {isCopied ? (
+                  <>
+                    <Check size={16} className="text-emerald-400" />
+                    <span className="text-emerald-400">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy size={16} className="text-white/70" />
+                    <span>Copy Text</span>
+                  </>
+                )}
+              </ContextMenuItem>
+
+              {status === 'error' && onRetry && (
+                <>
+                  <ContextMenuSeparator className="my-1 bg-white/10" />
+                  <ContextMenuItem
+                    onClick={() => onRetry(message)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13.5px] font-medium text-red-400 hover:bg-red-500/10 active:bg-red-500/20 cursor-pointer transition-colors select-none"
+                  >
+                    <RotateCcw size={16} className="text-red-400" />
+                    <span>Retry sending</span>
+                  </ContextMenuItem>
+                </>
+              )}
+            </ContextMenuContent>
+          </ContextMenu>
 
           {/* Message Status Under Bubble - NEVER MOVES when dragging! */}
           <div
