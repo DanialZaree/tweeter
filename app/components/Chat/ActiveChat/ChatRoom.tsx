@@ -57,6 +57,7 @@ export default function ChatRoom({
     Boolean(participant.isOnline),
   );
   const presenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hasAckedPresenceRef = useRef(false);
 
   const avatarUrl = participant.avatar || participant.image;
   const initial = (participant.name || participant.userName || '?')[0].toUpperCase();
@@ -131,10 +132,18 @@ export default function ChatRoom({
 
       if (presenceTimeoutRef.current) clearTimeout(presenceTimeoutRef.current);
       if (isOnline) {
+        if (!hasAckedPresenceRef.current) {
+          hasAckedPresenceRef.current = true;
+          sendPresencePing(conversationId, 'online');
+          setTimeout(() => {
+            hasAckedPresenceRef.current = false;
+          }, 8000);
+        }
+
         presenceTimeoutRef.current = setTimeout(() => {
           setIsParticipantOnline(false);
           useChatStore.getState().setUserOnline(participant.id, false);
-        }, 60000);
+        }, 50000);
       } else {
         setIsParticipantTyping(false);
       }
@@ -306,9 +315,9 @@ export default function ChatRoom({
                   {participant.name || `@${participant.userName}`}
                 </span>
                 {isParticipantTyping ? (
-                  <span className="text-[12px] text-sky-400 font-medium flex items-center gap-1 animate-in fade-in duration-200">
+                  <span className="text-[12px] text-[#1d9bf0] font-medium flex items-center gap-1.5 animate-in fade-in duration-200">
                     <span>is typing</span>
-                    <ThreeDotsBounceIcon size={14} color="currentColor" />
+                    <ThreeDotsBounceIcon size={14} color="#1d9bf0" />
                   </span>
                 ) : (
                   <span className="text-[12px] text-muted-foreground truncate">

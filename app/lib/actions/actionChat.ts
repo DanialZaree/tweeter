@@ -488,10 +488,31 @@ export async function sendPresencePing(
     const userId = session?.user?.id;
     if (!userId || !conversationId) return { success: false };
 
+    // 1. Broadcast in active chat room
     await pusherServer.trigger(`conversation-${conversationId}`, 'user:presence', {
       userId,
       status,
     });
+
+    // 2. Also broadcast to other participant's personal inbox channel so chatlist updates in real-time
+    const conv = await prisma.conversation.findUnique({
+      where: { id: conversationId },
+      select: { participantIds: true },
+    });
+
+    if (conv?.participantIds) {
+      for (const pId of conv.participantIds) {
+        if (pId !== userId) {
+          pusherServer
+            .trigger(`user-${pId}`, 'user:presence', {
+              userId,
+              conversationId,
+              status,
+            })
+            .catch(() => {});
+        }
+      }
+    }
 
     return { success: true };
   } catch (error) {
@@ -499,4 +520,39 @@ export async function sendPresencePing(
     return { success: false };
   }
 }
+
+export async function broadcastUserPresence(status: 'online' | 'offline') {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false };
+
+    const conversations = await prisma.conversation.findMany({
+      where: { participantIds: { has: userId } },
+      select: { participantIds: true },
+    });
+
+    const otherUserIds = new Set<string>();
+    for (const c of conversations) {
+      for (const pId of c.participantIds) {
+        if (pId !== userId) otherUserIds.add(pId);
+      }
+    }
+
+    for (const pId of otherUserIds) {
+      pusherServer
+        .trigger(`user-${pId}`, 'user:presence', {
+          userId,
+          status,
+        })
+        .catch(() => {});
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error broadcasting user presence:', error);
+    return { success: false };
+  }
+}
+
 

@@ -8,6 +8,7 @@ import { Search, Plus, X, Loader2, MessageSquareDashed, Bell } from 'lucide-reac
 import ConversationItem from './ConversationItem';
 import { ConversationListItem, ChatUser } from '../types';
 import { searchUsers } from '@/app/lib/actions/actionSearch';
+import { broadcastUserPresence } from '@/app/lib/actions/actionChat';
 import { getGradientFromName } from '@/app/lib/avatar';
 import { usePusherChannel } from '@/hooks/use-pusher-channel';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
@@ -95,6 +96,41 @@ export default function ConversationList({
       }
     },
   );
+
+  // Real-time user presence in conversation list
+  usePusherChannel<{ userId: string; status: 'online' | 'offline' }>(
+    currentUserId ? `user-${currentUserId}` : null,
+    'user:presence',
+    (data) => {
+      if (!data) return;
+      useChatStore.getState().setUserOnline(data.userId, data.status === 'online');
+    },
+  );
+
+  // Broadcast presence when viewing conversation list
+  useEffect(() => {
+    if (!currentUserId) return;
+    broadcastUserPresence('online');
+
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        broadcastUserPresence('online');
+      }
+    }, 25000);
+
+    const onVisibility = () => {
+      broadcastUserPresence(document.visibilityState === 'visible' ? 'online' : 'offline');
+    };
+
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('beforeunload', () => broadcastUserPresence('offline'));
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisibility);
+      broadcastUserPresence('offline');
+    };
+  }, [currentUserId]);
 
   // Filter existing chats locally
   const filteredConversations = chatList.filter((conv) => {
