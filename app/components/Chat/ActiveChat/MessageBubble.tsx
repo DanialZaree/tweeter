@@ -246,21 +246,21 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
             </div>
           </ContextMenuTrigger>
 
-            {/* Telegram-style Context Menu Content matching Telegram screenshot */}
-            <ContextMenuContent className="w-[195px] bg-[#17212b] border border-[#232e3c]/80 rounded-[10px] p-1 shadow-[0_4px_24px_rgba(0,0,0,0.55),0_1px_3px_rgba(0,0,0,0.35)] text-white">
+            {/* Context Menu Content matching site design */}
+            <ContextMenuContent className="w-[195px] bg-[#11161d]/95 backdrop-blur-xl border border-white/10 rounded-xl p-1 shadow-2xl shadow-black/80 text-white">
               {onReply && (
                 <ContextMenuItem
                   onClick={triggerReply}
-                  className="flex items-center gap-3.5 px-3.5 py-2 rounded-[6px] text-[13.5px] font-normal text-[#f5f5f5] hover:bg-[#232e3c] focus:bg-[#232e3c] active:bg-[#2b3846] cursor-pointer transition-colors select-none"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium text-white/90 hover:bg-white/10 hover:text-white focus:bg-white/10 active:bg-white/15 cursor-pointer transition-colors select-none"
                 >
-                  <Reply className="size-[18px] text-[#e4ecf2] shrink-0" strokeWidth={1.8} />
+                  <Reply className="size-[18px] text-white/75 group-hover/context-menu-item:text-white shrink-0" strokeWidth={1.8} />
                   <span>Reply</span>
                 </ContextMenuItem>
               )}
 
               <ContextMenuItem
                 onClick={handleCopy}
-                className="flex items-center gap-3.5 px-3.5 py-2 rounded-[6px] text-[13.5px] font-normal text-[#f5f5f5] hover:bg-[#232e3c] focus:bg-[#232e3c] active:bg-[#2b3846] cursor-pointer transition-colors select-none"
+                className="flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium text-white/90 hover:bg-white/10 hover:text-white focus:bg-white/10 active:bg-white/15 cursor-pointer transition-colors select-none"
               >
                 {isCopied ? (
                   <>
@@ -269,7 +269,7 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
                   </>
                 ) : (
                   <>
-                    <Copy className="size-[18px] text-[#e4ecf2] shrink-0" strokeWidth={1.8} />
+                    <Copy className="size-[18px] text-white/75 group-hover/context-menu-item:text-white shrink-0" strokeWidth={1.8} />
                     <span>Copy Text</span>
                   </>
                 )}
@@ -277,7 +277,7 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
 
               <ContextMenuItem
                 onClick={handleCopyLink}
-                className="flex items-center gap-3.5 px-3.5 py-2 rounded-[6px] text-[13.5px] font-normal text-[#f5f5f5] hover:bg-[#232e3c] focus:bg-[#232e3c] active:bg-[#2b3846] cursor-pointer transition-colors select-none"
+                className="flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium text-white/90 hover:bg-white/10 hover:text-white focus:bg-white/10 active:bg-white/15 cursor-pointer transition-colors select-none"
               >
                 {isCopiedLink ? (
                   <>
@@ -286,7 +286,7 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
                   </>
                 ) : (
                   <>
-                    <Link2 className="size-[18px] text-[#e4ecf2] shrink-0" strokeWidth={1.8} />
+                    <Link2 className="size-[18px] text-white/75 group-hover/context-menu-item:text-white shrink-0" strokeWidth={1.8} />
                     <span>Copy Link</span>
                   </>
                 )}
@@ -294,10 +294,10 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
 
               {status === 'error' && onRetry && (
                 <>
-                  <ContextMenuSeparator className="my-1 bg-[#232e3c]/80" />
+                  <ContextMenuSeparator className="my-1 bg-white/10" />
                   <ContextMenuItem
                     onClick={() => onRetry(message)}
-                    className="flex items-center gap-3.5 px-3.5 py-2 rounded-[6px] text-[13.5px] font-normal text-red-400 hover:bg-red-500/15 focus:bg-red-500/15 active:bg-red-500/20 cursor-pointer transition-colors select-none"
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium text-red-400 hover:bg-red-500/15 focus:bg-red-500/15 active:bg-red-500/20 cursor-pointer transition-colors select-none"
                   >
                     <RotateCcw className="size-[18px] text-red-400 shrink-0" strokeWidth={1.8} />
                     <span>Retry sending</span>

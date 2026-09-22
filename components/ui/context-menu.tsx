@@ -52,7 +52,7 @@ function ContextMenuContent({
         <ContextMenuPrimitive.Popup
           data-slot="context-menu-content"
           className={cn(
-            "z-50 max-h-(--available-height) min-w-[190px] origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-[10px] bg-[#17212b] p-1 text-white border border-[#232e3c]/80 shadow-[0_4px_24px_rgba(0,0,0,0.55),0_1px_3px_rgba(0,0,0,0.35)] duration-100 outline-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+            "z-50 max-h-(--available-height) min-w-[190px] origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-xl bg-[#11161d]/95 backdrop-blur-xl p-1 text-foreground border border-white/10 shadow-2xl shadow-black/80 duration-100 outline-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
             className
           )}
           {...props}
@@ -103,7 +103,7 @@ function ContextMenuItem({
       data-inset={inset}
       data-variant={variant}
       className={cn(
-        "group/context-menu-item relative flex cursor-default items-center gap-3.5 rounded-[6px] px-3.5 py-2 text-[13.5px] font-normal text-[#f5f5f5] outline-hidden select-none hover:bg-[#232e3c] focus:bg-[#232e3c] active:bg-[#2b3846] transition-colors data-inset:pl-7 data-[variant=destructive]:text-red-400 data-[variant=destructive]:focus:bg-red-500/15 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:text-[#e4ecf2] [&_svg:not([class*='size-'])]:size-[18px]",
+        "group/context-menu-item relative flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-[13.5px] font-medium text-white/90 outline-hidden select-none hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white active:bg-white/15 transition-colors data-inset:pl-7 data-[variant=destructive]:text-red-400 data-[variant=destructive]:focus:bg-red-500/15 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:text-white/70 group-hover/context-menu-item:[&_svg]:text-white [&_svg:not([class*='size-'])]:size-[18px]",
         className
       )}
       {...props}
@@ -232,7 +232,7 @@ function ContextMenuSeparator({
   return (
     <ContextMenuPrimitive.Separator
       data-slot="context-menu-separator"
-      className={cn("-mx-1 my-1 h-px bg-[#232e3c]/80", className)}
+      className={cn("-mx-1 my-1 h-px bg-white/10", className)}
       {...props}
     />
   )
