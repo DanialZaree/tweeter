@@ -73,7 +73,7 @@ export default function ConversationItem({ item, isActive = false }: Conversatio
           </div>
         )}
         {participant.isOnline && (
-          <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-[#0b0f14] rounded-full" />
+          <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-background rounded-full" />
         )}
       </div>
 

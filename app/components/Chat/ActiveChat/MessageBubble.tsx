@@ -54,7 +54,7 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
     }
 
     if (isHorizontalSwipe.current) {
-      // Allow swiping towards the center
+      // Swiping direction: drag towards center
       const allowed = isSender
         ? Math.min(0, Math.max(-55, dx))
         : Math.max(0, Math.min(55, dx));
@@ -93,42 +93,44 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
         isSender ? 'justify-end' : 'justify-start',
       )}
     >
-      {/* Row container: keeps reply button inside layout flow, preventing overflow */}
+      {/* Container for bubble + desktop reply button */}
       <div
         className={cn(
           'relative flex items-center gap-1.5 max-w-[85%] sm:max-w-[75%]',
           isSender ? 'flex-row-reverse' : 'flex-row',
         )}
       >
-        {/* Reply Action Button: positioned in-flow, completely in bounds */}
+        {/* Desktop Quick-Reply Button (in-flow, never pushes outside layout) */}
         {onReply && (
           <button
             type="button"
             onClick={triggerReply}
-            className={cn(
-              'p-1.5 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 active:bg-white/20 transition-all shrink-0 cursor-pointer shadow-sm',
-              'opacity-0 group-hover/msg:opacity-100 focus-visible:opacity-100',
-            )}
+            className="opacity-0 group-hover/msg:opacity-100 focus-visible:opacity-100 p-1.5 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 active:bg-white/20 transition-all shrink-0 cursor-pointer shadow-sm"
             title="Reply"
             aria-label="Reply to message"
           >
-            <Reply size={14} className={cn(isSender && 'scale-x-[-1]')} />
+            <Reply size={14} className={isSender ? 'scale-x-[-1]' : ''} />
           </button>
         )}
 
-        {/* Swipe drag indicator */}
-        {swipeOffset !== 0 && (
-          <div
-            className="flex items-center justify-center text-[#1d9bf0] transition-opacity shrink-0"
-            style={{ opacity: Math.min(1, Math.abs(swipeOffset) / 35) }}
-          >
-            <Reply size={15} className={cn(isSender && 'scale-x-[-1]')} />
-          </div>
-        )}
+        {/* Bubble & Metadata column */}
+        <div className={cn('relative flex flex-col min-w-0', isSender ? 'items-end' : 'items-start')}>
+          {/* Swipe reply indicator - ABSOLUTE so it NEVER affects layout or shifts timestamp */}
+          {onReply && (
+            <div
+              className={cn(
+                'absolute top-1/2 -translate-y-1/2 flex items-center justify-center text-[#1d9bf0] pointer-events-none transition-opacity duration-150 z-0',
+                isSender ? '-right-7' : '-left-7',
+              )}
+              style={{
+                opacity: Math.min(1, Math.abs(swipeOffset) / 30),
+              }}
+            >
+              <Reply size={16} className={isSender ? 'scale-x-[-1]' : ''} />
+            </div>
+          )}
 
-        {/* Bubble & Metadata */}
-        <div className={cn('flex flex-col min-w-0', isSender ? 'items-end' : 'items-start')}>
-          {/* Main Bubble */}
+          {/* Main Bubble - Only this element transforms on swipe */}
           <div
             dir="auto"
             onClick={handleBubbleClick}
@@ -140,7 +142,7 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
               transition: swipeOffset === 0 ? 'transform 0.2s cubic-bezier(0.2, 0, 0, 1)' : 'none',
             }}
             className={cn(
-              'relative px-3.5 py-2 shadow-sm break-words select-text touch-pan-y cursor-pointer active:brightness-95',
+              'relative z-10 px-3.5 py-2 shadow-sm break-words select-text touch-pan-y cursor-pointer active:brightness-95',
               isSender
                 ? status === 'error'
                   ? 'bg-red-500/10 text-white rounded-2xl rounded-br-xs border border-red-500/30'
@@ -192,7 +194,7 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
             </p>
           </div>
 
-          {/* Message Status Under Bubble */}
+          {/* Message Status Under Bubble - NEVER MOVES when dragging! */}
           <div
             className={cn(
               'flex items-center gap-1.5 mt-0.5 text-[11px] text-muted-foreground select-none px-1',

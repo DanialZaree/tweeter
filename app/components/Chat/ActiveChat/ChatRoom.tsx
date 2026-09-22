@@ -282,8 +282,8 @@ export default function ChatRoom({
   };
 
   return (
-    <div className="fixed inset-0 z-40 bg-[#0b0f14] flex justify-center overflow-hidden">
-      <div className="w-full h-full max-w-2xl border-x-0 sm:border-x border-white/10 flex flex-col bg-[#0b0f14] overflow-hidden relative">
+    <div className="fixed inset-0 z-40 bg-background flex justify-center overflow-hidden">
+      <div className="w-full h-full max-w-2xl border-x-0 sm:border-x border-white/10 flex flex-col bg-background overflow-hidden relative">
         {/* Header */}
         <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 bg-black/80 backdrop-blur-md border-b border-white/10 z-20 shrink-0">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -306,7 +306,7 @@ export default function ChatRoom({
                   </div>
                 )}
                 {isParticipantOnline && (
-                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-[#0b0f14] rounded-full" />
+                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-background rounded-full" />
                 )}
               </div>
 
