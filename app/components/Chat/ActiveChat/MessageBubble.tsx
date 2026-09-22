@@ -30,16 +30,15 @@ interface MessageBubbleProps {
 }
 
 function formatMessageTime(dateInput: string | Date): string {
-  const date = new Date(dateInput);
-  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  return new Date(dateInput).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 }
 
 export default function MessageBubble({ message, isSender, onReply, onRetry }: MessageBubbleProps) {
   const { content, replyTo, isRead, isEdited, createdAt, status } = message;
 
-  // Swipe-to-reply and touch handling
+  // Touch & Swipe states
   const [swipeOffset, setSwipeOffset] = useState(0);
-  const [isCopied, setIsCopied] = useState(false);
+  const [copiedType, setCopiedType] = useState<'text' | 'link' | null>(null);
   const touchStartPos = useRef<{ x: number; y: number } | null>(null);
   const isHorizontalSwipe = useRef(false);
   const didSwipeRef = useRef(false);
@@ -53,53 +52,27 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
     });
   };
 
-  const handleCopy = async () => {
+  const copyItem = async (type: 'text' | 'link') => {
+    const value =
+      type === 'text'
+        ? content
+        : `${window.location.origin}${window.location.pathname}#msg-${message.id}`;
     try {
       if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(content);
+        await navigator.clipboard.writeText(value);
       } else {
-        const textarea = document.createElement('textarea');
-        textarea.value = content;
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
-        document.body.appendChild(textarea);
-        textarea.select();
+        const ta = document.createElement('textarea');
+        ta.value = value;
+        document.body.appendChild(ta);
+        ta.select();
         document.execCommand('copy');
-        document.body.removeChild(textarea);
+        document.body.removeChild(ta);
       }
-      setIsCopied(true);
-      if (typeof navigator !== 'undefined' && navigator.vibrate) {
-        navigator.vibrate(10);
-      }
-      setTimeout(() => setIsCopied(false), 1800);
+      setCopiedType(type);
+      navigator.vibrate?.(10);
+      setTimeout(() => setCopiedType(null), 1800);
     } catch (err) {
-      console.error('Failed to copy text:', err);
-    }
-  };
-
-  const [isCopiedLink, setIsCopiedLink] = useState(false);
-  const handleCopyLink = async () => {
-    try {
-      const url = `${window.location.origin}${window.location.pathname}#msg-${message.id}`;
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(url);
-      } else {
-        const textarea = document.createElement('textarea');
-        textarea.value = url;
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-      }
-      setIsCopiedLink(true);
-      if (typeof navigator !== 'undefined' && navigator.vibrate) {
-        navigator.vibrate(10);
-      }
-      setTimeout(() => setIsCopiedLink(false), 1800);
-    } catch (err) {
-      console.error('Failed to copy link:', err);
+      console.error('Failed to copy:', err);
     }
   };
 
@@ -124,20 +97,14 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
 
     if (isHorizontalSwipe.current) {
       didSwipeRef.current = true;
-      // Swiping direction: drag towards center
-      const allowed = isSender
-        ? Math.min(0, Math.max(-55, dx))
-        : Math.max(0, Math.min(55, dx));
-      setSwipeOffset(allowed);
+      setSwipeOffset(isSender ? Math.min(0, Math.max(-55, dx)) : Math.max(0, Math.min(55, dx)));
     }
   };
 
   const handleTouchEnd = () => {
     if (Math.abs(swipeOffset) >= 35) {
       triggerReply();
-      if (typeof navigator !== 'undefined' && navigator.vibrate) {
-        navigator.vibrate(15);
-      }
+      navigator.vibrate?.(15);
     }
     setSwipeOffset(0);
     touchStartPos.current = null;
@@ -146,22 +113,41 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
 
   // Open context menu predictably on click/tap
   const handleBubbleClick = (e: React.MouseEvent) => {
-    if (didSwipeRef.current) {
+    if (didSwipeRef.current || (typeof window !== 'undefined' && window.getSelection()?.toString())) {
       didSwipeRef.current = false;
       return;
     }
-    if (typeof window !== 'undefined' && window.getSelection()?.toString()) {
-      return;
-    }
 
-    // Trigger context menu at the tap coordinates
-    const syntheticEvent = new MouseEvent('contextmenu', {
-      bubbles: true,
-      cancelable: true,
-      clientX: e.clientX,
-      clientY: e.clientY,
-    });
-    e.currentTarget.dispatchEvent(syntheticEvent);
+    e.currentTarget.dispatchEvent(
+      new MouseEvent('contextmenu', {
+        bubbles: true,
+        cancelable: true,
+        clientX: e.clientX,
+        clientY: e.clientY,
+      }),
+    );
+  };
+
+  const renderStatusIcon = () => {
+    if (!isSender) return null;
+    if (status === 'sending') return <Clock className="w-3.5 h-3.5 text-white/50 animate-pulse" />;
+    if (status === 'error') {
+      return (
+        <button
+          type="button"
+          onClick={() => onRetry?.(message)}
+          className="text-red-500 hover:text-red-400 cursor-pointer transition-colors"
+          title="Failed to send. Click to retry."
+        >
+          <AlertCircle className="w-3.5 h-3.5" />
+        </button>
+      );
+    }
+    return isRead || status === 'seen' ? (
+      <CheckCheck className="w-3.5 h-3.5 text-white" />
+    ) : (
+      <Check className="w-3.5 h-3.5 text-white/40" />
+    );
   };
 
   return (
@@ -178,7 +164,6 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
           isSender ? 'items-end' : 'items-start',
         )}
       >
-        {/* Context Menu Wrap around Message Bubble */}
         <ContextMenu>
           <ContextMenuTrigger className="cursor-pointer outline-none">
             <div
@@ -246,109 +231,53 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
             </div>
           </ContextMenuTrigger>
 
-            {/* Context Menu Content matching site design */}
-            <ContextMenuContent className="w-[195px] bg-[#11161d]/95 backdrop-blur-xl border border-white/10 rounded-xl p-1 shadow-2xl shadow-black/80 text-white">
-              {onReply && (
-                <ContextMenuItem
-                  onClick={triggerReply}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium text-white/90 hover:bg-white/10 hover:text-white focus:bg-white/10 active:bg-white/15 cursor-pointer transition-colors select-none"
-                >
-                  <Reply className="size-[18px] text-white/75 group-hover/context-menu-item:text-white shrink-0" strokeWidth={1.8} />
-                  <span>Reply</span>
-                </ContextMenuItem>
-              )}
-
-              <ContextMenuItem
-                onClick={handleCopy}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium text-white/90 hover:bg-white/10 hover:text-white focus:bg-white/10 active:bg-white/15 cursor-pointer transition-colors select-none"
-              >
-                {isCopied ? (
-                  <>
-                    <Check className="size-[18px] text-emerald-400 shrink-0" strokeWidth={1.8} />
-                    <span className="text-emerald-400 font-medium">Copied!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="size-[18px] text-white/75 group-hover/context-menu-item:text-white shrink-0" strokeWidth={1.8} />
-                    <span>Copy Text</span>
-                  </>
-                )}
+          {/* Context Menu Content */}
+          <ContextMenuContent className="w-[195px]">
+            {onReply && (
+              <ContextMenuItem onClick={triggerReply}>
+                <Reply />
+                <span>Reply</span>
               </ContextMenuItem>
-
-              <ContextMenuItem
-                onClick={handleCopyLink}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium text-white/90 hover:bg-white/10 hover:text-white focus:bg-white/10 active:bg-white/15 cursor-pointer transition-colors select-none"
-              >
-                {isCopiedLink ? (
-                  <>
-                    <Check className="size-[18px] text-emerald-400 shrink-0" strokeWidth={1.8} />
-                    <span className="text-emerald-400 font-medium">Copied!</span>
-                  </>
-                ) : (
-                  <>
-                    <Link2 className="size-[18px] text-white/75 group-hover/context-menu-item:text-white shrink-0" strokeWidth={1.8} />
-                    <span>Copy Link</span>
-                  </>
-                )}
-              </ContextMenuItem>
-
-              {status === 'error' && onRetry && (
-                <>
-                  <ContextMenuSeparator className="my-1 bg-white/10" />
-                  <ContextMenuItem
-                    onClick={() => onRetry(message)}
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium text-red-400 hover:bg-red-500/15 focus:bg-red-500/15 active:bg-red-500/20 cursor-pointer transition-colors select-none"
-                  >
-                    <RotateCcw className="size-[18px] text-red-400 shrink-0" strokeWidth={1.8} />
-                    <span>Retry sending</span>
-                  </ContextMenuItem>
-                </>
-              )}
-            </ContextMenuContent>
-          </ContextMenu>
-
-          {/* Message Status Under Bubble - NEVER MOVES when dragging! */}
-          <div
-            className={cn(
-              'flex items-center gap-1.5 mt-0.5 text-[11px] text-muted-foreground select-none px-1',
-              isSender ? 'justify-end' : 'justify-start',
             )}
-          >
-            <span>{formatMessageTime(createdAt)}</span>
-            {isEdited && <span className="text-[10px] italic">edited</span>}
-            {isSender && (
-              <span
-                className="inline-flex items-center ml-0.5"
-                title={
-                  status === 'sending'
-                    ? 'Sending...'
-                    : status === 'error'
-                      ? 'Failed to send'
-                      : isRead || status === 'seen'
-                        ? 'Seen'
-                        : 'Sent'
-                }
-              >
-                {status === 'sending' ? (
-                  <Clock className="w-3.5 h-3.5 text-white/50 animate-pulse" />
-                ) : status === 'error' ? (
-                  <button
-                    type="button"
-                    onClick={() => onRetry?.(message)}
-                    className="inline-flex items-center text-red-500 hover:text-red-400 cursor-pointer transition-colors"
-                    title="Failed to send. Click to retry."
-                  >
-                    <AlertCircle className="w-3.5 h-3.5" />
-                  </button>
-                ) : isRead || status === 'seen' ? (
-                  <CheckCheck className="w-3.5 h-3.5 text-white" />
-                ) : (
-                  <Check className="w-3.5 h-3.5 text-white/40" />
-                )}
+
+            <ContextMenuItem onClick={() => copyItem('text')}>
+              {copiedType === 'text' ? <Check className="text-emerald-400" /> : <Copy />}
+              <span className={copiedType === 'text' ? 'text-emerald-400' : ''}>
+                {copiedType === 'text' ? 'Copied!' : 'Copy Text'}
               </span>
+            </ContextMenuItem>
+
+            <ContextMenuItem onClick={() => copyItem('link')}>
+              {copiedType === 'link' ? <Check className="text-emerald-400" /> : <Link2 />}
+              <span className={copiedType === 'link' ? 'text-emerald-400' : ''}>
+                {copiedType === 'link' ? 'Copied!' : 'Copy Link'}
+              </span>
+            </ContextMenuItem>
+
+            {status === 'error' && onRetry && (
+              <>
+                <ContextMenuSeparator />
+                <ContextMenuItem variant="destructive" onClick={() => onRetry(message)}>
+                  <RotateCcw />
+                  <span>Retry sending</span>
+                </ContextMenuItem>
+              </>
             )}
-          </div>
+          </ContextMenuContent>
+        </ContextMenu>
+
+        {/* Message Status Under Bubble - Anchored in place during swipe */}
+        <div
+          className={cn(
+            'flex items-center gap-1.5 mt-0.5 text-[11px] text-muted-foreground select-none px-1',
+            isSender ? 'justify-end' : 'justify-start',
+          )}
+        >
+          <span>{formatMessageTime(createdAt)}</span>
+          {isEdited && <span className="text-[10px] italic">edited</span>}
+          {renderStatusIcon()}
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
