@@ -460,3 +460,43 @@ export async function sendMessage(
     return { success: false, error: 'Failed to send message' };
   }
 }
+
+export async function sendTypingStatus(conversationId: string, isTyping: boolean) {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId || !conversationId) return { success: false };
+
+    await pusherServer.trigger(`conversation-${conversationId}`, 'user:typing', {
+      userId,
+      isTyping,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error sending typing status:', error);
+    return { success: false };
+  }
+}
+
+export async function sendPresencePing(
+  conversationId: string,
+  status: 'online' | 'offline',
+) {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId || !conversationId) return { success: false };
+
+    await pusherServer.trigger(`conversation-${conversationId}`, 'user:presence', {
+      userId,
+      status,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error sending presence ping:', error);
+    return { success: false };
+  }
+}
+

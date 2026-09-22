@@ -10,6 +10,7 @@ interface ChatInputProps {
   onSendMessage: (content: string, replyTo?: ReplyContext | null) => void;
   replyContext?: ReplyContext | null;
   onCancelReply?: () => void;
+  onTyping?: (isTyping: boolean) => void;
   disabled?: boolean;
 }
 
@@ -17,10 +18,13 @@ export default function ChatInput({
   onSendMessage,
   replyContext,
   onCancelReply,
+  onTyping,
   disabled = false,
 }: ChatInputProps) {
   const [text, setText] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isTypingRef = useRef(false);
 
   // Auto-resize textarea height as user types
   useEffect(() => {
@@ -30,10 +34,37 @@ export default function ChatInput({
     }
   }, [text]);
 
+  const stopTyping = () => {
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    if (isTypingRef.current) {
+      isTypingRef.current = false;
+      onTyping?.(false);
+    }
+  };
+
+  const handleTextChange = (val: string) => {
+    setText(val);
+    if (!onTyping) return;
+
+    if (val.trim()) {
+      if (!isTypingRef.current) {
+        isTypingRef.current = true;
+        onTyping(true);
+      }
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = setTimeout(stopTyping, 2500);
+    } else {
+      stopTyping();
+    }
+  };
+
+  useEffect(() => stopTyping, []);
+
   const handleSend = () => {
     const trimmed = text.trim();
     if (!trimmed || disabled) return;
 
+    stopTyping();
     onSendMessage(trimmed, replyContext);
     setText('');
     onCancelReply?.();
@@ -69,7 +100,7 @@ export default function ChatInput({
             ref={textareaRef}
             rows={1}
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => handleTextChange(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={disabled}
             placeholder="Write a message..."

@@ -8,8 +8,14 @@ import { ArrowLeft, ShieldAlert, X } from 'lucide-react';
 import MessageBubble from './MessageBubble';
 import DateDivider from './DateDivider';
 import ChatInput from '../ChatInput';
+import ThreeDotsBounceIcon from '@/app/components/icons/ThreeDotsBounceIcon';
 import { ChatUser, ChatMessage, ReplyContext } from '../types';
-import { sendMessage, markMessagesAsRead } from '@/app/lib/actions/actionChat';
+import {
+  sendMessage,
+  markMessagesAsRead,
+  sendTypingStatus,
+  sendPresencePing,
+} from '@/app/lib/actions/actionChat';
 import { usePusherChannel } from '@/hooks/use-pusher-channel';
 import { useChatStore } from '../store';
 import { getGradientFromName } from '@/app/lib/avatar';
@@ -44,6 +50,14 @@ export default function ChatRoom({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const [isParticipantTyping, setIsParticipantTyping] = useState(false);
+  const typingTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const [isParticipantOnline, setIsParticipantOnline] = useState<boolean>(
+    Boolean(participant.isOnline),
+  );
+  const presenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const avatarUrl = participant.avatar || participant.image;
   const initial = (participant.name || participant.userName || '?')[0].toUpperCase();
   const gradientClass = getGradientFromName(participant.userName);
@@ -61,6 +75,72 @@ export default function ChatRoom({
     }
   }, [conversationId]);
 
+  // Announce presence on mount & visibility changes
+  useEffect(() => {
+    if (!conversationId) return;
+
+    const setPresence = (status: 'online' | 'offline') => sendPresencePing(conversationId, status);
+    setPresence('online');
+
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') setPresence('online');
+    }, 25000);
+
+    const onVisibility = () => setPresence(document.visibilityState === 'visible' ? 'online' : 'offline');
+    const onUnload = () => setPresence('offline');
+
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('beforeunload', onUnload);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('beforeunload', onUnload);
+      setPresence('offline');
+      if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+      if (presenceTimeoutRef.current) clearTimeout(presenceTimeoutRef.current);
+    };
+  }, [conversationId]);
+
+  // Real-time typing indicator
+  usePusherChannel<{ userId: string; isTyping: boolean }>(
+    conversationId ? `conversation-${conversationId}` : null,
+    'user:typing',
+    (data) => {
+      if (data?.userId !== participant.id) return;
+      setIsParticipantTyping(data.isTyping);
+      if (data.isTyping) {
+        setIsParticipantOnline(true);
+        if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+        typingTimerRef.current = setTimeout(() => setIsParticipantTyping(false), 4000);
+      } else if (typingTimerRef.current) {
+        clearTimeout(typingTimerRef.current);
+      }
+    },
+  );
+
+  // Real-time online presence
+  usePusherChannel<{ userId: string; status: 'online' | 'offline' }>(
+    conversationId ? `conversation-${conversationId}` : null,
+    'user:presence',
+    (data) => {
+      if (data?.userId !== participant.id) return;
+      const isOnline = data.status === 'online';
+      setIsParticipantOnline(isOnline);
+      useChatStore.getState().setUserOnline(participant.id, isOnline);
+
+      if (presenceTimeoutRef.current) clearTimeout(presenceTimeoutRef.current);
+      if (isOnline) {
+        presenceTimeoutRef.current = setTimeout(() => {
+          setIsParticipantOnline(false);
+          useChatStore.getState().setUserOnline(participant.id, false);
+        }, 60000);
+      } else {
+        setIsParticipantTyping(false);
+      }
+    },
+  );
+
   // Real-time updates via Pusher
   usePusherChannel<ChatMessage>(
     conversationId ? `conversation-${conversationId}` : null,
@@ -71,6 +151,10 @@ export default function ChatRoom({
       const isMe = incoming.senderId === currentUserId;
 
       if (!isMe) {
+        setIsParticipantTyping(false);
+        setIsParticipantOnline(true);
+        if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+
         markMessagesAsRead(conversationId);
         useChatStore.getState().upsertMessage({
           conversationId,
@@ -212,7 +296,7 @@ export default function ChatRoom({
                     {initial}
                   </div>
                 )}
-                {participant.isOnline && (
+                {isParticipantOnline && (
                   <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-[#0b0f14] rounded-full" />
                 )}
               </div>
@@ -221,9 +305,20 @@ export default function ChatRoom({
                 <span className="font-semibold text-white text-sm sm:text-[15px] truncate hover:underline">
                   {participant.name || `@${participant.userName}`}
                 </span>
-                <span className="text-[12px] text-muted-foreground truncate">
-                  {participant.isOnline ? <span className="text-emerald-400 font-medium">online</span> : participant.lastSeen || 'last seen recently'}
-                </span>
+                {isParticipantTyping ? (
+                  <span className="text-[12px] text-sky-400 font-medium flex items-center gap-1 animate-in fade-in duration-200">
+                    <span>is typing</span>
+                    <ThreeDotsBounceIcon size={14} color="currentColor" />
+                  </span>
+                ) : (
+                  <span className="text-[12px] text-muted-foreground truncate">
+                    {isParticipantOnline ? (
+                      <span className="text-emerald-400 font-medium">online</span>
+                    ) : (
+                      participant.lastSeen || 'last seen recently'
+                    )}
+                  </span>
+                )}
               </div>
             </Link>
           </div>
@@ -282,6 +377,7 @@ export default function ChatRoom({
           replyContext={replyContext}
           onCancelReply={() => setReplyContext(null)}
           onSendMessage={handleSendMessage}
+          onTyping={(isTyping) => sendTypingStatus(conversationId, isTyping)}
         />
       </div>
     </div>

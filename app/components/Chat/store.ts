@@ -20,6 +20,7 @@ interface ChatStoreState {
   updateOnIncomingMessage: (params: { conversationId: string; content: string; createdAt: string; isSender?: boolean; isRead?: boolean; unreadIncrement?: boolean; participant?: ChatUser }) => void;
   markConversationRead: (conversationId: string) => void;
   updateReadReceipt: (conversationId: string) => void;
+  setUserOnline: (userId: string, isOnline: boolean) => void;
 }
 
 export const useChatStore = create<ChatStoreState>((set) => {
@@ -119,6 +120,15 @@ export const useChatStore = create<ChatStoreState>((set) => {
         conversations: state.conversations.map((c) =>
           c.id === conversationId && c.lastMessage?.isSender
             ? { ...c, lastMessage: { ...c.lastMessage, isRead: true } }
+            : c,
+        ),
+      })),
+
+    setUserOnline: (userId, isOnline) =>
+      set((state) => ({
+        conversations: state.conversations.map((c) =>
+          c.participant.id === userId
+            ? { ...c, participant: { ...c.participant, isOnline } }
             : c,
         ),
       })),
