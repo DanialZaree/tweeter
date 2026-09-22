@@ -9,6 +9,7 @@ import {
   AlertCircle,
   Copy,
   RotateCcw,
+  Link2,
 } from 'lucide-react';
 import {
   ContextMenu,
@@ -75,6 +76,32 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
     }
   };
 
+  const [isCopiedLink, setIsCopiedLink] = useState(false);
+  const handleCopyLink = async () => {
+    try {
+      const url = `${window.location.origin}${window.location.pathname}#msg-${message.id}`;
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = url;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      setIsCopiedLink(true);
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate(10);
+      }
+      setTimeout(() => setIsCopiedLink(false), 1800);
+    } catch (err) {
+      console.error('Failed to copy link:', err);
+    }
+  };
+
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     isHorizontalSwipe.current = false;
@@ -122,6 +149,9 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
       didSwipeRef.current = false;
       return;
     }
+    if (typeof window !== 'undefined' && window.getSelection()?.toString()) {
+      return;
+    }
 
     // Trigger context menu at the tap coordinates
     const syntheticEvent = new MouseEvent('contextmenu', {
@@ -162,25 +192,11 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
 
         {/* Bubble & Metadata column */}
         <div className={cn('relative flex flex-col min-w-0', isSender ? 'items-end' : 'items-start')}>
-          {/* Swipe reply indicator - ABSOLUTE so it NEVER affects layout or shifts timestamp */}
-          {onReply && (
-            <div
-              className={cn(
-                'absolute top-1/2 -translate-y-1/2 flex items-center justify-center text-[#1d9bf0] pointer-events-none transition-opacity duration-150 z-0',
-                isSender ? '-right-7' : '-left-7',
-              )}
-              style={{
-                opacity: Math.min(1, Math.abs(swipeOffset) / 30),
-              }}
-            >
-              <Reply size={16} className={isSender ? 'scale-x-[-1]' : ''} />
-            </div>
-          )}
-
           {/* Context Menu Wrap around Message Bubble */}
           <ContextMenu>
             <ContextMenuTrigger className="cursor-pointer outline-none">
               <div
+                id={`msg-${message.id}`}
                 dir="auto"
                 onClick={handleBubbleClick}
                 onTouchStart={handleTouchStart}
@@ -244,43 +260,60 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
               </div>
             </ContextMenuTrigger>
 
-            {/* Telegram-style Context Menu Content */}
-            <ContextMenuContent className="min-w-44 bg-[#18222d]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-1.5 shadow-2xl z-50 text-white animate-in fade-in-0 zoom-in-95">
+            {/* Telegram-style Context Menu Content matching Telegram screenshot */}
+            <ContextMenuContent className="w-[195px] bg-[#17212b] border border-[#232e3c]/80 rounded-[10px] p-1 shadow-[0_4px_24px_rgba(0,0,0,0.55),0_1px_3px_rgba(0,0,0,0.35)] text-white">
               {onReply && (
                 <ContextMenuItem
                   onClick={triggerReply}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13.5px] font-medium text-white hover:bg-white/10 active:bg-white/15 cursor-pointer transition-colors select-none"
+                  className="flex items-center gap-3.5 px-3.5 py-2 rounded-[6px] text-[13.5px] font-normal text-[#f5f5f5] hover:bg-[#232e3c] focus:bg-[#232e3c] active:bg-[#2b3846] cursor-pointer transition-colors select-none"
                 >
-                  <Reply size={16} className="text-[#1d9bf0]" />
+                  <Reply className="size-[18px] text-[#e4ecf2] shrink-0" strokeWidth={1.8} />
                   <span>Reply</span>
                 </ContextMenuItem>
               )}
 
               <ContextMenuItem
                 onClick={handleCopy}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13.5px] font-medium text-white hover:bg-white/10 active:bg-white/15 cursor-pointer transition-colors select-none"
+                className="flex items-center gap-3.5 px-3.5 py-2 rounded-[6px] text-[13.5px] font-normal text-[#f5f5f5] hover:bg-[#232e3c] focus:bg-[#232e3c] active:bg-[#2b3846] cursor-pointer transition-colors select-none"
               >
                 {isCopied ? (
                   <>
-                    <Check size={16} className="text-emerald-400" />
-                    <span className="text-emerald-400">Copied!</span>
+                    <Check className="size-[18px] text-emerald-400 shrink-0" strokeWidth={1.8} />
+                    <span className="text-emerald-400 font-medium">Copied!</span>
                   </>
                 ) : (
                   <>
-                    <Copy size={16} className="text-white/70" />
+                    <Copy className="size-[18px] text-[#e4ecf2] shrink-0" strokeWidth={1.8} />
                     <span>Copy Text</span>
+                  </>
+                )}
+              </ContextMenuItem>
+
+              <ContextMenuItem
+                onClick={handleCopyLink}
+                className="flex items-center gap-3.5 px-3.5 py-2 rounded-[6px] text-[13.5px] font-normal text-[#f5f5f5] hover:bg-[#232e3c] focus:bg-[#232e3c] active:bg-[#2b3846] cursor-pointer transition-colors select-none"
+              >
+                {isCopiedLink ? (
+                  <>
+                    <Check className="size-[18px] text-emerald-400 shrink-0" strokeWidth={1.8} />
+                    <span className="text-emerald-400 font-medium">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Link2 className="size-[18px] text-[#e4ecf2] shrink-0" strokeWidth={1.8} />
+                    <span>Copy Link</span>
                   </>
                 )}
               </ContextMenuItem>
 
               {status === 'error' && onRetry && (
                 <>
-                  <ContextMenuSeparator className="my-1 bg-white/10" />
+                  <ContextMenuSeparator className="my-1 bg-[#232e3c]/80" />
                   <ContextMenuItem
                     onClick={() => onRetry(message)}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13.5px] font-medium text-red-400 hover:bg-red-500/10 active:bg-red-500/20 cursor-pointer transition-colors select-none"
+                    className="flex items-center gap-3.5 px-3.5 py-2 rounded-[6px] text-[13.5px] font-normal text-red-400 hover:bg-red-500/15 focus:bg-red-500/15 active:bg-red-500/20 cursor-pointer transition-colors select-none"
                   >
-                    <RotateCcw size={16} className="text-red-400" />
+                    <RotateCcw className="size-[18px] text-red-400 shrink-0" strokeWidth={1.8} />
                     <span>Retry sending</span>
                   </ContextMenuItem>
                 </>
