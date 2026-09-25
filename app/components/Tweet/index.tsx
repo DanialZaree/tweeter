@@ -208,8 +208,7 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
             reader.onloadend = () => resolve(reader.result as string);
             reader.readAsDataURL(blob);
           });
-        } catch {
-        }
+        } catch {}
       }),
     );
 

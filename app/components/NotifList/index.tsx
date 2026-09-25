@@ -115,7 +115,9 @@ export default function NotifList({ initialNotifications, userId }: NotifListPro
   const renderDescription = (notif: NotifItem) => {
     const name = notif.sender.userName || notif.sender.name || 'Someone';
     const userUrl = `/${notif.sender.userName}`;
-    const tweetUrl = notif.tweetId ? `/tweet/${notif.tweet?.tweetId || notif.tweetId}` : '#';
+    const tweetUrl = notif.tweetId
+      ? `/tweet/${notif.tweet?.tweetId || notif.tweetId || notif.tweet?.id}`
+      : '#';
 
     const UserLink = (
       <Link
@@ -184,7 +186,7 @@ export default function NotifList({ initialNotifications, userId }: NotifListPro
       return `/${notif.sender.userName}`;
     }
     if (notif.tweetId) {
-      return `/tweet/${notif.tweet?.tweetId || notif.tweetId}`;
+      return `/tweet/${notif.tweet?.tweetId || notif.tweetId || notif.tweet?.id}`;
     }
     return '#';
   };

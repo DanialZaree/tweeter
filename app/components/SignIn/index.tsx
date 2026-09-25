@@ -42,7 +42,7 @@ export default function SignIn() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3 w-full">
+    <form method="POST" onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3 w-full">
       <OAuthButtons />
 
       {/* userName */}
@@ -53,6 +53,7 @@ export default function SignIn() {
           name="userName"
           type="text"
           placeholder="Username"
+          autoComplete="username"
           required
           className={`p-2 border ${errors.userName ? 'focus:outline-red-500 border-red-500' : 'focus:outline-white'}`}
         />
@@ -69,6 +70,7 @@ export default function SignIn() {
             name="password"
             placeholder="Password"
             type={showPassword ? 'text' : 'password'}
+            autoComplete="current-password"
             required
             className={`p-2 pr-10 border w-full ${errors.password ? 'focus:outline-red-500 border-red-500' : 'focus:outline-white'}`}
           />

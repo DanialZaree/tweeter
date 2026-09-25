@@ -21,13 +21,15 @@ type UserProfileProps = {
 
 export async function generateMetadata({ params }: UserProfileProps): Promise<Metadata> {
   const { username } = await params;
+
+  if (!username || !/^[a-zA-Z0-9_]{1,30}$/.test(username)) {
+    notFound();
+  }
+
   const user = await getUser({ userName: username });
 
   if (!user) {
-    return {
-      title: 'User Not Found',
-      description: 'The requested user profile does not exist on Boblo.',
-    };
+    notFound();
   }
 
   const displayName = user.name || user.userName || 'User';
@@ -67,17 +69,24 @@ const panelClassName =
 
 export default async function UserProfilePage({ params }: UserProfileProps) {
   const { username } = await params;
+
+  if (!username || !/^[a-zA-Z0-9_]{1,30}$/.test(username)) {
+    notFound();
+  }
+
   const user = await getUser({ userName: username });
+
+  if (!user) {
+    notFound();
+  }
 
   const session = await auth();
   const currentUserId = session?.user?.id;
   const currentUserName = session?.user?.userName;
 
-  if (user?.id === currentUserId) {
+  if (currentUserId && user.id === currentUserId) {
     redirect('/profile');
   }
-
-  if (!user) notFound();
 
   const bgGradient = getGradientFromName(user?.userName);
 
@@ -131,7 +140,9 @@ export default async function UserProfilePage({ params }: UserProfileProps) {
             <p className="font-bold sm:text-[17px] text-base truncate leading-tight">
               {user?.name ?? 'Profile'}
             </p>
-            <p className="text-white/50 sm:text-[13px] text-xs">{user?._count?.tweets ?? 0} posts</p>
+            <p className="text-white/50 sm:text-[13px] text-xs">
+              {user?._count?.tweets ?? 0} posts
+            </p>
           </div>
         </div>
 

@@ -18,10 +18,7 @@ export async function generateMetadata({ params }: TweetPageProps): Promise<Meta
   const { tweet } = await getTweetById(tweetParam);
 
   if (!tweet) {
-    return {
-      title: 'Post Not Found',
-      description: 'The requested post does not exist or has been removed on Boblo.',
-    };
+    notFound();
   }
 
   const authorName = tweet.author?.name || tweet.author?.userName || 'User';
@@ -68,20 +65,11 @@ export default async function TweetPage({ params }: TweetPageProps) {
   const currentUserId = session?.user?.id;
   const currentUserName = session?.user?.userName;
 
-  const { tweet, success, error } = await getTweetById(tweetid);
+  const { tweet, success } = await getTweetById(tweetid);
 
-  if (!success) {
-    return (
-      <>
-        <Navbar />
-        <Frame>
-          <div className="mt-8 text-red-500 text-center">{error}</div>
-        </Frame>
-      </>
-    );
+  if (!success || !tweet) {
+    notFound();
   }
-
-  if (!tweet) notFound();
 
   const totalReplies =
     tweet.totalReplies ??

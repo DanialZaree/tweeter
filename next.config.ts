@@ -10,7 +10,10 @@ const withPWA = withPWAInit({
   },
 });
 
+const isDev = process.env.NODE_ENV === 'development';
+
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
   turbopack: {},
   images: {
     remotePatterns: [
@@ -42,14 +45,15 @@ const nextConfig: NextConfig = {
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+          { key: 'X-DNS-Prefetch-Control', value: 'on' },
+          { key: 'X-Permitted-Cross-Domain-Policies', value: 'none' },
           {
             key: 'Strict-Transport-Security',
             value: 'max-age=63072000; includeSubDomains; preload',
           },
           {
             key: 'Content-Security-Policy',
-            value:
-              "default-src 'self'; img-src 'self' data: blob: https://res.cloudinary.com https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://cdn.jsdelivr.net; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://upload-widget.cloudinary.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.vercel-insights.com https://api.cloudinary.com wss://ws.boblo.ir https://ws.boblo.ir; frame-src 'self' https://upload-widget.cloudinary.com;",
+            value: `default-src 'self'; img-src 'self' data: blob: https://res.cloudinary.com https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://cdn.jsdelivr.net; script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://va.vercel-scripts.com https://upload-widget.cloudinary.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.vercel-insights.com https://api.cloudinary.com wss://ws.boblo.ir https://ws.boblo.ir; frame-src 'self' https://upload-widget.cloudinary.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none';`,
           },
         ],
       },

@@ -85,7 +85,7 @@ export default function SignUp() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3 w-full">
+    <form method="POST" onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3 w-full">
       {!sendOtp ? (
         <>
           <OAuthButtons />
@@ -98,6 +98,7 @@ export default function SignUp() {
               name="userName"
               required
               placeholder="username"
+              autoComplete="username"
               className="p-2 border"
             />
             {errors.userName && <p className="text-red-500 text-sm">{errors.userName.message}</p>}
@@ -112,6 +113,7 @@ export default function SignUp() {
               type="email"
               required
               placeholder="email"
+              autoComplete="email"
               className="p-2 border"
             />
             {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
@@ -127,6 +129,7 @@ export default function SignUp() {
                 name="password"
                 placeholder="password"
                 type={showPassword ? 'text' : 'password'}
+                autoComplete="new-password"
                 required
                 className="p-2 pr-10 border w-full"
               />
@@ -151,6 +154,7 @@ export default function SignUp() {
                 name="confirmPassword"
                 placeholder="confirm password"
                 type={showPassword ? 'text' : 'password'}
+                autoComplete="new-password"
                 required
                 className="p-2 pr-10 border w-full"
               />
