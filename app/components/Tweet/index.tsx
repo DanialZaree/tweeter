@@ -17,6 +17,8 @@ import CharLimit from '../CharLimit';
 import MoreTweetButton from '../ui/MoreTweetButton';
 import { getGradientFromName } from '@/app/lib/avatar';
 import Avatar from '../ui/Avatar';
+import { getAuthorTier } from '@/app/lib/tiers';
+import { TIER_ICON_COMPONENTS } from '@/app/components/TierIcons';
 import { domToBlob } from 'modern-screenshot';
 import { Repeat2, Heart, Share2, MessageCircle, Loader2 } from 'lucide-react';
 import { renderTweetContent } from '@/app/lib/renderTweetContent';
@@ -45,6 +47,9 @@ export interface TweetType {
       job: string | null;
       avatar: string | null;
       userName: string | null;
+      level?: number;
+      tweetsCount?: number;
+      likesCount?: number;
     };
     likes: {
       id: string;
@@ -69,6 +74,9 @@ export interface TweetType {
         job: string | null;
         avatar: string | null;
         userName: string | null;
+        level?: number;
+        tweetsCount?: number;
+        likesCount?: number;
       };
       likes: { id: string; userId: string; tweetId: string }[];
       _count?: { replies: number };
@@ -87,6 +95,9 @@ export interface TweetType {
         userName: string | null;
         avatar: string | null;
         job: string | null;
+        level?: number;
+        tweetsCount?: number;
+        likesCount?: number;
       };
       likes?: { id: string; userId: string; tweetId: string }[];
       retweets?: { authorId: string }[];
@@ -109,6 +120,14 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
   const bgGradient = author?.avatar
     ? 'bg-sky-500'
     : getGradientFromName(author?.userName || 'user');
+
+  const authorTier = getAuthorTier(author);
+  const retweetAuthorTier = getAuthorTier(data.retweetOf?.author);
+
+  const AuthorTierIcon =
+    TIER_ICON_COMPONENTS[authorTier.iconType] || TIER_ICON_COMPONENTS['chess-queen'];
+  const RetweetAuthorTierIcon =
+    TIER_ICON_COMPONENTS[retweetAuthorTier.iconType] || TIER_ICON_COMPONENTS['chess-queen'];
 
   const { likedTweets, likeCounts, optimisticToggleLike, revertToggleLike } = useLikeStore();
   const { openDrawer } = useDrawerStore();
@@ -286,15 +305,29 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
       <div className="flex justify-between items-start">
         <div className="flex flex-row items-center gap-2.5 sm:gap-3 min-w-0">
           <Link
-            className={`shrink-0 rounded-full outline-2 outline-surface-2 outline-offset-2 w-10 h-10 sm:w-12 sm:h-12 overflow-hidden ${bgGradient}`}
+            className={`shrink-0 rounded-full outline-[2px] outline-offset-[2.5px] w-10 h-10 sm:w-12 sm:h-12 overflow-hidden transition-all duration-300 ${bgGradient}`}
+            style={{
+              outlineColor: authorTier.color,
+            }}
             href={`/${author?.userName || ''}`}
             aria-label={`${author?.name || 'User'}'s profile`}
           >
             <Avatar name={author?.name || 'User'} image={author?.avatar} size={48} className="" />
           </Link>
           <div className="flex flex-col gap-0.5 min-w-0">
-            <div className="font-semibold text-sm sm:text-base text-left truncate">
-              {author?.name || 'User'}
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="font-semibold text-sm sm:text-base text-left truncate">
+                {author?.name || 'User'}
+              </span>
+              <span
+                className="inline-flex items-center justify-center shrink-0"
+                title={`${authorTier.name} (Level ${authorTier.minLevel})`}
+              >
+                <AuthorTierIcon
+                  className="w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform hover:scale-110"
+                  style={{ color: authorTier.color }}
+                />
+              </span>
             </div>
             <div className="flex flex-wrap items-center gap-1.5 text-text-muted text-xs sm:text-sm truncate">
               <div className="truncate">@{author?.userName || 'user'}</div>
@@ -391,7 +424,10 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
               >
                 <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                   <div
-                    className={`shrink-0 rounded-full outline-2 outline-surface-2 outline-offset-2 w-10 h-10 sm:w-12 sm:h-12 overflow-hidden ${bgGradient}`}
+                    className={`shrink-0 rounded-full outline-[2px] outline-offset-[2px] w-10 h-10 sm:w-12 sm:h-12 overflow-hidden transition-all duration-300 ${bgGradient}`}
+                    style={{
+                      outlineColor: retweetAuthorTier.color,
+                    }}
                   >
                     <Avatar
                       name={data.retweetOf.author?.name || 'User'}
@@ -400,8 +436,19 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
                     />
                   </div>
                   <div className="flex flex-col gap-0.5 min-w-0">
-                    <div className="font-semibold text-sm sm:text-base text-left truncate">
-                      {data.retweetOf.author?.name || 'User'}
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="font-semibold text-sm sm:text-base text-left truncate">
+                        {data.retweetOf.author?.name || 'User'}
+                      </span>
+                      <span
+                        className="inline-flex items-center justify-center shrink-0"
+                        title={`${retweetAuthorTier.name} (Level ${retweetAuthorTier.minLevel})`}
+                      >
+                        <RetweetAuthorTierIcon
+                          className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform hover:scale-110"
+                          style={{ color: retweetAuthorTier.color }}
+                        />
+                      </span>
                     </div>
                     <div className="flex flex-wrap items-center gap-1.5 text-text-muted text-xs sm:text-sm truncate">
                       <div className="truncate">@{data.retweetOf.author?.userName || 'user'}</div>

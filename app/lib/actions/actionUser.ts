@@ -11,6 +11,8 @@ const safeUserSelect = {
   bio: true,
   job: true,
   createdAt: true,
+  xp: true,
+  level: true,
 };
 
 export async function getUser({ userName }: { userName: string }) {

@@ -14,6 +14,8 @@ import { Tabs } from '@base-ui/react/tabs';
 import Follow from '@/app/components/Follow';
 import CoverImage from '../components/ui/CoverImage';
 import FollowStats from '../components/FollowStats';
+import ProfileStatusCard from '../components/ProfileStatusCard';
+import { getUserGamification } from '../lib/gamification';
 import { redirect } from 'next/navigation';
 
 type UserProfileProps = {
@@ -109,6 +111,13 @@ export default async function UserProfilePage({ params }: UserProfileProps) {
     targetUserId,
   });
 
+  const gamification = await getUserGamification(targetUserId, {
+    xp: user.xp,
+    level: user.level,
+    tweetsCount: user._count?.tweets,
+  });
+  const userTier = gamification.tier;
+
   const existingFollow = await prisma.follower.findFirst({
     where: {
       userId: user?.id,
@@ -157,8 +166,13 @@ export default async function UserProfilePage({ params }: UserProfileProps) {
 
           {/* Avatar wrapper */}
           <div className="-bottom-10 sm:-bottom-12 left-4 sm:left-4 z-10 absolute">
-            <div className="z-0 absolute -inset-1 bg-black rounded-full" />
-            <div className="z-10 relative rounded-full outline-4 outline-surface-2 outline-offset-4 w-20 sm:w-24 h-20 sm:h-24 overflow-hidden">
+            <div className="z-0 absolute -inset-2 sm:-inset-2.5 bg-black rounded-full" />
+            <div
+              className="z-10 relative rounded-full outline-[3.5px] sm:outline-4 outline-offset-[7px] sm:outline-offset-[8px] w-20 sm:w-24 h-20 sm:h-24 overflow-hidden transition-all duration-300"
+              style={{
+                outlineColor: userTier.color,
+              }}
+            >
               <Avatar name={user?.name} image={user?.avatar} size={96} expandable className="" />
             </div>
           </div>
@@ -180,13 +194,21 @@ export default async function UserProfilePage({ params }: UserProfileProps) {
               {user?.name ?? 'Jane Doe'}
             </span>
           </div>
-          <div className="flex flex-wrap items-center gap-1.5 mt-0.5 text-white/50 sm:text-[14px] text-xs">
-            <span>@{user?.userName ?? 'janedoe'}</span>
-            {user?.job && (
-              <span className="px-1.5 py-0.5 border border-text-subtle rounded-lg text-xs">
-                {user.job}
-              </span>
-            )}
+          <div className="flex flex-wrap items-center justify-between gap-2 mt-0.5">
+            <div className="flex flex-wrap items-center gap-1.5 text-white/50 sm:text-[14px] text-xs">
+              <span>@{user?.userName ?? 'janedoe'}</span>
+              {user?.job && (
+                <span className="px-1.5 py-0.5 border border-text-subtle rounded-lg text-xs">
+                  {user.job}
+                </span>
+              )}
+            </div>
+
+            <FollowStats
+              userId={user.id}
+              followersCount={user?._count?.followers ?? 0}
+              followingCount={user?._count?.following ?? 0}
+            />
           </div>
 
           <p className="mt-3 text-white/90 sm:text-[15px] text-sm leading-relaxed">
@@ -204,11 +226,16 @@ export default async function UserProfilePage({ params }: UserProfileProps) {
             </span>
           </div>
 
-          <FollowStats
-            userId={user.id}
-            followersCount={user?._count?.followers ?? 0}
-            followingCount={user?._count?.following ?? 0}
-          />
+          <div className="mt-4">
+            <ProfileStatusCard
+              level={gamification.level}
+              totalXP={gamification.totalXP}
+              tweetsCount={gamification.tweetsCount}
+              likesCount={gamification.likesCount}
+              rank={gamification.rank}
+              tier={gamification.tier}
+            />
+          </div>
         </div>
 
         {/* Tabs */}

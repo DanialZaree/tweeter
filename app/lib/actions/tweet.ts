@@ -6,6 +6,7 @@ import { auth } from '@/app/auth';
 import { z } from 'zod';
 import { checkRateLimit } from '@/app/lib/ratelimit';
 import { sendAppNotification } from '@/app/lib/notifications';
+import { syncUserGamification } from '../gamification';
 
 function extractMentions(text: string): string[] {
   const matches = text.match(/@(\w+)/g);
@@ -69,6 +70,13 @@ const safeAuthorSelect = {
   avatar: true,
   job: true,
   createdAt: true,
+  xp: true,
+  level: true,
+  _count: {
+    select: {
+      tweets: true,
+    },
+  },
 };
 async function getNextTweetId(): Promise<string> {
   const tweets = await prisma.tweet.findMany({
@@ -165,6 +173,7 @@ export async function createTweet(formData: FormData) {
     }
 
     await notifyMentions(content, authorId, tweet.id);
+    await syncUserGamification(authorId);
 
     revalidatePath('/', 'layout');
     return { success: true, tweet };
@@ -368,6 +377,8 @@ export async function deleteTweet(tweetId: string) {
       await deleteImage(tweet.mediaUrl);
     }
 
+    await syncUserGamification(tweet.authorId);
+
     revalidatePath('/', 'layout');
     return { success: true };
   } catch (e) {
@@ -485,6 +496,8 @@ export async function createReply(parentId: string, content: string, mediaUrl?: 
     }
     const alreadyNotified = parentTweet?.authorId ? [parentTweet.authorId] : [];
     await notifyMentions(validation.data.content, session.user.id, reply.id, alreadyNotified);
+
+    await syncUserGamification(session.user.id);
 
     revalidatePath('/', 'layout');
     return { success: true, reply };

@@ -47,6 +47,8 @@ model User {
   image         String?
   coverImage    String?
   bio           String?
+  xp            Int       @default(0)
+  level         Int       @default(0)
   createdAt     DateTime  @default(now()) @map("createdAt")
   updatedAt     DateTime? @updatedAt
   tweets        Tweet[]
@@ -65,6 +67,8 @@ model User {
   conversationIds   String[]           @db.ObjectId
   conversations     Conversation[]     @relation("UserConversations", fields: [conversationIds], references: [id])
   sentMessages      Message[]          @relation("SentMessages")
+
+  @@index([xp])
 }
 
 model Account {

@@ -1,15 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import FollowListModal from './FollowListModal';
+import FollowListModal from '../FollowListModal';
 
 interface FollowStatsProps {
   userId: string;
   followersCount: number;
   followingCount: number;
+  className?: string;
 }
 
-export default function FollowStats({ userId, followersCount, followingCount }: FollowStatsProps) {
+export default function FollowStats({
+  userId,
+  followersCount,
+  followingCount,
+  className = '',
+}: FollowStatsProps) {
   const [modalTab, setModalTab] = useState<'followers' | 'following' | null>(null);
 
   const stats = [
@@ -19,7 +25,7 @@ export default function FollowStats({ userId, followersCount, followingCount }: 
 
   return (
     <>
-      <div className="flex flex-wrap gap-4 sm:gap-5 mt-3 sm:text-[14px] text-xs">
+      <div className={`flex items-center gap-3 sm:gap-4 sm:text-[14px] text-xs shrink-0 ${className}`}>
         {stats.map(({ label, count, tab }) => (
           <button
             key={tab}

@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { auth } from '@/app/auth';
 import { checkRateLimit } from '@/app/lib/ratelimit';
 import { sendAppNotification } from '@/app/lib/notifications';
+import { syncUserGamification } from '../gamification';
 
 export async function toggleTweetLike(tweetId: string) {
   try {
@@ -76,6 +77,7 @@ export async function toggleTweetLike(tweetId: string) {
         });
       }
     }
+    await syncUserGamification(tweet.authorId);
     revalidatePath('/', 'layout');
     return { success: true };
   } catch (error) {
