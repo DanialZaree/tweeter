@@ -127,7 +127,7 @@ export default function FollowListModal({
         </div>
 
         {/* List */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 overscroll-contain [scrollbar-gutter:stable]">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 overscroll-contain [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.15)_transparent]">
           <motion.div
             key={activeTab}
             initial={{ opacity: 0 }}

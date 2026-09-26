@@ -19,24 +19,6 @@ export async function getFollowList(
   try {
     if (type === 'followers') {
       const records = await prisma.follower.findMany({
-        where: { userId },
-        select: {
-          follower: {
-            select: {
-              id: true,
-              name: true,
-              userName: true,
-              avatar: true,
-              bio: true,
-            },
-          },
-        },
-        orderBy: { id: 'desc' },
-        take: 200,
-      });
-      return records.map((r) => r.follower);
-    } else {
-      const records = await prisma.follower.findMany({
         where: { followerId: userId },
         select: {
           user: {
@@ -53,6 +35,24 @@ export async function getFollowList(
         take: 200,
       });
       return records.map((r) => r.user);
+    } else {
+      const records = await prisma.follower.findMany({
+        where: { userId },
+        select: {
+          follower: {
+            select: {
+              id: true,
+              name: true,
+              userName: true,
+              avatar: true,
+              bio: true,
+            },
+          },
+        },
+        orderBy: { id: 'desc' },
+        take: 200,
+      });
+      return records.map((r) => r.follower);
     }
   } catch (e) {
     console.error('Error fetching follow list:', e);
