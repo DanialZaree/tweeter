@@ -178,7 +178,7 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
                 transition: swipeOffset === 0 ? 'transform 0.2s cubic-bezier(0.2, 0, 1)' : 'none',
               }}
               className={cn(
-                'relative z-10 px-3.5 py-2 shadow-sm break-words select-text touch-pan-y cursor-pointer active:brightness-95 transition-shadow',
+                'relative z-10 px-3.5 py-2 shadow-sm wrap-break-word select-text touch-pan-y cursor-pointer active:brightness-95 transition-shadow',
                 isSender
                   ? status === 'error'
                     ? 'bg-red-500/10 text-white rounded-2xl rounded-br-xs border border-red-500/30'
@@ -232,7 +232,7 @@ export default function MessageBubble({ message, isSender, onReply, onRetry }: M
           </ContextMenuTrigger>
 
           {/* Context Menu Content */}
-          <ContextMenuContent className="w-[195px]">
+          <ContextMenuContent className="w-48.75">
             {onReply && (
               <ContextMenuItem onClick={triggerReply}>
                 <Reply />

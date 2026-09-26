@@ -8,6 +8,22 @@ const CONTENT_REGEX = new RegExp(
   'gi',
 );
 
+function getSafeUrl(urlStr: string): string | null {
+  try {
+    const raw =
+      urlStr.startsWith('http://') || urlStr.startsWith('https://')
+        ? urlStr
+        : `https://${urlStr}`;
+    const parsed = new URL(raw);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return parsed.href;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
 export function renderTweetContent(text: string): React.ReactNode[] {
   return text.split(CONTENT_REGEX).map((part, i) => {
     if (!part) return null;
@@ -28,10 +44,14 @@ export function renderTweetContent(text: string): React.ReactNode[] {
     }
 
     if (part.startsWith('@')) {
+      const username = part.slice(1);
+      if (!/^[a-zA-Z0-9_]{1,30}$/.test(username)) {
+        return part;
+      }
       return (
         <Link
           key={i}
-          href={`/${part.slice(1)}`}
+          href={`/${encodeURIComponent(username)}`}
           onClick={(e) => e.stopPropagation()}
           className="text-blue-400 hover:text-blue-300 hover:underline transition-colors"
         >
@@ -40,13 +60,17 @@ export function renderTweetContent(text: string): React.ReactNode[] {
       );
     }
 
-    const href = part.startsWith('http') ? part : `https://${part}`;
+    const safeHref = getSafeUrl(part);
+    if (!safeHref) {
+      return part;
+    }
+
     const display = part.length > 35 ? part.slice(0, 35) + '…' : part;
 
     return (
       <a
         key={i}
-        href={href}
+        href={safeHref}
         target="_blank"
         rel="ugc noopener noreferrer"
         onClick={(e) => e.stopPropagation()}
@@ -57,3 +81,4 @@ export function renderTweetContent(text: string): React.ReactNode[] {
     );
   });
 }
+
