@@ -1,10 +1,10 @@
-import Navbar from '../components/Navbar';
+import { NavbarSkeleton } from '../components/Navbar';
 import Frame from '../components/Frame';
 
 export default function HomeLoading() {
   return (
     <>
-      <Navbar />
+      <NavbarSkeleton />
       <Frame>
         <main className="flex flex-col gap-12 pb-16 animate-pulse">
           {/* Hero Section Skeleton */}

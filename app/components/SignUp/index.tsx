@@ -56,12 +56,24 @@ export default function SignUp() {
 
     const result = await sendRegistrationOtp(submissionData);
     if (result && !result.success) {
-      if (result.error === 'email already exists') {
-        setError('email', { message: 'Email already exists' });
-      } else if (result.error === 'username already exists') {
-        setError('userName', { message: 'Username already taken' });
+      const err = result.error || 'Something went wrong, try again';
+      const lower = err.toLowerCase();
+
+      if (lower.includes('username')) {
+        setError('userName', {
+          message: err === 'username already exists' ? 'Username already taken' : err,
+        });
+      } else if (
+        lower.includes('email') ||
+        lower.includes('otp') ||
+        lower.includes('code') ||
+        lower.includes('verification')
+      ) {
+        setError('email', {
+          message: err === 'email already exists' ? 'Email already exists' : err,
+        });
       } else {
-        setError('userName', { message: result.error || 'Something went wrong, try again' });
+        setError('root', { message: err });
       }
       return;
     }
@@ -172,6 +184,10 @@ export default function SignUp() {
             )}
           </Field.Root>
 
+          {errors.root && (
+            <p className="text-red-500 text-sm text-center">{errors.root.message}</p>
+          )}
+
           <button
             type="submit"
             disabled={isSubmitting}
@@ -188,7 +204,13 @@ export default function SignUp() {
         <Otp
           email={email}
           onVerifySuccess={handleVerifyOtp}
-          onResendCode={() => pendingData && sendRegistrationOtp(pendingData)}
+          onResendCode={async () => {
+            if (!pendingData) return;
+            const res = await sendRegistrationOtp(pendingData);
+            if (res && !res.success) {
+              throw new Error(res.error || 'Failed to resend code');
+            }
+          }}
           onChangeEmail={() => setSendOtp(false)}
         />
       )}

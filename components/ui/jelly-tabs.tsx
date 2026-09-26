@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { Home, Compass, MessageCircle, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -14,21 +14,27 @@ const TABS = [
   { id: 'profile', label: 'Profile', icon: User, href: '/profile' },
 ];
 
+function getTabFromPathname(pathname: string | null): string {
+  const match = TABS.find((tab) => pathname === tab.href);
+  return match ? match.id : 'home';
+}
+
 export function JellyTabs() {
   const pathname = usePathname();
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState(() => getTabFromPathname(pathname));
+  const hasMounted = useRef(false);
 
   useEffect(() => {
-    const current = TABS.find((tab) => pathname === tab.href);
-    if (current) {
-      setActiveTab(current.id);
+    const current = getTabFromPathname(pathname);
+    setActiveTab(current);
+    if (!hasMounted.current) {
+      hasMounted.current = true;
     }
   }, [pathname]);
 
   const activeIndex = TABS.findIndex((tab) => tab.id === activeTab);
   const safeIndex = activeIndex >= 0 ? activeIndex : 0;
 
-  // Do not render JellyTabs in dedicated chat rooms (e.g. /chat/[username])
   if (pathname?.startsWith('/chat/') && pathname !== '/chat') {
     return null;
   }
@@ -38,8 +44,13 @@ export function JellyTabs() {
       <div className="relative flex items-center gap-2 bg-surface/60 shadow-sm backdrop-blur-md p-1 rounded-full">
         <motion.div
           className="absolute inset-y-1 bg-white shadow-sm rounded-full w-20"
+          initial={false}
           animate={{ x: safeIndex * 88 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          transition={
+            hasMounted.current
+              ? { type: 'spring', stiffness: 400, damping: 25 }
+              : { duration: 0 }
+          }
         />
         {TABS.map((tab) => {
           const Icon = tab.icon;
@@ -73,3 +84,4 @@ export function JellyTabs() {
     </div>
   );
 }
+

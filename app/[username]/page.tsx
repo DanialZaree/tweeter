@@ -13,6 +13,7 @@ import { Calendar } from 'lucide-react';
 import { Tabs } from '@base-ui/react/tabs';
 import Follow from '@/app/components/Follow';
 import CoverImage from '../components/ui/CoverImage';
+import FollowStats from '../components/FollowStats';
 import { redirect } from 'next/navigation';
 
 type UserProfileProps = {
@@ -203,18 +204,11 @@ export default async function UserProfilePage({ params }: UserProfileProps) {
             </span>
           </div>
 
-          <div className="flex flex-wrap gap-4 sm:gap-5 mt-3 sm:text-[14px] text-xs">
-            <span>
-              {/* Dynamic Following */}
-              <span className="font-bold text-white">{user?._count?.following ?? 0}</span>
-              <span className="ml-1 text-white/50">Following</span>
-            </span>
-            <span>
-              {/* Dynamic Followers */}
-              <span className="font-bold text-white">{user?._count?.followers ?? 0}</span>
-              <span className="ml-1 text-white/50">Followers</span>
-            </span>
-          </div>
+          <FollowStats
+            userId={user.id}
+            followersCount={user?._count?.followers ?? 0}
+            followingCount={user?._count?.following ?? 0}
+          />
         </div>
 
         {/* Tabs */}

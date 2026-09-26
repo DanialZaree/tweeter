@@ -1,11 +1,11 @@
 import Frame from '../components/Frame';
-import Navbar from '../components/Navbar';
+import { NavbarSkeleton } from '../components/Navbar';
 import TweetSkeleton from '../components/Tweet/TweetSkeleton';
 
 export default function ExploreLoading() {
   return (
     <>
-      <Navbar />
+      <NavbarSkeleton />
       <Frame>
         <main className="mx-auto w-full max-w-xl">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -16,3 +16,4 @@ export default function ExploreLoading() {
     </>
   );
 }
+
