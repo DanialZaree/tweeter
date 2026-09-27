@@ -5,7 +5,6 @@ import { auth } from '../auth';
 import { getInfiniteTweets } from '../lib/actions/tweet';
 import { getUser } from '@/app/lib/actions/actionUser';
 import InfiniteTweetList from '../components/InfiniteTweetList';
-import Avatar from '../components/ui/Avatar';
 import { getGradientFromName } from '../lib/avatar';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -15,6 +14,7 @@ import Follow from '@/app/components/Follow';
 import CoverImage from '../components/ui/CoverImage';
 import FollowStats from '../components/FollowStats';
 import ProfileStatusCard from '../components/ProfileStatusCard';
+import ProfileAvatarWithTier from '../components/ProfileAvatarWithTier';
 import { getUserGamification } from '../lib/gamification';
 import { redirect } from 'next/navigation';
 
@@ -167,14 +167,11 @@ export default async function UserProfilePage({ params }: UserProfileProps) {
           {/* Avatar wrapper */}
           <div className="-bottom-10 sm:-bottom-12 left-4 sm:left-4 z-10 absolute">
             <div className="z-0 absolute -inset-2 sm:-inset-2.5 bg-black rounded-full" />
-            <div
-              className="z-10 relative rounded-full outline-[3.5px] sm:outline-4 outline-offset-[7px] sm:outline-offset-[8px] w-20 sm:w-24 h-20 sm:h-24 overflow-hidden transition-all duration-300"
-              style={{
-                outlineColor: userTier.color,
-              }}
-            >
-              <Avatar name={user?.name} image={user?.avatar} size={96} expandable className="" />
-            </div>
+            <ProfileAvatarWithTier
+              name={user?.name}
+              image={user?.avatar}
+              tierColor={userTier.color}
+            />
           </div>
         </div>
 

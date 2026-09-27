@@ -4,12 +4,14 @@ interface ProfileAvatarWithTierProps {
   name?: string | null;
   image?: string | null;
   tierColor?: string;
+  expandable?: boolean;
 }
 
 export default function ProfileAvatarWithTier({
   name,
   image,
   tierColor = '#94a3b8',
+  expandable = true,
 }: ProfileAvatarWithTierProps) {
   return (
     <div className="relative select-none">
@@ -19,7 +21,7 @@ export default function ProfileAvatarWithTier({
           outlineColor: tierColor,
         }}
       >
-        <Avatar name={name} image={image} size={96} expandable={false} />
+        <Avatar name={name} image={image} size={96} expandable={expandable} />
       </div>
     </div>
   );
