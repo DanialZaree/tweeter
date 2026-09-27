@@ -324,7 +324,7 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
                 title={`${authorTier.name} (Level ${authorTier.minLevel})`}
               >
                 <AuthorTierIcon
-                  className="w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform hover:scale-110"
+                  className="w-4 h-4 sm:w-4.5 sm:h-4.5 mb-1 transition-transform hover:scale-110"
                   style={{ color: authorTier.color }}
                 />
               </span>
@@ -445,7 +445,7 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
                         title={`${retweetAuthorTier.name} (Level ${retweetAuthorTier.minLevel})`}
                       >
                         <RetweetAuthorTierIcon
-                          className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform hover:scale-110"
+                          className="w-3.5 h-3.5 sm:w-4 sm:h-4 mb-0.5 transition-transform hover:scale-110"
                           style={{ color: retweetAuthorTier.color }}
                         />
                       </span>

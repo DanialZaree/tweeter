@@ -44,7 +44,7 @@ export default function ProfileStatusCard({
   const nextLevel = isMaxLevel ? 'MAX' : `Lvl ${stats.level + 1}`;
 
   return (
-    <div className="relative select-none overflow-hidden rounded-2xl p-3 sm:p-4 pl-4.5 sm:pl-5 rtl:pl-3 rtl:sm:pl-4 rtl:pr-4.5 rtl:sm:pr-5 transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.06)] bg-surface/30 border border-white/10">
+    <div className="relative select-none overflow-hidden rounded-xl p-3 sm:p-4 pl-4.5 sm:pl-5 rtl:pl-3 rtl:sm:pl-4 rtl:pr-4.5 rtl:sm:pr-5 transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.06)] bg-surface/30 border border-white/10">
       <div
         className="pointer-events-none absolute left-0 top-0 bottom-0 w-1 sm:w-1.5 rtl:left-auto rtl:right-0 rounded-l-2xl rtl:rounded-l-none rtl:rounded-r-2xl transition-colors duration-300"
         style={{
@@ -92,7 +92,7 @@ export default function ProfileStatusCard({
           <span className="text-white/50">{nextLevel}</span>
         </div>
 
-        <div className="w-full h-1.5 sm:h-2 rounded-full bg-[#f1f5f9] overflow-hidden relative mt-1.5">
+        <div className="w-full h-1.5 sm:h-2 rounded-full overflow-hidden relative mt-1.5">
           <div
             className="h-full rounded-full transition-all duration-500 ease-out"
             style={{

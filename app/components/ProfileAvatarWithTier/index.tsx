@@ -14,7 +14,7 @@ export default function ProfileAvatarWithTier({
   return (
     <div className="relative select-none">
       <div
-        className="z-10 relative rounded-full outline-[3.5px] sm:outline-4 outline-offset-[7px] sm:outline-offset-[8px] w-20 sm:w-24 h-20 sm:h-24 overflow-hidden transition-all duration-300"
+        className="z-10 relative rounded-full outline-[3px] sm:outline-3 outline-offset-[5px] sm:outline-offset-[6px] w-20 sm:w-24 h-20 sm:h-24 overflow-hidden transition-all duration-300"
         style={{
           outlineColor: tierColor,
         }}
