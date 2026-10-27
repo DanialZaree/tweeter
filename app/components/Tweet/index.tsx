@@ -22,6 +22,7 @@ import { TIER_ICON_COMPONENTS } from '@/app/components/TierIcons';
 import { domToBlob } from 'modern-screenshot';
 import { Repeat2, Heart, Share2, MessageCircle, Loader2 } from 'lucide-react';
 import { renderTweetContent } from '@/app/lib/renderTweetContent';
+import VerifiedBadge, { isDanial } from '../ui/VerifiedBadge';
 
 const schema = z.object({
   tweet: z.string().trim().min(1, 'Tweet is required').max(500, 'Max character is 500'),
@@ -319,6 +320,7 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
               <span className="font-semibold text-sm sm:text-base text-left truncate">
                 {author?.name || 'User'}
               </span>
+              {isDanial(author?.userName) && <VerifiedBadge className="size-[1.05em]" />}
               <span
                 className="inline-flex items-center justify-center shrink-0"
                 title={`${authorTier.name} (Level ${authorTier.minLevel})`}
@@ -440,6 +442,9 @@ export default function Tweet({ data, currentUserId, currentUserName }: TweetTyp
                       <span className="font-semibold text-sm sm:text-base text-left truncate">
                         {data.retweetOf.author?.name || 'User'}
                       </span>
+                      {isDanial(data.retweetOf.author?.userName) && (
+                        <VerifiedBadge className="size-[0.95em]" />
+                      )}
                       <span
                         className="inline-flex items-center justify-center shrink-0"
                         title={`${retweetAuthorTier.name} (Level ${retweetAuthorTier.minLevel})`}

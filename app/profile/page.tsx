@@ -16,6 +16,7 @@ import ProfileAvatarWithTier from '../components/ProfileAvatarWithTier';
 import ProfileStatusCard from '../components/ProfileStatusCard';
 import { getUserGamification } from '../lib/gamification';
 import prisma from '../lib/prisma';
+import VerifiedBadge, { isDanial } from '../components/ui/VerifiedBadge';
 
 export const metadata: Metadata = {
   title: 'Profile',
@@ -84,9 +85,12 @@ export default async function Profile() {
             </svg>
           </Link>
           <div>
-            <p className="font-bold sm:text-[17px] text-base truncate leading-tight">
-              {user?.name ?? 'Profile'}
-            </p>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <p className="font-bold sm:text-[17px] text-base truncate leading-tight">
+                {user?.name ?? 'Profile'}
+              </p>
+              {isDanial(user?.userName) && <VerifiedBadge className="size-[1.05em]" />}
+            </div>
             <p className="text-white/50 sm:text-[13px] text-xs">{user?._count?.tweets ?? 0} posts</p>
           </div>
         </div>
@@ -123,10 +127,11 @@ export default async function Profile() {
 
         {/* Profile info */}
         <div className="px-3 sm:px-4 pt-5 sm:pt-6 pb-4">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <span className="font-extrabold sm:text-[20px] text-lg leading-tight">
               {user?.name ?? 'Jane Doe'}
             </span>
+            {isDanial(user?.userName) && <VerifiedBadge className="size-[1.15em]" />}
           </div>
           <div className="flex flex-wrap items-center justify-between gap-2 mt-0.5">
             <div className="flex flex-wrap items-center gap-1.5 text-white/50 sm:text-[14px] text-xs">
